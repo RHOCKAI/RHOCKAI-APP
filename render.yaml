@@ -9,9 +9,7 @@ services:
     preDeployCommand: alembic -c backend/alembic/alembic.ini upgrade head
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: rhockai-db
-          property: connectionString
+        sync: false # User will provide Supabase URL manually
       - key: SECRET_KEY
         generateValue: true
       - key: ALGORITHM
@@ -28,9 +26,3 @@ services:
         value: "Rhockai Intelligence API"
       - key: LOG_LEVEL
         value: INFO
-
-databases:
-  - name: rhockai-db
-    plan: free
-    databaseName: rhockai_db
-    user: workout_user
