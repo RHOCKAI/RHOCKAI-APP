@@ -5,8 +5,8 @@ services:
     repo: https://github.com/RHOCKAI/RHOCKAI-APP
     region: ohio
     plan: free
-    dockerContext: .
-    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
+    dockerfilePath: Dockerfile
     preDeployCommand: alembic -c alembic/alembic.ini upgrade head
     envVars:
       - key: DATABASE_URL
