@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Install dependencies from the backend folder
 COPY backend/requirements/base.txt . 
-RUN pip install --no-cache-dir -r base.txt
+RUN pip install --no-cache-dir -r base.txt email-validator
 
 # Copy the entire backend source code to the container
 COPY backend/ .
