@@ -2,10 +2,11 @@ services:
   - type: web
     name: rhockai-backend
     env: docker
+    rootDirectory: backend
     repo: https://github.com/RHOCKAI/RHOCKAI-APP
     region: ohio
     plan: free
-    dockerContext: backend
+    dockerContext: .
     dockerfilePath: Dockerfile
     preDeployCommand: alembic -c alembic/alembic.ini upgrade head
     envVars:
