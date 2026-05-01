@@ -4,9 +4,9 @@ services:
     env: docker
     region: ohio
     plan: free
-    dockerContext: backend
+    dockerContext: .
     dockerfilePath: Dockerfile
-    preDeployCommand: alembic -c alembic/alembic.ini upgrade head
+    preDeployCommand: alembic -c backend/alembic/alembic.ini upgrade head
     envVars:
       - key: DATABASE_URL
         fromDatabase:
