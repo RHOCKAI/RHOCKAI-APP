@@ -2,11 +2,12 @@ services:
   - type: web
     name: rhockai-backend
     env: docker
-    dockerContext: backend
-    dockerfilePath: Dockerfile
+    repo: https://github.com/RHOCKAI/RHOCKAI-APP
+    region: ohio
+    plan: free
+    dockerContext: ./backend
+    dockerfilePath: ./Dockerfile
     preDeployCommand: alembic -c alembic/alembic.ini upgrade head
-    plan: free # or starter
-    region: oregon # or your preferred region
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -19,7 +20,7 @@ services:
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
         value: "10080"
       - key: ALLOWED_ORIGINS
-        value: '["*"]' # Allow all for production mobile apps initially, or specific frontend URL
+        value: '["*"]'
       - key: ENVIRONMENT
         value: production
       - key: DEBUG
@@ -31,6 +32,6 @@ services:
 
 databases:
   - name: rhockai-db
-    plan: free # Note: Render free tier DB expires after 90 days. For production, use Starter.
+    plan: free
     databaseName: rhockai_db
     user: workout_user
