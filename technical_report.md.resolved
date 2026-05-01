@@ -1,0 +1,342 @@
+# 🏋️ AI POSTURE — Full Technical Survey Report
+
+**Generated:** 2026-03-09 | **Project Root:** `c:\Users\beino\Desktop\AI POSTURE`
+
+---
+
+## 1. Project Overview
+
+**AI POSTURE** (internally: *AI Workout Tracker*) is an AI-powered mobile workout tracking application featuring real-time pose detection, form analysis, gamification, multi-language support, and a subscription-based monetisation model. The system is composed of two discrete services:
+
+| Layer | Technology | Version |
+|---|---|---|
+| Backend | FastAPI (Python) | v1.0.0 |
+| Frontend | Flutter (Dart) | v2.0.0+2 |
+| Database | PostgreSQL | 16-alpine (Docker) |
+| Containerisation | Docker Compose | v3.8 |
+
+---
+
+## 2. High-Level Architecture
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                    Flutter Mobile App                    │
+│  (Android / iOS / Web / Windows / Linux / macOS)        │
+│  Camera → Google ML Kit → Pose Detection                 │
+└────────────────┬─────────────────────────────────────────┘
+                 │ HTTPS (Dio / REST)
+                 ▼
+┌──────────────────────────────────────────────────────────┐
+│             FastAPI Backend (Python)                     │
+│  /api/v1/{auth, workouts, analytics, track, admin}      │
+│  JWT Auth · Pydantic v2 · SQLAlchemy ORM               │
+└────────────────┬─────────────────────────────────────────┘
+                 │ SQLAlchemy + psycopg2
+                 ▼
+┌──────────────────────────────────────────────────────────┐
+│  PostgreSQL 16 (Docker Container: ai_posture_db)        │
+│  Managed via: Alembic migrations + pgAdmin (optional)   │
+└──────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 3. Backend — FastAPI Service
+
+### 3.1 Entry Point & Middleware
+
+**File:** `backend/app/main.py`
+
+- **CORS** middleware: configurable via `ALLOWED_ORIGINS` env var (defaults: `localhost:3000`, `localhost:8080`, `10.0.2.2:8000`)
+- **Request timing** middleware: injects `X-Process-Time` header on every response
+- **Startup hook**: auto-creates all SQLAlchemy tables via `Base.metadata.create_all()`
+- **Exception handlers**: covers `RequestValidationError`, `SQLAlchemyError`, and generic `Exception`
+- **Swagger UI**: `/docs` | **ReDoc**: `/redoc` | **Health**: `/health`
+
+### 3.2 Configuration
+
+**File:** `backend/app/config.py` — uses `pydantic-settings` with `extra="forbid"` (strict config validation)
+
+| Key | Default | Notes |
+|---|---|---|
+| `API_V1_PREFIX` | `/api/v1` | All routes prefixed here |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | `10080` | 7 days |
+| `ALGORITHM` | `HS256` | JWT signing |
+| `MIN_POSE_CONFIDENCE` | `0.5` | AI inference threshold |
+| `DEFAULT_PAGE_SIZE` | `20` | Max: 100 |
+| `CALORIES_PER_REP` | pushup:0.5, squat:0.32, plank:0.25 | Hardcoded caloric constants |
+
+### 3.3 API Layer — Routers & Endpoints
+
+Prefix: `/api/v1`
+
+| Router File | Prefix | Tag | Description |
+|---|---|---|---|
+| `auth.py` | `/auth` | Authentication | Register, login, token refresh, profile |
+| `sessions.py` | `/workouts` | Workout Sessions | CRUD for workout sessions |
+| `analytics.py` | `/analytics` | Analytics & Stats | User-level stats and progress |
+| `tracking.py` | `/track` | Event Tracking | App sessions, screen views, feature usage |
+| `admin_analytics.py` | `/admin/analytics` | Admin Analytics | Business metrics, revenue, retention |
+| `payments.py` | `/payments` | Payments | Stripe & Flutterwave integration |
+| `ai.py` | *(unregistered)* | — | AI endpoint stub (empty file) |
+| `workouts.py` | *(unregistered)* | — | Workouts endpoint stub (empty file) |
+
+> [!WARNING]
+> `ai.py` and `workouts.py` are **empty stubs** not registered in the main router. These represent unfinished or planned features.
+
+### 3.4 Services Layer
+
+| Service | File | Responsibility |
+|---|---|---|
+| Auth | `auth_service.py` | Password hashing, JWT creation/validation |
+| Session | `session_service.py` | Workout session business logic |
+| Workout | `workout_service.py` | Exercise utility logic |
+| Email | `email_service.py` | SendGrid email dispatch |
+| Pose Analyzer | `ai/pose_analyzer.py` | Pose confidence scoring |
+| Calorie Calc | `ai/calorie_calc.py` | Per-rep calorie estimation |
+| Stripe | `payments/stripe_service.py` | Stripe subscription management |
+| Flutterwave | `payments/flutterwave_service.py` | Flutterwave integration (empty) |
+| Payment Endpoints | `payments/payment_endpoints.py` | Webhook handling, checkout sessions |
+
+> [!WARNING]
+> `flutterwave_service.py` is an **empty file**. Flutterwave payments are not yet implemented in the backend service layer.
+
+### 3.5 Data Models (SQLAlchemy ORM)
+
+#### `users` table
+| Column | Type | Notes |
+|---|---|---|
+| `id` | Integer PK | Auto-increment |
+| `email` | String (unique) | Auth identity |
+| `hashed_password` | String | bcrypt |
+| `gender` | Enum | male/female/other |
+| `fitness_level` | Enum | beginner/intermediate/advanced |
+| `is_premium` | Boolean | Subscription flag |
+| `stripe_customer_id` | String | Stripe customer ref |
+| `is_admin` / `is_verified` | Boolean | Role & verification |
+
+#### `workout_sessions` table
+| Column | Type | Notes |
+|---|---|---|
+| `exercise_type` | String | pushup/squat/plank etc. |
+| `total_reps` / `correct_reps` | Integer | Raw + validated reps |
+| `average_accuracy` | Float | 0.0–100.0 |
+| `reps_data` | JSON | Per-rep breakdown array |
+| `device_type` | String | ios/android |
+
+#### Analytics Tables (11 total)
+- `app_sessions` — App open/close tracking with device, OS, location, network
+- `screen_views` — Per-screen navigation events
+- `feature_usage` — Named feature interaction events
+- `user_demographics` — One-to-one user profile enrichment
+- `subscription_events` — Full audit trail of plan changes
+- `retention_cohorts` — Week-0 through week-12 retention grid
+- `revenue_records` — Daily revenue with MRR contribution
+- `error_logs` — Client-side error capture with stack trace
+
+### 3.6 Database Migrations (Alembic)
+
+- Root-level `alembic.ini` + `alembic/` directory for migration management
+- Backend-level `backend/alembic/` directory (dual Alembic setup — potential conflict)
+
+> [!CAUTION]
+> There are **two Alembic directories**: one at the project root and one inside `backend/`. Ensure migrations are always run from the correct location to avoid schema drift.
+
+### 3.7 Python Dependencies
+
+| Package | Version | Purpose |
+|---|---|---|
+| `fastapi` | 0.104.1 | Web framework |
+| `uvicorn[standard]` | 0.24.0 | ASGI server |
+| `sqlalchemy` | 2.0.23 | ORM |
+| `alembic` | 1.12.1 | Migrations |
+| `psycopg2-binary` | 2.9.9 | PostgreSQL driver |
+| `pydantic` | 2.5.0 | Data validation |
+| `pydantic-settings` | 2.1.0 | Config management |
+| `python-jose[cryptography]` | 3.3.0 | JWT |
+| `passlib[bcrypt]` | 1.7.4 | Password hashing |
+| `python-multipart` | 0.0.6 | Form data |
+| `stripe` | 7.4.0 | Stripe SDK |
+
+> [!NOTE]
+> No `sendgrid` or `httpx` package is listed in `base.txt` despite the `email_service.py` using SendGrid. This may cause import errors at runtime.
+
+---
+
+## 4. Frontend — Flutter Application
+
+### 4.1 App Identity
+
+| Property | Value |
+|---|---|
+| Package name | `ai_workout_app` |
+| Version | `2.0.0+2` |
+| Dart SDK | `>=3.0.0 <4.0.0` |
+| Targets | Android, iOS, Web, Windows, Linux, macOS |
+| Entry point | `lib/main.dart` |
+
+### 4.2 Feature Modules (`lib/features/`)
+
+| Feature | Sub-files | Description |
+|---|---|---|
+| `auth/` | 4 | Login, registration, profile screens |
+| `camera_ai/` | 46 | Core AI workout experience — camera feed, pose overlay, rep counting |
+| `dashboard/` | 5 | Home dashboard and overview |
+| `analytics/` | 4 | User progress charts and statistics |
+| `exercises/` | 1 | Exercise library browser |
+| `gamification/` | 8 | Streaks, levels, achievements system |
+| `progress/` | 5 | Historical progress tracking |
+| `settings/` | 1 | App preferences |
+| `workout/` | 4 | Workout session management |
+
+> [!NOTE]
+> `camera_ai/` with 46 files is the most complex feature module — containing the real-time pose detection pipeline, form feedback engine, rep counting logic, and live camera overlay rendering.
+
+### 4.3 Core Layer (`lib/core/`)
+
+| Sub-package | Contents |
+|---|---|
+| `config/` | App constants, API base URL config |
+| `constants/` | Shared constant values |
+| `network/` | Dio HTTP client configuration |
+| `providers/` | Shared Riverpod providers (settings etc.) |
+| `utils/` | Utility helpers |
+
+### 4.4 State Management
+- **Riverpod** (`flutter_riverpod: ^3.2.1`) — Provider-based reactive state management throughout the app
+
+### 4.5 Key Flutter Dependencies
+
+| Package | Version | Purpose |
+|---|---|---|
+| `flutter_riverpod` | ^3.2.1 | State management |
+| `camera` | ^0.12.0 | Camera hardware access |
+| `google_mlkit_pose_detection` | ^0.14.1 | MediaPipe pose estimation |
+| `dio` | ^5.4.0 | HTTP client |
+| `sqflite` | ^2.3.2 | Local SQLite DB |
+| `flutter_secure_storage` | ^10.0.0 | Encrypted token storage |
+| `shared_preferences` | ^2.2.2 | User preferences |
+| `fl_chart` | ^1.1.1 | Progress charts |
+| `table_calendar` | ^3.0.9 | Workout calendar |
+| `flutter_tts` | ^4.2.5 | Voice feedback (TTS) |
+| `google_fonts` | ^8.0.2 | Typography |
+| `video_player` | ^2.8.2 | Exercise demo videos |
+| `ffmpeg_kit_flutter_new` | ^4.1.0 | Video processing |
+| `file_picker` | ^10.3.10 | File import |
+| `flutter_dotenv` | ^6.0.0 | `.env` config loading |
+| `intl` | ^0.20.0 | i18n formatting |
+
+### 4.6 Localisation (i18n)
+
+- `l10n.yaml` configured, `lib/l10n/` with 11 ARB translation files
+- Languages: English, French, Spanish, Portuguese, Arabic (per README)
+
+### 4.7 Assets
+
+```
+assets/
+├── images/
+│   └── exercises/    # Exercise reference images
+├── icons/
+└── sounds/           # Audio feedback
+```
+
+> [!NOTE]
+> Custom fonts (Rajdhani, Outfit) are listed in `pubspec.yaml` but commented out. Font files need to be placed in `assets/fonts/` and the pubspec section uncommented to activate them.
+
+### 4.8 Build Analysis Files
+
+The frontend directory contains numerous large log files (`build_log_fixed_braces.txt` at 853 KB, etc.) that are **development artifacts** and should not be committed to version control. These suggest significant build troubleshooting history.
+
+---
+
+## 5. Infrastructure & DevOps
+
+### 5.1 Docker Compose Services
+
+| Service | Image | Port | Notes |
+|---|---|---|---|
+| `postgres` | postgres:16-alpine | 5432 | Named volume `postgres_data` |
+| `backend` | Custom Dockerfile | 8000 | Hot-reload via `--reload` |
+| `pgadmin` | dpage/pgadmin4:latest | 5050 | Optional `--profile tools` |
+
+### 5.2 Networking
+
+- All containers on `ai_posture_network` (bridge driver)
+- Backend depends on `postgres` health check before starting
+
+### 5.3 Backend Dockerfile
+
+- Located at `backend/Dockerfile`
+- Volume mounts `./backend:/app` for live reload during development
+
+### 5.4 Environment Variables (`.env`)
+
+| Category | Variables |
+|---|---|
+| Database | `DATABASE_URL`, `DB_PASSWORD` |
+| Security | `SECRET_KEY`, `ALGORITHM`, `ACCESS_TOKEN_EXPIRE_MINUTES` |
+| CORS | `ALLOWED_ORIGINS` |
+| Stripe | `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_ID_MONTHLY/YEARLY` |
+| Flutterwave | `FLUTTERWAVE_SECRET_KEY`, `FLUTTERWAVE_PUBLIC_KEY` |
+| Email | `SENDGRID_API_KEY`, `FROM_EMAIL` |
+| Admin UI | `PGADMIN_EMAIL`, `PGADMIN_PASSWORD` |
+
+> [!CAUTION]
+> A `.env` file exists in both the project root (`AI POSTURE/.env`) and inside `backend/.env`. Ensure these are kept in sync to avoid configuration drift between Docker and local development.
+
+---
+
+## 6. Schemas (Pydantic v2)
+
+| File | Contents |
+|---|---|
+| `user.py` | User registration, profile update, token response |
+| `session.py` | Workout session create/response, rep data |
+| `workout.py` | Exercise type definitions |
+| `analytics.py` | Analytics aggregation response schemas |
+| `response.py` | Generic API response wrapper |
+
+---
+
+## 7. Testing
+
+| Location | Contents |
+|---|---|
+| `backend/tests/` | 5 test files (structure not fully surveyed) |
+| `frontend/test/` | 1 widget test file (minimal coverage) |
+
+> [!WARNING]
+> Test coverage appears minimal, particularly on the frontend side. Only 1 test file exists for the entire Flutter application.
+
+---
+
+## 8. Known Technical Issues & Observations
+
+| # | Severity | Issue | Location |
+|---|---|---|---|
+| 1 | 🔴 High | `ai.py` and `workouts.py` API endpoints are empty stubs — not registered in router | `backend/app/api/v1/endpoints/` |
+| 2 | 🔴 High | `flutterwave_service.py` is empty — Flutterwave backend service not implemented | `backend/app/services/payments/` |
+| 3 | 🟡 Medium | `sendgrid` package not in `requirements/base.txt` despite `email_service.py` using it | `backend/requirements/base.txt` |
+| 4 | 🟡 Medium | Dual Alembic setup (root + backend) risks migration confusion | Root & `backend/alembic/` |
+| 5 | 🟡 Medium | Custom fonts (Rajdhani, Outfit) commented out in `pubspec.yaml` | `frontend/pubspec.yaml` |
+| 6 | 🟡 Medium | Many large build log files in `frontend/` root — should be in `.gitignore` | `frontend/*.txt` |
+| 7 | 🟢 Low | `permission_handler: any` and `path: any` use unconstrained version specs | `frontend/pubspec.yaml` |
+| 8 | 🟢 Low | `CALORIES_PER_REP` constants are hardcoded in config rather than database-driven | `backend/app/config.py` |
+| 9 | 🟢 Low | `ACCESS_TOKEN_EXPIRE_MINUTES` is 10080 (7 days) in config but Docker Compose sets it to 30 | Config vs. Docker mismatch |
+
+---
+
+## 9. Summary Statistics
+
+| Metric | Count |
+|---|---|
+| Total project files (approx.) | ~300+ |
+| Backend Python source files | ~54 |
+| Frontend Dart source files | ~110+ |
+| Database tables (ORM models) | ~11 |
+| API endpoint files | 9 (7 active, 2 empty) |
+| Supported languages (i18n) | 5 |
+| Target platforms (Flutter) | 6 (Android, iOS, Web, Windows, Linux, macOS) |
+| Docker services | 3 (2 core + 1 optional) |

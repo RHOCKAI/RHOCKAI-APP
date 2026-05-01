@@ -1,0 +1,67 @@
+﻿Analyzing frontend...                                           
+
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\config\app_theme.dart:79:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\core\config\app_theme.dart:83:52 - deprecated_member_use
+   info - Statement should be on a separate line - lib\features\analytics\services\analytics_service.dart:53:61 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\analytics\services\analytics_service.dart:76:36 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\analytics\services\analytics_service.dart:225:17 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\analytics\services\analytics_service.dart:230:17 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\analytics\services\analytics_service.dart:231:25 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\analytics\services\analytics_service.dart:232:29 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\auth\data\repositories\auth_repository.dart:156:24 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\auth\data\repositories\auth_repository.dart:161:30 - always_put_control_body_on_new_line
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\features\auth\presentation\screens\login_screen.dart:44:9 - unawaited_futures
+   info - Statement should be on a separate line - lib\features\auth\presentation\screens\login_screen.dart:71:20 - always_put_control_body_on_new_line
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\features\auth\presentation\screens\login_screen.dart:102:19 - unawaited_futures
+   info - Statement should be on a separate line - lib\features\auth\presentation\screens\register_screen.dart:37:45 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\auth\presentation\screens\register_screen.dart:57:21 - always_put_control_body_on_new_line
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\features\auth\presentation\screens\register_screen.dart:58:17 - unawaited_futures
+   info - Statement should be on a separate line - lib\features\auth\presentation\screens\register_screen.dart:60:21 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\analysis\environment_validator.dart:33:23 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\analysis\environment_validator.dart:54:21 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\analysis\environment_validator.dart:55:21 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\analysis\exercise_classifier.dart:13:32 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\analysis\exercise_classifier.dart:16:33 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\analysis\exercise_classifier.dart:19:32 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\analysis\rep_state_machine.dart:133:30 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\analysis\tempo_analyzer.dart:28:34 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\analysis\tempo_analyzer.dart:47:40 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\analysis\tempo_analyzer.dart:63:21 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\camera_ai_screen.dart:134:19 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\camera_ai_screen.dart:264:19 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\camera_ai_screen.dart:287:46 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\camera_ai_screen.dart:302:55 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\camera_ai_screen.dart:305:29 - always_put_control_body_on_new_line
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\features\camera_ai\camera_ai_screen.dart:340:26 - unawaited_futures
+   info - Statement should be on a separate line - lib\features\camera_ai\camera_ai_screen.dart:356:24 - always_put_control_body_on_new_line
+   info - Don't use 'BuildContext's across async gaps - lib\features\camera_ai\camera_ai_screen.dart:361:48 - use_build_context_synchronously
+   info - Statement should be on a separate line - lib\features\camera_ai\camera_ai_screen.dart:503:20 - always_put_control_body_on_new_line
+   info - Missing an 'await' for the 'Future' computed by this expression - lib\features\camera_ai\camera_ai_screen.dart:910:15 - unawaited_futures
+   info - Statement should be on a separate line - lib\features\camera_ai\camera_ai_screen.dart:921:19 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\camera_ai_screen.dart:940:23 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\exercises\biomechanics_engine.dart:95:28 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\exercises\biomechanics_engine.dart:115:27 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\exercises\biomechanics_engine.dart:217:29 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\exercises\example_exercises.dart:69:31 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\exercises\form_scorer.dart:147:28 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\exercises\form_scorer.dart:159:29 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\exercises\form_scorer.dart:201:27 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\exercises\form_scorer.dart:223:50 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\exercises\form_scorer.dart:240:24 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\exercises\rep_detector.dart:81:24 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\exercises\rep_detector.dart:217:32 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\exercises\rep_detector.dart:223:36 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\exercises\rep_detector.dart:229:32 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\exercises\rep_detector.dart:234:23 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\exercises\rep_detector.dart:241:36 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\services\flutter_tts_provider.dart:46:27 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\services\flutter_tts_provider.dart:47:24 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\services\flutter_tts_provider.dart:48:23 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\services\flutter_tts_provider.dart:49:25 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\session\session_provider.dart:31:24 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\session\session_provider.dart:54:24 - always_put_control_body_on_new_line
+   info - Statement should be on a separate line - lib\features\camera_ai\session\session_provider.dart:184:33 - always_put_control_body_on_new_line
+   info - Missing type annotation - lib\features\dashboard\workout_history.dart:87:25 - strict_top_level_inference
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - lib\features\settings\settings_screen.dart:41:25 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - lib\features\settings\settings_screen.dart:42:25 - deprecated_member_use
+

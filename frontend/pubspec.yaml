@@ -1,0 +1,101 @@
+name: rhockai
+description: Rhockai - Next-gen AI Pose Analysis & Workout Intelligence
+publish_to: 'none'
+version: 2.0.0+2
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  flutter_riverpod: ^2.5.1
+
+  # Camera & AI
+  camera: ^0.12.0
+  google_mlkit_pose_detection: ^0.14.1  # MediaPipe pose detection
+
+  dio: ^5.4.0
+
+  # Local Storage
+  sqflite: ^2.3.2
+  flutter_secure_storage: ^10.0.0
+  shared_preferences: ^2.2.2
+  path_provider: ^2.1.5
+
+  uuid: ^4.3.3
+  intl: ^0.20.0
+
+  fl_chart: ^1.1.1  # Charts for progress visualization
+  table_calendar: ^3.0.9     # Calendar widget
+  
+  cupertino_icons: ^1.0.2
+
+  flutter_tts: ^4.2.5  # Text-to-speech for voice feedback
+  google_fonts: ^8.0.2
+
+  video_player: ^2.8.2
+  file_picker: ^10.3.10
+
+  permission_handler: ^11.3.1
+  path: ^1.9.0
+  flutter_dotenv: ^6.0.0
+  ffmpeg_kit_flutter_new: ^4.1.0
+  share_plus: ^12.0.1
+  web_socket_channel: ^3.0.3
+  url_launcher: ^6.3.2
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+  # Assets
+  assets:
+    - assets/images/
+    - assets/images/exercises/
+    - assets/icons/
+    - assets/sounds/  # Enabled sound effects directory
+    - .env
+
+  # IMPORTANT: Add these fonts
+  # fonts:
+  #   - family: Rajdhani
+  #     fonts:
+  #       - asset: assets/fonts/Rajdhani-Bold.ttf
+  #         weight: 700
+  #       - asset: assets/fonts/Rajdhani-SemiBold.ttf
+  #         weight: 600
+  #       - asset: assets/fonts/Rajdhani-Medium.ttf
+  #         weight: 500
+  #   
+  #   - family: Outfit
+  #     fonts:
+  #       - asset: assets/fonts/Outfit-Regular.ttf
+  #         weight: 400
+  #       - asset: assets/fonts/Outfit-Medium.ttf
+  #         weight: 500
+  #       - asset: assets/fonts/Outfit-SemiBold.ttf
+  #         weight: 600
+  #       - asset: assets/fonts/Outfit-Bold.ttf
+  #         weight: 700
+
+# NOTES:
+# 1. Download fonts from Google Fonts:
+#    - Rajdhani: https://fonts.google.com/specimen/Rajdhani
+#    - Outfit: https://fonts.google.com/specimen/Outfit
+# 
+# 2. Place font files in: assets/fonts/
+#
+# 3. Run: flutter pub get
+#
+# 4. If fonts don't load, run:
+#    flutter clean
+#    flutter pub get
+#    flutter run

@@ -1,0 +1,57 @@
+{
+  "ar": [
+    "upgradeToPremium",
+    "unlockFullPotential",
+    "premiumDescription",
+    "monthlyPlanPrice",
+    "yearlyPlanPrice",
+    "lifetimePlanPrice"
+  ],
+
+  "es": [
+    "passwordsDoNotMatch",
+    "confirmPassword",
+    "aboutThisWorkout",
+    "aiCoachInsight",
+    "target",
+    "focus",
+    "repsLabel",
+    "pushUps",
+    "squats",
+    "planks",
+    "upgradeToPremium",
+    "unlockFullPotential",
+    "premiumDescription",
+    "monthlyPlanPrice",
+    "yearlyPlanPrice",
+    "lifetimePlanPrice"
+  ],
+
+  "fr": [
+    "passwordsDoNotMatch",
+    "confirmPassword",
+    "aboutThisWorkout",
+    "aiCoachInsight",
+    "target",
+    "focus",
+    "repsLabel",
+    "pushUps",
+    "squats",
+    "planks",
+    "upgradeToPremium",
+    "unlockFullPotential",
+    "premiumDescription",
+    "monthlyPlanPrice",
+    "yearlyPlanPrice",
+    "lifetimePlanPrice"
+  ],
+
+  "pt": [
+    "upgradeToPremium",
+    "unlockFullPotential",
+    "premiumDescription",
+    "monthlyPlanPrice",
+    "yearlyPlanPrice",
+    "lifetimePlanPrice"
+  ]
+}
