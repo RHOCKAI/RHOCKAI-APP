@@ -135,9 +135,10 @@ class _AIWorkoutTrackerAppState extends ConsumerState<AIWorkoutTrackerApp> {
         Locale('pt'), // Portuguese
         Locale('ar'), // Arabic
       ],
-      initialRoute: _isLoggedIn ? '/home' : '/',
+      initialRoute: _isLoggedIn ? '/home' : '/demo',
       routes: {
         '/': (context) => const LoginScreen(),
+        '/demo': (context) => const CameraAIScreen(exerciseType: 'pushup', isDemo: true),
         '/home': (context) => const AdaptiveDashboard(),
         '/history': (context) => const WorkoutHistoryScreen(),
         '/progress': (context) => const ProgressScreen(),

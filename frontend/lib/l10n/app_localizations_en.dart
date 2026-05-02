@@ -306,4 +306,76 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get premiumMemberDescription =>
       'Thank you for supporting Rhockai. You have full access to all AI features.';
+
+  @override
+  String get goPremiumTitle => 'Go Premium';
+
+  @override
+  String get goPremiumSubtitle => 'Train smarter. See results faster.';
+
+  @override
+  String get featureHistory => 'Full workout history & trends';
+
+  @override
+  String get featureAccuracy => 'Rep-by-rep accuracy breakdown';
+
+  @override
+  String get featureHeatmap => 'Calendar heatmap & streak tracking';
+
+  @override
+  String get featureAchievements => 'Complete achievement system';
+
+  @override
+  String get featureVoice => 'Voice coaching in 7 languages';
+
+  @override
+  String get featureSupport => 'Priority support';
+
+  @override
+  String get weeklyPlanTitle => 'Weekly';
+
+  @override
+  String get weeklyPlanPriceText => '\$2.99/week';
+
+  @override
+  String get weeklyPlanLabel => 'Most flexible';
+
+  @override
+  String get monthlyPlanTitle => 'Monthly';
+
+  @override
+  String get monthlyPlanPriceText => '\$4.99/month';
+
+  @override
+  String get yearlyPlanTitle => 'Yearly';
+
+  @override
+  String get yearlyPlanPriceText => '\$29.99/year';
+
+  @override
+  String get yearlyPlanBadge => 'Best Value · Save 50%';
+
+  @override
+  String get lifetimePlanTitle => 'Lifetime';
+
+  @override
+  String get lifetimePlanPriceText => '\$79.99 once';
+
+  @override
+  String get lifetimePlanLabel => '🔒 Founding member price — limited';
+
+  @override
+  String get startFreeTrial => 'Start Free Trial';
+
+  @override
+  String get freeTrialBadge => '3 DAYS FREE';
+
+  @override
+  String get cancelAnytime => 'Cancel anytime · No commitment';
+
+  @override
+  String get restorePurchases => 'Restore purchases';
+
+  @override
+  String get maybeLater => 'Maybe later';
 }

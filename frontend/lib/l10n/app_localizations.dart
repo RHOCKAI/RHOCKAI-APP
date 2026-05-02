@@ -695,6 +695,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Thank you for supporting Rhockai. You have full access to all AI features.'**
   String get premiumMemberDescription;
+
+  /// No description provided for @goPremiumTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Premium'**
+  String get goPremiumTitle;
+
+  /// No description provided for @goPremiumSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Train smarter. See results faster.'**
+  String get goPremiumSubtitle;
+
+  /// No description provided for @featureHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Full workout history & trends'**
+  String get featureHistory;
+
+  /// No description provided for @featureAccuracy.
+  ///
+  /// In en, this message translates to:
+  /// **'Rep-by-rep accuracy breakdown'**
+  String get featureAccuracy;
+
+  /// No description provided for @featureHeatmap.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar heatmap & streak tracking'**
+  String get featureHeatmap;
+
+  /// No description provided for @featureAchievements.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete achievement system'**
+  String get featureAchievements;
+
+  /// No description provided for @featureVoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice coaching in 7 languages'**
+  String get featureVoice;
+
+  /// No description provided for @featureSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority support'**
+  String get featureSupport;
+
+  /// No description provided for @weeklyPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get weeklyPlanTitle;
+
+  /// No description provided for @weeklyPlanPriceText.
+  ///
+  /// In en, this message translates to:
+  /// **'\$2.99/week'**
+  String get weeklyPlanPriceText;
+
+  /// No description provided for @weeklyPlanLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Most flexible'**
+  String get weeklyPlanLabel;
+
+  /// No description provided for @monthlyPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get monthlyPlanTitle;
+
+  /// No description provided for @monthlyPlanPriceText.
+  ///
+  /// In en, this message translates to:
+  /// **'\$4.99/month'**
+  String get monthlyPlanPriceText;
+
+  /// No description provided for @yearlyPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get yearlyPlanTitle;
+
+  /// No description provided for @yearlyPlanPriceText.
+  ///
+  /// In en, this message translates to:
+  /// **'\$29.99/year'**
+  String get yearlyPlanPriceText;
+
+  /// No description provided for @yearlyPlanBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Best Value · Save 50%'**
+  String get yearlyPlanBadge;
+
+  /// No description provided for @lifetimePlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifetime'**
+  String get lifetimePlanTitle;
+
+  /// No description provided for @lifetimePlanPriceText.
+  ///
+  /// In en, this message translates to:
+  /// **'\$79.99 once'**
+  String get lifetimePlanPriceText;
+
+  /// No description provided for @lifetimePlanLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'🔒 Founding member price — limited'**
+  String get lifetimePlanLabel;
+
+  /// No description provided for @startFreeTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Free Trial'**
+  String get startFreeTrial;
+
+  /// No description provided for @freeTrialBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'3 DAYS FREE'**
+  String get freeTrialBadge;
+
+  /// No description provided for @cancelAnytime.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel anytime · No commitment'**
+  String get cancelAnytime;
+
+  /// No description provided for @restorePurchases.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore purchases'**
+  String get restorePurchases;
+
+  /// No description provided for @maybeLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Maybe later'**
+  String get maybeLater;
 }
 
 class _AppLocalizationsDelegate

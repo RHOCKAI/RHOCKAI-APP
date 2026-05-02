@@ -6,13 +6,16 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../camera_ai/session/session_model.dart';
+import '../gamification/data/repositories/gamification_repository.dart';
 
 class WorkoutSummaryScreen extends StatefulWidget {
   final WorkoutSession session;
+  final bool isDemo;
 
   const WorkoutSummaryScreen({
     super.key,
     required this.session,
+    this.isDemo = false,
   });
 
   @override
@@ -22,6 +25,23 @@ class WorkoutSummaryScreen extends StatefulWidget {
 class _WorkoutSummaryScreenState extends State<WorkoutSummaryScreen> {
   final GlobalKey _scorecardKey = GlobalKey();
   bool _isCapturing = false;
+  int _currentStreak = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStreak();
+  }
+
+  Future<void> _loadStreak() async {
+    final repo = GamificationRepository();
+    final stats = await repo.getUserStats();
+    if (mounted) {
+      setState(() {
+        _currentStreak = stats.currentStreak;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -154,6 +174,7 @@ class _WorkoutSummaryScreenState extends State<WorkoutSummaryScreen> {
                         children: [
                           _buildScorecardStat('TEMPO', widget.session.averageTempoScore.toStringAsFixed(0)),
                           _buildScorecardStat('KCALS', '${widget.session.caloriesBurned}'),
+                          _buildScorecardStat('STREAK', '$_currentStreak 🔥'),
                         ],
                       ),
                       
@@ -212,10 +233,16 @@ class _WorkoutSummaryScreenState extends State<WorkoutSummaryScreen> {
               const SizedBox(height: 40),
               
               TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text(
-                  'BACK TO DASHBOARD',
-                  style: TextStyle(
+                onPressed: () {
+                  if (widget.isDemo) {
+                    Navigator.pushReplacementNamed(context, '/');
+                  } else {
+                    Navigator.pop(context);
+                  }
+                },
+                child: Text(
+                  widget.isDemo ? 'SIGN UP TO SAVE PROGRESS' : 'BACK TO DASHBOARD',
+                  style: const TextStyle(
                     color: Colors.white54,
                     letterSpacing: 1,
                     fontWeight: FontWeight.bold,
@@ -305,7 +332,7 @@ class _WorkoutSummaryScreenState extends State<WorkoutSummaryScreen> {
       final file = await File('${tempDir.path}/rhockai_scorecard.png').create();
       await file.writeAsBytes(pngBytes);
 
-      final text = 'My Rhockai Power Score is ${(widget.session.totalReps * widget.session.averageAccuracy / 100).toStringAsFixed(0)}! Accuracy: ${widget.session.averageAccuracy.toStringAsFixed(0)}% | Reps: ${widget.session.totalReps}. 🦾 #Rhockai #AIPosture #QualityAndQuantity';
+      final text = 'My Rhockai Power Score is ${(widget.session.totalReps * widget.session.averageAccuracy / 100).toStringAsFixed(0)}! Accuracy: ${widget.session.averageAccuracy.toStringAsFixed(0)}% | Reps: ${widget.session.totalReps} | Streak: $_currentStreak 🔥. 🦾 #Rhockai #AIPosture #QualityAndQuantity';
       
       await Share.shareXFiles([XFile(file.path)], text: text);
     } catch (e) {

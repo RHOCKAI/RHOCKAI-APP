@@ -1,7 +1,7 @@
 // API Configuration Constants
 
 class ApiConstants {
-  static const String baseUrl = "https://rhockai-app.onrender.com/api/v1";
+  static const String baseUrl = 'https://rhockai-app.onrender.com/api/v1';
   
   // Auth Endpoints
   static const String login = '/auth/login';

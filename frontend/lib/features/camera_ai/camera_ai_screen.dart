@@ -20,9 +20,11 @@ import '../workout/workout_summary_screen.dart';
 /// 📸 Enhanced Camera AI Screen - Futuristic Workout Overlay
 class CameraAIScreen extends ConsumerStatefulWidget {
   final String exerciseType;
+  final bool isDemo;
 
   const CameraAIScreen({
     required this.exerciseType,
+    this.isDemo = false,
     super.key,
   });
 
@@ -570,20 +572,35 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
         padding: const EdgeInsets.all(20),
         child: Row(
           children: [
-            // Back button
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+            // Back or Skip button
+            if (widget.isDemo)
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  onPressed: () => Navigator.pushReplacementNamed(context, '/'),
+                ),
+              )
+            else
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () => Navigator.pop(context),
+                ),
               ),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
             const SizedBox(width: 16),
             // Exercise name
             Container(
@@ -979,7 +996,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       await Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => WorkoutSummaryScreen(session: session),
+          builder: (context) => WorkoutSummaryScreen(session: session, isDemo: widget.isDemo),
         ),
       );
     } else {

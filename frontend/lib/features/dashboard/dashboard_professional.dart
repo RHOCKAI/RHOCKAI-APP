@@ -420,7 +420,13 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
           _buildSidebarItem(Icons.fitness_center_rounded, 'Exercises', false, onTap: () {
             Navigator.push(context, MaterialPageRoute(builder: (context) => const ExercisesListScreen()));
           }),
-          _buildSidebarItem(Icons.analytics_outlined, 'Progress', false),
+          _buildSidebarItem(Icons.analytics_outlined, 'Progress', false, onTap: () {
+            if (user != null && user['is_premium'] == true) {
+              Navigator.pushNamed(context, '/progress');
+            } else {
+              Navigator.pushNamed(context, '/premium');
+            }
+          }),
           _buildSidebarItem(Icons.settings_outlined, 'Settings', false),
           const Spacer(),
           _buildSidebarItem(Icons.logout_rounded, 'Logout', false, onTap: _logout),
