@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io' show Platform;
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:rhockai/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:camera/camera.dart';
@@ -379,6 +381,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
         FormChecker.checkForm(widget.exerciseType, poseLandmarks);
 
     if (newRepCompleted) {
+      HapticFeedback.heavyImpact(); // Add haptic feedback for each rep
       await _counterController.forward(from: 0); // Trigger animation
       _repsInSet++;
 
@@ -787,24 +790,36 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
         child: AnimatedOpacity(
           opacity: _isWorkoutActive ? 1.0 : 0.0, // Hide when paused
           duration: const Duration(milliseconds: 300),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            decoration: BoxDecoration(
-              color: _feedbackColor.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                  color: _feedbackColor.withValues(alpha: 0.5), width: 2),
-            ),
-            child: Text(
-              _feedbackMessage,
-              style: TextStyle(
-                fontFamily: 'Outfit',
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: _feedbackColor,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: BackdropFilter(
+            filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              decoration: BoxDecoration(
+                color: _feedbackColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                    color: _feedbackColor.withValues(alpha: 0.4), width: 1.5),
+              ),
+              child: Text(
+                _feedbackMessage,
+                style: TextStyle(
+                  fontFamily: 'Outfit',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: _feedbackColor,
+                  shadows: [
+                    Shadow(
+                      color: _feedbackColor.withValues(alpha: 0.5),
+                      blurRadius: 10,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
+        ),
         ),
       ),
     );
@@ -839,38 +854,47 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
   }
 
   Widget _buildStatBadge(String label, String value, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-      ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: BackdropFilter(
+        filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          width: 70,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          ),
       child: Column(
         children: [
-          Icon(icon, color: const Color(0xFF00D9FF), size: 24),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              fontFamily: 'Rajdhani',
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
+            Icon(icon, color: const Color(0xFF00D9FF), size: 20),
+            const SizedBox(height: 6),
+            Text(
+              value,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Rajdhani',
+              ),
             ),
-          ),
-          Text(
-            label,
-            style: const TextStyle(
-              fontFamily: 'Outfit',
-              fontSize: 10,
-              color: Colors.white60,
+            Text(
+              label.toUpperCase(),
+              style: const TextStyle(
+                color: Colors.white38,
+                fontSize: 8,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+                fontFamily: 'Outfit',
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildBottomControls() {
     return Positioned(

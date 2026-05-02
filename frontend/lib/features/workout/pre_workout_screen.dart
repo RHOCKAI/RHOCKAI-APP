@@ -60,7 +60,7 @@ class _PreWorkoutScreenState extends ConsumerState<PreWorkoutScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: const Color(0xFF0A0E27),
       body: Stack(
         children: [
           CustomScrollView(
@@ -68,13 +68,15 @@ class _PreWorkoutScreenState extends ConsumerState<PreWorkoutScreen>
               SliverAppBar(
                 expandedHeight: 320,
                 pinned: true,
-                backgroundColor: const Color(0xFF2C3E50),
+                backgroundColor: const Color(0xFF0A0E27),
                 flexibleSpace: FlexibleSpaceBar(
                   title: Text(
                     widget.title,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
+                      letterSpacing: 2,
+                      fontFamily: 'Rajdhani',
+                      color: Colors.white,
                     ),
                   ),
                   background: Stack(
@@ -115,22 +117,23 @@ class _PreWorkoutScreenState extends ConsumerState<PreWorkoutScreen>
                         children: [
                           Text(
                             AppLocalizations.of(context)!.aboutThisWorkout,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF2C3E50),
-                                ),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.5,
+                              fontFamily: 'Rajdhani',
+                              color: Color(0xFF00D9FF),
+                            ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 16),
                           Text(
                             widget.description,
-                            style:
-                                Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                      color: const Color(0xFF7F8C8D),
-                                      height: 1.5,
-                                    ),
+                            style: const TextStyle(
+                              fontSize: 15,
+                              color: Colors.white70,
+                              height: 1.6,
+                              fontFamily: 'Outfit',
+                            ),
                           ),
                           const SizedBox(height: 32),
 
@@ -155,13 +158,13 @@ class _PreWorkoutScreenState extends ConsumerState<PreWorkoutScreen>
             child: FadeTransition(
               opacity: _fadeAnimation,
               child: Container(
-                height: 56,
+                height: 64,
                 decoration: BoxDecoration(
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF4A90E2).withValues(alpha: 0.4),
-                      blurRadius: 16,
-                      offset: const Offset(0, 8),
+                      color: const Color(0xFF00FF88).withValues(alpha: 0.2),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
                     ),
                   ],
                 ),
@@ -177,7 +180,8 @@ class _PreWorkoutScreenState extends ConsumerState<PreWorkoutScreen>
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4A90E2),
+                    backgroundColor: const Color(0xFF00FF88), // Neon Green for Action
+                    foregroundColor: Colors.black,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -187,15 +191,16 @@ class _PreWorkoutScreenState extends ConsumerState<PreWorkoutScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Icon(Icons.play_arrow_rounded,
-                          color: Colors.white, size: 28),
+                          color: Colors.black, size: 28),
                       const SizedBox(width: 8),
                       Text(
                         AppLocalizations.of(context)!.startWorkout,
                         style: const TextStyle(
                           fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          letterSpacing: 0.5,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.black,
+                          letterSpacing: 2,
+                          fontFamily: 'Rajdhani',
                         ),
                       ),
                     ],

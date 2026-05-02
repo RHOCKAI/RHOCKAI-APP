@@ -11,11 +11,24 @@ class ExercisesListScreen extends StatelessWidget {
     final exercises = Exercises.allExercises;
 
     return Scaffold(
+      backgroundColor: const Color(0xFF0A0E27),
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)?.exercises ?? 'Exercises'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        title: Text(
+          AppLocalizations.of(context)?.exercises ?? 'Exercises',
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 2,
+            fontFamily: 'Rajdhani',
+          ),
+        ),
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white70, size: 20),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -54,13 +67,16 @@ class ExercisesListScreen extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          color: const Color(0xFF1E2749).withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.05),
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
@@ -101,6 +117,9 @@ class ExercisesListScreen extends StatelessWidget {
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
+                            color: Colors.white,
+                            fontFamily: 'Rajdhani',
+                            letterSpacing: 0.5,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -111,10 +130,11 @@ class ExercisesListScreen extends StatelessWidget {
                               .take(2)
                               .join(', ')
                               .toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey[600],
-                            fontWeight: FontWeight.w500,
+                          style: const TextStyle(
+                            fontSize: 9,
+                            color: Color(0xFF00D9FF), // Neon Blue
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1,
                           ),
                         ),
                       ],
@@ -124,15 +144,20 @@ class ExercisesListScreen extends StatelessWidget {
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: _getDifficultyColor(exercise.difficulty)
-                            .withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
+                            .withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: _getDifficultyColor(exercise.difficulty)
+                              .withValues(alpha: 0.3),
+                        ),
                       ),
                       child: Text(
                         exercise.difficulty.toUpperCase(),
                         style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w900,
                           color: _getDifficultyColor(exercise.difficulty),
+                          letterSpacing: 1,
                         ),
                       ),
                     ),
@@ -163,13 +188,13 @@ class ExercisesListScreen extends StatelessWidget {
   Color _getDifficultyColor(String difficulty) {
     switch (difficulty.toLowerCase()) {
       case 'beginner':
-        return Colors.green;
+        return const Color(0xFF00FF88); // Neon Green
       case 'intermediate':
-        return Colors.orange;
+        return const Color(0xFFFF6B35); // Neon Orange
       case 'advanced':
-        return Colors.red;
+        return const Color(0xFF9C27FF); // Neon Purple
       default:
-        return Colors.blue;
+        return const Color(0xFF00D9FF); // Neon Blue
     }
   }
 }

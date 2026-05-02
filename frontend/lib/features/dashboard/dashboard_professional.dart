@@ -75,6 +75,11 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // WELCOME HERO SECTION
+                        _buildHeroSection(currentUser?['full_name'] ?? 'Champ', isMobile),
+                        
+                        const SizedBox(height: 32),
+
                         // Top Stats Section
                         _buildTopStatsRow(isMobile),
 
@@ -118,6 +123,94 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
                         const SizedBox(height: 48),
                       ],
                     ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeroSection(String name, bool isMobile) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(isMobile ? 24 : 32),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF00D9FF), Color(0xFF9C27FF)],
+        ),
+        borderRadius: BorderRadius.circular(32),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF00D9FF).withValues(alpha: 0.3),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'WELCOME BACK,',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              color: Colors.white.withValues(alpha: 0.8),
+              letterSpacing: 2,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            name.toUpperCase(),
+            style: const TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontFamily: 'Rajdhani',
+              letterSpacing: 1,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Ready to perfect your posture and crush your goals today?',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.white.withValues(alpha: 0.9),
+              fontFamily: 'Outfit',
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ExercisesListScreen()),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFF00D9FF),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.bolt_rounded, size: 20),
+                SizedBox(width: 8),
+                Text(
+                  'QUICK START',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.5,
+                    fontFamily: 'Rajdhani',
                   ),
                 ),
               ],
@@ -429,7 +522,74 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
           }),
           _buildSidebarItem(Icons.settings_outlined, 'Settings', false),
           const Spacer(),
+          if (user == null || user['is_premium'] != true) _buildPremiumBanner(),
+          const SizedBox(height: 16),
           _buildSidebarItem(Icons.logout_rounded, 'Logout', false, onTap: _logout),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPremiumBanner() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF00D9FF), Color(0xFF9C27FF)],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF00D9FF).withValues(alpha: 0.2),
+            blurRadius: 15,
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          const Icon(Icons.star_rounded, color: Colors.white, size: 32),
+          const SizedBox(height: 12),
+          const Text(
+            'GO PREMIUM',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+              fontSize: 14,
+              letterSpacing: 2,
+              fontFamily: 'Rajdhani',
+            ),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Unlock all AI features',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 10,
+              fontFamily: 'Outfit',
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => Navigator.pushNamed(context, '/premium'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black,
+              minimumSize: const Size(double.infinity, 40),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text(
+              'UPGRADE',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+                letterSpacing: 1,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -463,7 +623,15 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
         onTap: onTap,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         leading: Icon(icon, color: isActive ? AppTheme.neonBlue : Colors.white54),
-        title: Text(label, style: TextStyle(color: isActive ? Colors.white : Colors.white54, fontWeight: isActive ? FontWeight.bold : FontWeight.normal)),
+        title: Text(
+          label, 
+          style: TextStyle(
+            color: isActive ? Colors.white : Colors.white54, 
+            fontWeight: isActive ? FontWeight.bold : FontWeight.w600,
+            fontFamily: 'Rajdhani',
+            letterSpacing: 1.2,
+          ),
+        ),
         tileColor: isActive ? AppTheme.neonBlue.withValues(alpha: 0.1) : Colors.transparent,
       ),
     );
