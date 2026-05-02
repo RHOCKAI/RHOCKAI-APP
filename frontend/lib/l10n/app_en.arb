@@ -124,5 +124,22 @@
   "freeTrialBadge": "3 DAYS FREE",
   "cancelAnytime": "Cancel anytime · No commitment",
   "restorePurchases": "Restore purchases",
-  "maybeLater": "Maybe later"
+  "maybeLater": "Maybe later",
+  "shareWorkout": "Share Workout",
+  "sharePerformance": "Share Performance Scorecard",
+  "shareVideo": "Share Video Instead",
+  "greatSession": "Great session, {name} 💪",
+  "eliteForm": "Elite form 🏆",
+  "solidSession": "Solid session 💪",
+  "keepPushing": "Keep pushing 🔥",
+  "formInProgress": "Form in progress 📈",
+  "showRhockaiBadge": "Show Rhockai badge",
+  "helpOthersDiscover": "Help others discover AI training",
+  "saveToCameraRoll": "Save to Camera Roll",
+  "savedToHistory": "Saved to your Rhockai history automatically",
+  "dayStreak": "{days} day streak",
+  "fitnessLevel": "Fitness Level",
+  "beginner": "Beginner",
+  "intermediate": "Intermediate",
+  "advanced": "Advanced"
 }

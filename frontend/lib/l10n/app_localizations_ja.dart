@@ -374,4 +374,34 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get maybeLater => 'Maybe later';
+
+  @override
+  String get shareWorkout => 'Share Workout';
+
+  @override
+  String get sharePerformance => 'Share Performance Scorecard';
+
+  @override
+  String greatSession(String name) => 'Great session, $name 💪';
+
+  @override
+  String get eliteForm => 'Elite form 🏆';
+
+  @override
+  String get solidSession => 'Solid session 💪';
+
+  @override
+  String get keepPushing => 'Keep pushing 🔥';
+
+  @override
+  String get formInProgress => 'Form in progress 📈';
+
+  @override
+  String get showRhockaiBadge => 'Show Rhockai badge';
+
+  @override
+  String get helpOthersDiscover => 'Help others discover AI training';
+
+  @override
+  String get savedToHistory => 'Saved to your Rhockai history automatically';
 }

@@ -839,6 +839,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Maybe later'**
   String get maybeLater;
+
+  /// No description provided for @shareWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Workout'**
+  String get shareWorkout;
+
+  /// No description provided for @sharePerformance.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Performance Scorecard'**
+  String get sharePerformance;
+
+  /// No description provided for @greatSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Great session, {name} 💪'**
+  String greatSession(String name);
+
+  /// No description provided for @eliteForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Elite form 🏆'**
+  String get eliteForm;
+
+  /// No description provided for @solidSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Solid session 💪'**
+  String get solidSession;
+
+  /// No description provided for @keepPushing.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep pushing 🔥'**
+  String get keepPushing;
+
+  /// No description provided for @formInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Form in progress 📈'**
+  String get formInProgress;
+
+  /// No description provided for @showRhockaiBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Rhockai badge'**
+  String get showRhockaiBadge;
+
+  /// No description provided for @helpOthersDiscover.
+  ///
+  /// In en, this message translates to:
+  /// **'Help others discover AI training'**
+  String get helpOthersDiscover;
+
+  /// No description provided for @savedToHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to your Rhockai history automatically'**
+  String get savedToHistory;
 }
 
 class _AppLocalizationsDelegate
