@@ -7,6 +7,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../camera_ai/session/session_model.dart';
 import '../gamification/data/repositories/gamification_repository.dart';
+import 'package:confetti/confetti.dart';
+import 'dart:math';
 
 class WorkoutSummaryScreen extends StatefulWidget {
   final WorkoutSession session;
@@ -26,11 +28,20 @@ class _WorkoutSummaryScreenState extends State<WorkoutSummaryScreen> {
   final GlobalKey _scorecardKey = GlobalKey();
   bool _isCapturing = false;
   int _currentStreak = 0;
+  late ConfettiController _confettiController;
 
   @override
   void initState() {
     super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+    _confettiController.play();
     _loadStreak();
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadStreak() async {
@@ -51,11 +62,14 @@ class _WorkoutSummaryScreenState extends State<WorkoutSummaryScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+        child: Stack(
+          alignment: Alignment.topCenter,
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
               const Text(
                 'WORKOUT COMPLETE',
                 textAlign: TextAlign.center,
@@ -252,8 +266,26 @@ class _WorkoutSummaryScreenState extends State<WorkoutSummaryScreen> {
             ],
           ),
         ),
-      ),
-    );
+        ConfettiWidget(
+          confettiController: _confettiController,
+          blastDirection: pi / 2, // fall down
+          maxBlastForce: 5,
+          minBlastForce: 2,
+          emissionFrequency: 0.05,
+          numberOfParticles: 50,
+          gravity: 0.1,
+          colors: const [
+            Colors.greenAccent,
+            Colors.blueAccent,
+            Colors.pinkAccent,
+            Colors.orangeAccent,
+            Colors.purpleAccent
+          ],
+        ),
+      ],
+    ),
+  ),
+);
   }
 
   Widget _buildBalancedStat(String label, String value, String unit, IconData icon) {
