@@ -4,7 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 final dioClientProvider = Provider<Dio>((ref) {
-  final baseUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:8000/api/v1';
+  final baseUrl = ApiConstants.baseUrl;
   const storage = FlutterSecureStorage();
 
   final dio = Dio(BaseOptions(
@@ -14,7 +14,6 @@ final dioClientProvider = Provider<Dio>((ref) {
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'ngrok-skip-browser-warning': 'true',
     },
   ));
 

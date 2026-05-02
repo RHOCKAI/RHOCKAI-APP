@@ -100,7 +100,7 @@ class _WorkoutSummaryScreenState extends State<WorkoutSummaryScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                '${(widget.session.totalReps * widget.session.averageAccuracy / 100).toStringAsFixed(0)}',
+                                (widget.session.totalReps * widget.session.averageAccuracy / 100).toStringAsFixed(0),
                                 style: const TextStyle(
                                   fontSize: 56,
                                   fontWeight: FontWeight.w900,
@@ -152,7 +152,7 @@ class _WorkoutSummaryScreenState extends State<WorkoutSummaryScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          _buildScorecardStat('TEMPO', '${widget.session.averageTempoScore.toStringAsFixed(0)}'),
+                          _buildScorecardStat('TEMPO', widget.session.averageTempoScore.toStringAsFixed(0)),
                           _buildScorecardStat('KCALS', '${widget.session.caloriesBurned}'),
                         ],
                       ),

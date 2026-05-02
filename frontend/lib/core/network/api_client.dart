@@ -4,8 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiClient {
-  static String get baseUrl =>
-      dotenv.env['API_URL'] ?? 'http://10.0.2.2:8000/api/v1';
+  static String get baseUrl => ApiConstants.baseUrl;
 
   final Dio _dio;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
@@ -18,7 +17,6 @@ class ApiClient {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'ngrok-skip-browser-warning': 'true',
           },
         )) {
     _setupInterceptors();

@@ -14,6 +14,7 @@ frontend/ios/Runner/GeneratedPluginRegistrant.m
 frontend/android/local.properties
 frontend/android/key.properties
 frontend/android/app/src/main/res/raw/auth_config.json
+frontend/.env
 
 # Python
 backend/venv/
