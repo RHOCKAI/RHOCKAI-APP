@@ -122,3 +122,26 @@ async def lemonsqueezy_webhook(request: Request, db: Session = Depends(get_db)):
             db.commit()
 
     return {"status": "success"}
+
+@router.get("/portal")
+async def get_customer_portal(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Get the Lemon Squeezy customer portal URL"""
+    sub = db.query(Subscription).filter(Subscription.user_id == current_user.id).first()
+    
+    if not sub or not sub.lemon_squeezy_subscription_id:
+        if sub and sub.plan == SubscriptionPlan.LIFETIME:
+             # Lifetime users don't have a recurring subscription portal
+             # We can return the store URL or a help link
+             return {"portal_url": f"https://{settings.LEMONSQUEEZY_STORE_ID}.lemonsqueezy.com/"}
+        
+        raise HTTPException(status_code=404, detail="No active subscription found")
+
+    try:
+        data = await ls_service.get_subscription(sub.lemon_squeezy_subscription_id)
+        portal_url = data["data"]["attributes"]["urls"]["customer_portal"]
+        return {"portal_url": portal_url}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Could not retrieve portal URL")

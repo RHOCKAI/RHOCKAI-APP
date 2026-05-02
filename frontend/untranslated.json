@@ -5,7 +5,11 @@
     "premiumDescription",
     "monthlyPlanPrice",
     "yearlyPlanPrice",
-    "lifetimePlanPrice"
+    "lifetimePlanPrice",
+    "manageSubscription",
+    "subscriptionStatus",
+    "premiumMemberStatus",
+    "premiumMemberDescription"
   ],
 
   "es": [
@@ -18,13 +22,7 @@
     "repsLabel",
     "pushUps",
     "squats",
-    "planks",
-    "upgradeToPremium",
-    "unlockFullPotential",
-    "premiumDescription",
-    "monthlyPlanPrice",
-    "yearlyPlanPrice",
-    "lifetimePlanPrice"
+    "planks"
   ],
 
   "fr": [
@@ -43,7 +41,18 @@
     "premiumDescription",
     "monthlyPlanPrice",
     "yearlyPlanPrice",
-    "lifetimePlanPrice"
+    "lifetimePlanPrice",
+    "manageSubscription",
+    "subscriptionStatus",
+    "premiumMemberStatus",
+    "premiumMemberDescription"
+  ],
+
+  "ja": [
+    "manageSubscription",
+    "subscriptionStatus",
+    "premiumMemberStatus",
+    "premiumMemberDescription"
   ],
 
   "pt": [
@@ -52,6 +61,10 @@
     "premiumDescription",
     "monthlyPlanPrice",
     "yearlyPlanPrice",
-    "lifetimePlanPrice"
+    "lifetimePlanPrice",
+    "manageSubscription",
+    "subscriptionStatus",
+    "premiumMemberStatus",
+    "premiumMemberDescription"
   ]
 }

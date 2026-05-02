@@ -9,7 +9,7 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get appTitle => 'تمرين الذكاء الاصطناعي';
+  String get appTitle => 'Rhockai';
 
   @override
   String get dashboardTitle => 'لوحة القيادة';
@@ -276,21 +276,34 @@ class AppLocalizationsAr extends AppLocalizations {
   String get keepGoing => 'استمر!';
 
   @override
-  String get upgradeToPremium => 'Ascend to Elite';
+  String get upgradeToPremium => 'Go Premium';
 
   @override
-  String get unlockFullPotential => 'Unlock Neural Potential';
+  String get unlockFullPotential => 'Unlock All Features';
 
   @override
   String get premiumDescription =>
-      'Access advanced Rhockai pose analytics, infinite protocols, and priority neural support.';
+      'Get advanced form analysis, unlimited workouts, and priority support.';
 
   @override
-  String get monthlyPlanPrice => 'Monthly Node - \$9.99/mo';
+  String get monthlyPlanPrice => '\$9.99 / Month';
 
   @override
-  String get yearlyPlanPrice => 'Annual Sync - \$79.99/yr';
+  String get yearlyPlanPrice => '\$79.99 / Year';
 
   @override
-  String get lifetimePlanPrice => 'Permanent Integration - \$149.99';
+  String get lifetimePlanPrice => '\$149.99 Once';
+
+  @override
+  String get manageSubscription => 'Manage Subscription';
+
+  @override
+  String get subscriptionStatus => 'Subscription Status';
+
+  @override
+  String get premiumMemberStatus => 'You are a Premium Member! 🚀';
+
+  @override
+  String get premiumMemberDescription =>
+      'Thank you for supporting Rhockai. You have full access to all AI features.';
 }

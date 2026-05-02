@@ -74,3 +74,23 @@ class LemonSqueezyService:
 
             data = response.json()
             return data["data"]["attributes"]["url"]
+
+    @staticmethod
+    async def get_subscription(subscription_id: str) -> dict:
+        """Fetch subscription details from Lemon Squeezy"""
+        headers = {
+            "Accept": "application/vnd.api+json",
+            "Content-Type": "application/vnd.api+json",
+            "Authorization": f"Bearer {settings.LEMONSQUEEZY_API_KEY}"
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{LemonSqueezyService.BASE_URL}/subscriptions/{subscription_id}",
+                headers=headers
+            )
+
+            if response.status_code != 200:
+                raise HTTPException(status_code=500, detail=f"Failed to fetch subscription: {response.text}")
+
+            return response.json()

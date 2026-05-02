@@ -95,5 +95,9 @@
   "premiumDescription": "Erhalten Sie fortschrittliche biometrische Analysen und unbegrenzte Trainings.",
   "monthlyPlanPrice": "9,99 € / Monat",
   "yearlyPlanPrice": "79,99 € / Jahr",
-  "lifetimePlanPrice": "149,99 € Einmalig"
+  "lifetimePlanPrice": "149,99 € Einmalig",
+  "manageSubscription": "Abonnement verwalten",
+  "subscriptionStatus": "Abonnement-Status",
+  "premiumMemberStatus": "Du bist ein Premium-Mitglied! 🚀",
+  "premiumMemberDescription": "Vielen Dank für deine Unterstützung von Rhockai. Du hast vollen Zugriff auf alle KI-Funktionen."
 }

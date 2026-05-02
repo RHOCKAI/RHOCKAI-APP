@@ -9,7 +9,7 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
-  String get appTitle => 'Entraînement AI';
+  String get appTitle => 'Rhockai';
 
   @override
   String get dashboardTitle => 'Tableau de bord';
@@ -159,10 +159,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get other => 'Autre';
 
   @override
-  String get passwordsDoNotMatch => 'Access keys do not match';
+  String get passwordsDoNotMatch => 'Passwords do not match';
 
   @override
-  String get confirmPassword => 'Verify Access Key';
+  String get confirmPassword => 'Confirm Password';
 
   @override
   String get enterName => 'Veuillez entrer votre nom';
@@ -203,19 +203,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get or => 'OU';
 
   @override
-  String get aboutThisWorkout => 'Protocol Specifications';
+  String get aboutThisWorkout => 'About this Workout';
 
   @override
-  String get aiCoachInsight => 'Rhockai Intelligence';
+  String get aiCoachInsight => 'Rhockai Coach';
 
   @override
   String get target => 'Target';
 
   @override
-  String get focus => 'Focus Zone';
+  String get focus => 'Focus';
 
   @override
-  String get repsLabel => 'Cycles';
+  String get repsLabel => 'Reps';
 
   @override
   String get pushUps => 'Push-Ups';
@@ -278,21 +278,34 @@ class AppLocalizationsFr extends AppLocalizations {
   String get keepGoing => 'Continuez !';
 
   @override
-  String get upgradeToPremium => 'Ascend to Elite';
+  String get upgradeToPremium => 'Go Premium';
 
   @override
-  String get unlockFullPotential => 'Unlock Neural Potential';
+  String get unlockFullPotential => 'Unlock All Features';
 
   @override
   String get premiumDescription =>
-      'Access advanced Rhockai pose analytics, infinite protocols, and priority neural support.';
+      'Get advanced form analysis, unlimited workouts, and priority support.';
 
   @override
-  String get monthlyPlanPrice => 'Monthly Node - \$9.99/mo';
+  String get monthlyPlanPrice => '\$9.99 / Month';
 
   @override
-  String get yearlyPlanPrice => 'Annual Sync - \$79.99/yr';
+  String get yearlyPlanPrice => '\$79.99 / Year';
 
   @override
-  String get lifetimePlanPrice => 'Permanent Integration - \$149.99';
+  String get lifetimePlanPrice => '\$149.99 Once';
+
+  @override
+  String get manageSubscription => 'Manage Subscription';
+
+  @override
+  String get subscriptionStatus => 'Subscription Status';
+
+  @override
+  String get premiumMemberStatus => 'You are a Premium Member! 🚀';
+
+  @override
+  String get premiumMemberDescription =>
+      'Thank you for supporting Rhockai. You have full access to all AI features.';
 }

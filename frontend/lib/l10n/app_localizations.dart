@@ -117,31 +117,31 @@ abstract class AppLocalizations {
   /// No description provided for @dashboardTitle.
   ///
   /// In en, this message translates to:
-  /// **'Intelligence Hub'**
+  /// **'Home'**
   String get dashboardTitle;
 
   /// No description provided for @startWorkout.
   ///
   /// In en, this message translates to:
-  /// **'Start AI Protocol'**
+  /// **'Start Workout'**
   String get startWorkout;
 
   /// No description provided for @settings.
   ///
   /// In en, this message translates to:
-  /// **'System Config'**
+  /// **'Settings'**
   String get settings;
 
   /// No description provided for @history.
   ///
   /// In en, this message translates to:
-  /// **'Activity Logs'**
+  /// **'Workout History'**
   String get history;
 
   /// No description provided for @progress.
   ///
   /// In en, this message translates to:
-  /// **'Neural Growth'**
+  /// **'My Progress'**
   String get progress;
 
   /// No description provided for @language.
@@ -153,7 +153,7 @@ abstract class AppLocalizations {
   /// No description provided for @voiceSettings.
   ///
   /// In en, this message translates to:
-  /// **'Voice Synthesis'**
+  /// **'Voice Feedback'**
   String get voiceSettings;
 
   /// No description provided for @selectLanguage.
@@ -177,7 +177,7 @@ abstract class AppLocalizations {
   /// No description provided for @voiceEnabled.
   ///
   /// In en, this message translates to:
-  /// **'Neural Feedback'**
+  /// **'Voice Guidance'**
   String get voiceEnabled;
 
   /// No description provided for @volume.
@@ -189,103 +189,103 @@ abstract class AppLocalizations {
   /// No description provided for @repCount.
   ///
   /// In en, this message translates to:
-  /// **'Rep Detection'**
+  /// **'Rep Counting'**
   String get repCount;
 
   /// No description provided for @formCorrection.
   ///
   /// In en, this message translates to:
-  /// **'Kinematic Correction'**
+  /// **'Form Advice'**
   String get formCorrection;
 
   /// No description provided for @encouragement.
   ///
   /// In en, this message translates to:
-  /// **'Motivation Engine'**
+  /// **'Encouragement'**
   String get encouragement;
 
   /// No description provided for @workoutComplete.
   ///
   /// In en, this message translates to:
-  /// **'Session Synchronized'**
+  /// **'Workout Complete!'**
   String get workoutComplete;
 
   /// No description provided for @accuracy.
   ///
   /// In en, this message translates to:
-  /// **'Precision'**
+  /// **'Accuracy'**
   String get accuracy;
 
   /// No description provided for @totalReps.
   ///
   /// In en, this message translates to:
-  /// **'Total Cycles'**
+  /// **'Total Reps'**
   String get totalReps;
 
   /// No description provided for @duration.
   ///
   /// In en, this message translates to:
-  /// **'Uptime'**
+  /// **'Duration'**
   String get duration;
 
   /// No description provided for @calories.
   ///
   /// In en, this message translates to:
-  /// **'Energy Flux'**
+  /// **'Calories'**
   String get calories;
 
   /// No description provided for @login.
   ///
   /// In en, this message translates to:
-  /// **'Access System'**
+  /// **'Log In'**
   String get login;
 
   /// No description provided for @signup.
   ///
   /// In en, this message translates to:
-  /// **'Initialize Profile'**
+  /// **'Sign Up'**
   String get signup;
 
   /// No description provided for @email.
   ///
   /// In en, this message translates to:
-  /// **'Email'**
+  /// **'Email Address'**
   String get email;
 
   /// No description provided for @password.
   ///
   /// In en, this message translates to:
-  /// **'Access Key'**
+  /// **'Password'**
   String get password;
 
   /// No description provided for @dontHaveAccount.
   ///
   /// In en, this message translates to:
-  /// **'No profile detected?'**
+  /// **'New to Rhockai?'**
   String get dontHaveAccount;
 
   /// No description provided for @alreadyHaveAccount.
   ///
   /// In en, this message translates to:
-  /// **'Profile already exists?'**
+  /// **'Already have an account?'**
   String get alreadyHaveAccount;
 
   /// No description provided for @workoutsToday.
   ///
   /// In en, this message translates to:
-  /// **'Protocols Today'**
+  /// **'Today\'s Workouts'**
   String get workoutsToday;
 
   /// No description provided for @caloriesBurned.
   ///
   /// In en, this message translates to:
-  /// **'Energy Expended'**
+  /// **'Calories Burned'**
   String get caloriesBurned;
 
   /// No description provided for @postureAccuracy.
   ///
   /// In en, this message translates to:
-  /// **'Alignment Precision'**
+  /// **'Posture Accuracy'**
   String get postureAccuracy;
 
   /// No description provided for @sessions.
@@ -297,13 +297,13 @@ abstract class AppLocalizations {
   /// No description provided for @kcal.
   ///
   /// In en, this message translates to:
-  /// **'Kcal'**
+  /// **'kcal'**
   String get kcal;
 
   /// No description provided for @goodPosture.
   ///
   /// In en, this message translates to:
-  /// **'% Alignment'**
+  /// **'% Good'**
   String get goodPosture;
 
   /// No description provided for @home.
@@ -315,55 +315,55 @@ abstract class AppLocalizations {
   /// No description provided for @exercises.
   ///
   /// In en, this message translates to:
-  /// **'Modalities'**
+  /// **'Exercises'**
   String get exercises;
 
   /// No description provided for @logout.
   ///
   /// In en, this message translates to:
-  /// **'Terminate Session'**
+  /// **'Log Out'**
   String get logout;
 
   /// No description provided for @welcome.
   ///
   /// In en, this message translates to:
-  /// **'System Ready'**
+  /// **'Welcome'**
   String get welcome;
 
   /// No description provided for @premiumPlan.
   ///
   /// In en, this message translates to:
-  /// **'Rhockai Elite'**
+  /// **'Premium'**
   String get premiumPlan;
 
   /// No description provided for @basicPlan.
   ///
   /// In en, this message translates to:
-  /// **'Rhockai Core'**
+  /// **'Basic'**
   String get basicPlan;
 
   /// No description provided for @workoutStats.
   ///
   /// In en, this message translates to:
-  /// **'Performance Analytics'**
+  /// **'Your Stats'**
   String get workoutStats;
 
   /// No description provided for @latestActivity.
   ///
   /// In en, this message translates to:
-  /// **'Recent Syncs'**
+  /// **'Recent Activity'**
   String get latestActivity;
 
   /// No description provided for @goalsAndTips.
   ///
   /// In en, this message translates to:
-  /// **'Directives & Insights'**
+  /// **'Goals & Tips'**
   String get goalsAndTips;
 
   /// No description provided for @createAccount.
   ///
   /// In en, this message translates to:
-  /// **'Initialize Profile'**
+  /// **'Create Account'**
   String get createAccount;
 
   /// No description provided for @fullName.
@@ -381,13 +381,13 @@ abstract class AppLocalizations {
   /// No description provided for @gender.
   ///
   /// In en, this message translates to:
-  /// **'Bio-Signature'**
+  /// **'Gender'**
   String get gender;
 
   /// No description provided for @genderOptional.
   ///
   /// In en, this message translates to:
-  /// **'Bio-Signature (Optional)'**
+  /// **'Gender (Optional)'**
   String get genderOptional;
 
   /// No description provided for @male.
@@ -411,37 +411,37 @@ abstract class AppLocalizations {
   /// No description provided for @passwordsDoNotMatch.
   ///
   /// In en, this message translates to:
-  /// **'Access keys do not match'**
+  /// **'Passwords do not match'**
   String get passwordsDoNotMatch;
 
   /// No description provided for @confirmPassword.
   ///
   /// In en, this message translates to:
-  /// **'Verify Access Key'**
+  /// **'Confirm Password'**
   String get confirmPassword;
 
   /// No description provided for @enterName.
   ///
   /// In en, this message translates to:
-  /// **'Please enter your identity'**
+  /// **'Please enter your name'**
   String get enterName;
 
   /// No description provided for @nameTooShort.
   ///
   /// In en, this message translates to:
-  /// **'Identity must be at least 2 characters'**
+  /// **'Name must be at least 2 characters'**
   String get nameTooShort;
 
   /// No description provided for @enterEmail.
   ///
   /// In en, this message translates to:
-  /// **'Please enter your network ID'**
+  /// **'Please enter your email'**
   String get enterEmail;
 
   /// No description provided for @invalidEmail.
   ///
   /// In en, this message translates to:
-  /// **'Please enter a valid network ID'**
+  /// **'Please enter a valid email'**
   String get invalidEmail;
 
   /// No description provided for @enterAge.
@@ -459,13 +459,13 @@ abstract class AppLocalizations {
   /// No description provided for @enterPassword.
   ///
   /// In en, this message translates to:
-  /// **'Please enter an access key'**
+  /// **'Please enter a password'**
   String get enterPassword;
 
   /// No description provided for @passwordTooShort.
   ///
   /// In en, this message translates to:
-  /// **'Access key must be at least 8 characters'**
+  /// **'Password must be at least 8 characters'**
   String get passwordTooShort;
 
   /// No description provided for @welcomeBack.
@@ -477,13 +477,13 @@ abstract class AppLocalizations {
   /// No description provided for @signInToContinue.
   ///
   /// In en, this message translates to:
-  /// **'Synchronize to continue your journey'**
+  /// **'Sign in to continue'**
   String get signInToContinue;
 
   /// No description provided for @forgotPasswordQuestion.
   ///
   /// In en, this message translates to:
-  /// **'Access key lost?'**
+  /// **'Forgot Password?'**
   String get forgotPasswordQuestion;
 
   /// No description provided for @or.
@@ -495,13 +495,13 @@ abstract class AppLocalizations {
   /// No description provided for @aboutThisWorkout.
   ///
   /// In en, this message translates to:
-  /// **'Protocol Specifications'**
+  /// **'About this Workout'**
   String get aboutThisWorkout;
 
   /// No description provided for @aiCoachInsight.
   ///
   /// In en, this message translates to:
-  /// **'Rhockai Intelligence'**
+  /// **'Rhockai Coach'**
   String get aiCoachInsight;
 
   /// No description provided for @target.
@@ -513,13 +513,13 @@ abstract class AppLocalizations {
   /// No description provided for @focus.
   ///
   /// In en, this message translates to:
-  /// **'Focus Zone'**
+  /// **'Focus'**
   String get focus;
 
   /// No description provided for @repsLabel.
   ///
   /// In en, this message translates to:
-  /// **'Cycles'**
+  /// **'Reps'**
   String get repsLabel;
 
   /// No description provided for @pushUps.
@@ -543,73 +543,73 @@ abstract class AppLocalizations {
   /// No description provided for @pushUpsTraining.
   ///
   /// In en, this message translates to:
-  /// **'Push-Ups Optimization'**
+  /// **'Push-Ups'**
   String get pushUpsTraining;
 
   /// No description provided for @pushUpsDescription.
   ///
   /// In en, this message translates to:
-  /// **'Deep neural form analysis and automated rep counting for Push-Ups.'**
+  /// **'Real-time form analysis and rep counting for push-ups.'**
   String get pushUpsDescription;
 
   /// No description provided for @squatsTraining.
   ///
   /// In en, this message translates to:
-  /// **'Squats Optimization'**
+  /// **'Squats'**
   String get squatsTraining;
 
   /// No description provided for @squatsDescription.
   ///
   /// In en, this message translates to:
-  /// **'Deep neural form analysis and automated rep counting for Squats.'**
+  /// **'Real-time form analysis and rep counting for squats.'**
   String get squatsDescription;
 
   /// No description provided for @planksTraining.
   ///
   /// In en, this message translates to:
-  /// **'Planks Optimization'**
+  /// **'Planks'**
   String get planksTraining;
 
   /// No description provided for @planksDescription.
   ///
   /// In en, this message translates to:
-  /// **'Deep neural form analysis and temporal tracking for Planks.'**
+  /// **'Real-time form analysis and time tracking for planks.'**
   String get planksDescription;
 
   /// No description provided for @tempo.
   ///
   /// In en, this message translates to:
-  /// **'Pulse'**
+  /// **'Tempo'**
   String get tempo;
 
   /// No description provided for @getReady.
   ///
   /// In en, this message translates to:
-  /// **'Calibrating...'**
+  /// **'Get Ready!'**
   String get getReady;
 
   /// No description provided for @analyzingEnvironment.
   ///
   /// In en, this message translates to:
-  /// **'Scanning environment...'**
+  /// **'Setting up...'**
   String get analyzingEnvironment;
 
   /// No description provided for @standInFrame.
   ///
   /// In en, this message translates to:
-  /// **'Center in Visual Field'**
+  /// **'Center yourself in the frame'**
   String get standInFrame;
 
   /// No description provided for @comeCloser.
   ///
   /// In en, this message translates to:
-  /// **'Optimize Distance'**
+  /// **'Move closer to the camera'**
   String get comeCloser;
 
   /// No description provided for @pause.
   ///
   /// In en, this message translates to:
-  /// **'Suspend'**
+  /// **'Pause'**
   String get pause;
 
   /// No description provided for @resume.
@@ -621,56 +621,80 @@ abstract class AppLocalizations {
   /// No description provided for @finish.
   ///
   /// In en, this message translates to:
-  /// **'Conclude'**
+  /// **'Finish'**
   String get finish;
 
   /// No description provided for @excellent.
   ///
   /// In en, this message translates to:
-  /// **'Peak Performance!'**
+  /// **'Excellent!'**
   String get excellent;
 
   /// No description provided for @keepGoing.
   ///
   /// In en, this message translates to:
-  /// **'Continue Protocol!'**
+  /// **'Keep it up!'**
   String get keepGoing;
 
   /// No description provided for @upgradeToPremium.
   ///
   /// In en, this message translates to:
-  /// **'Ascend to Elite'**
+  /// **'Go Premium'**
   String get upgradeToPremium;
 
   /// No description provided for @unlockFullPotential.
   ///
   /// In en, this message translates to:
-  /// **'Unlock Neural Potential'**
+  /// **'Unlock All Features'**
   String get unlockFullPotential;
 
   /// No description provided for @premiumDescription.
   ///
   /// In en, this message translates to:
-  /// **'Access advanced Rhockai pose analytics, infinite protocols, and priority neural support.'**
+  /// **'Get advanced form analysis, unlimited workouts, and priority support.'**
   String get premiumDescription;
 
   /// No description provided for @monthlyPlanPrice.
   ///
   /// In en, this message translates to:
-  /// **'Monthly Node - \$9.99/mo'**
+  /// **'\$9.99 / Month'**
   String get monthlyPlanPrice;
 
   /// No description provided for @yearlyPlanPrice.
   ///
   /// In en, this message translates to:
-  /// **'Annual Sync - \$79.99/yr'**
+  /// **'\$79.99 / Year'**
   String get yearlyPlanPrice;
 
   /// No description provided for @lifetimePlanPrice.
   ///
   /// In en, this message translates to:
-  /// **'Permanent Integration - \$149.99'**
+  /// **'\$149.99 Once'**
   String get lifetimePlanPrice;
+
+  /// No description provided for @manageSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Subscription'**
+  String get manageSubscription;
+
+  /// No description provided for @subscriptionStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Status'**
+  String get subscriptionStatus;
+
+  /// No description provided for @premiumMemberStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'You are a Premium Member! 🚀'**
+  String get premiumMemberStatus;
+
+  /// No description provided for @premiumMemberDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for supporting Rhockai. You have full access to all AI features.'**
+  String get premiumMemberDescription;
 }
 
 class _AppLocalizationsDelegate

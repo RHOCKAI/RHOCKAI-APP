@@ -12,25 +12,25 @@ class AppLocalizationsDe extends AppLocalizations {
   String get appTitle => 'Rhockai';
 
   @override
-  String get dashboardTitle => 'Intelligence-Hub';
+  String get dashboardTitle => 'Start';
 
   @override
-  String get startWorkout => 'KI-Protokoll starten';
+  String get startWorkout => 'Training starten';
 
   @override
-  String get settings => 'System-Konfig';
+  String get settings => 'Einstellungen';
 
   @override
-  String get history => 'Aktivitäts-Logs';
+  String get history => 'Verlauf';
 
   @override
-  String get progress => 'Neuronales Wachstum';
+  String get progress => 'Fortschritt';
 
   @override
   String get language => 'Sprache';
 
   @override
-  String get voiceSettings => 'Sprachsynthese';
+  String get voiceSettings => 'Sprachfeedback';
 
   @override
   String get selectLanguage => 'Sprache auswählen';
@@ -42,112 +42,112 @@ class AppLocalizationsDe extends AppLocalizations {
   String get save => 'Speichern';
 
   @override
-  String get voiceEnabled => 'Neuronales Feedback';
+  String get voiceEnabled => 'Sprachführung';
 
   @override
   String get volume => 'Lautstärke';
 
   @override
-  String get repCount => 'Wiederholungs-Erkennung';
+  String get repCount => 'Wiederholungen zählen';
 
   @override
-  String get formCorrection => 'Kinematische Korrektur';
+  String get formCorrection => 'Haltungshilfe';
 
   @override
-  String get encouragement => 'Motivations-Engine';
+  String get encouragement => 'Motivation';
 
   @override
-  String get workoutComplete => 'Sitzung synchronisiert';
+  String get workoutComplete => 'Training abgeschlossen!';
 
   @override
-  String get accuracy => 'Präzision';
+  String get accuracy => 'Genauigkeit';
 
   @override
-  String get totalReps => 'Gesamtzyklen';
+  String get totalReps => 'Wiederholungen';
 
   @override
-  String get duration => 'Betriebszeit';
+  String get duration => 'Dauer';
 
   @override
-  String get calories => 'Energiefluss';
+  String get calories => 'Kalorien';
 
   @override
-  String get login => 'Systemzugriff';
+  String get login => 'Anmelden';
 
   @override
-  String get signup => 'Profil initialisieren';
+  String get signup => 'Registrieren';
 
   @override
-  String get email => 'E-Mail';
+  String get email => 'E-Mail-Adresse';
 
   @override
-  String get password => 'Zugangsschlüssel';
+  String get password => 'Passwort';
 
   @override
-  String get dontHaveAccount => 'Kein Profil erkannt?';
+  String get dontHaveAccount => 'Neu bei Rhockai?';
 
   @override
-  String get alreadyHaveAccount => 'Profil bereits vorhanden?';
+  String get alreadyHaveAccount => 'Bereits ein Konto?';
 
   @override
-  String get workoutsToday => 'Protokolle heute';
+  String get workoutsToday => 'Heutige Trainings';
 
   @override
-  String get caloriesBurned => 'Verbrauchte Energie';
+  String get caloriesBurned => 'Energieverbrauch';
 
   @override
-  String get postureAccuracy => 'Ausrichtungspräzision';
+  String get postureAccuracy => 'Haltungsgenauigkeit';
 
   @override
-  String get sessions => 'Sitzungen';
+  String get sessions => 'Einheiten';
 
   @override
-  String get kcal => 'Kcal';
+  String get kcal => 'kcal';
 
   @override
-  String get goodPosture => '% Ausrichtung';
+  String get goodPosture => '% Gut';
 
   @override
-  String get home => 'Start';
+  String get home => 'Home';
 
   @override
-  String get exercises => 'Modalitäten';
+  String get exercises => 'Übungen';
 
   @override
-  String get logout => 'Sitzung beenden';
+  String get logout => 'Abmelden';
 
   @override
-  String get welcome => 'System bereit';
+  String get welcome => 'Willkommen';
 
   @override
-  String get premiumPlan => 'Rhockai Elite';
+  String get premiumPlan => 'Premium';
 
   @override
-  String get basicPlan => 'Rhockai Core';
+  String get basicPlan => 'Basis';
 
   @override
-  String get workoutStats => 'Performance-Analyse';
+  String get workoutStats => 'Ihre Statistik';
 
   @override
-  String get latestActivity => 'Letzte Syncs';
+  String get latestActivity => 'Letzte Aktivitäten';
 
   @override
-  String get goalsAndTips => 'Direktiven & Insights';
+  String get goalsAndTips => 'Ziele & Tipps';
 
   @override
-  String get createAccount => 'Profil initialisieren';
+  String get createAccount => 'Konto erstellen';
 
   @override
-  String get fullName => 'Vollständiger Name';
+  String get fullName => 'Name';
 
   @override
   String get age => 'Alter';
 
   @override
-  String get gender => 'Bio-Signatur';
+  String get gender => 'Geschlecht';
 
   @override
-  String get genderOptional => 'Bio-Signatur (Optional)';
+  String get genderOptional => 'Geschlecht (Optional)';
 
   @override
   String get male => 'Männlich';
@@ -159,62 +159,61 @@ class AppLocalizationsDe extends AppLocalizations {
   String get other => 'Andere';
 
   @override
-  String get passwordsDoNotMatch => 'Zugangsschlüssel stimmen nicht überein';
+  String get passwordsDoNotMatch => 'Passwörter stimmen nicht überein';
 
   @override
-  String get confirmPassword => 'Zugangsschlüssel bestätigen';
+  String get confirmPassword => 'Passwort bestätigen';
 
   @override
-  String get enterName => 'Bitte Identität eingeben';
+  String get enterName => 'Bitte Namen eingeben';
 
   @override
-  String get nameTooShort => 'Identität muss mindestens 2 Zeichen lang sein';
+  String get nameTooShort => 'Name ist zu kurz';
 
   @override
-  String get enterEmail => 'Bitte Netzwerk-ID eingeben';
+  String get enterEmail => 'Bitte E-Mail eingeben';
 
   @override
-  String get invalidEmail => 'Bitte gültige Netzwerk-ID eingeben';
+  String get invalidEmail => 'Ungültiges E-Mail-Format';
 
   @override
-  String get enterAge => 'Bitte Alter eingeben';
+  String get enterAge => 'Bitte Alter angeben';
 
   @override
-  String get invalidAge => 'Bitte gültiges Alter eingeben (13-120)';
+  String get invalidAge => 'Ungültiges Alter (13-120)';
 
   @override
-  String get enterPassword => 'Bitte Zugangsschlüssel eingeben';
+  String get enterPassword => 'Bitte Passwort eingeben';
 
   @override
-  String get passwordTooShort =>
-      'Zugangsschlüssel muss mindestens 8 Zeichen lang sein';
+  String get passwordTooShort => 'Passwort ist zu kurz';
 
   @override
   String get welcomeBack => 'Willkommen zurück';
 
   @override
-  String get signInToContinue => 'Synchronisieren, um Ihre Reise fortzusetzen';
+  String get signInToContinue => 'Melden Sie sich an, um fortzufahren';
 
   @override
-  String get forgotPasswordQuestion => 'Zugangsschlüssel verloren?';
+  String get forgotPasswordQuestion => 'Passwort vergessen?';
 
   @override
   String get or => 'ODER';
 
   @override
-  String get aboutThisWorkout => 'Protokoll-Spezifikationen';
+  String get aboutThisWorkout => 'Über dieses Training';
 
   @override
-  String get aiCoachInsight => 'Rhockai Intelligenz';
+  String get aiCoachInsight => 'Rhockai Coach';
 
   @override
   String get target => 'Ziel';
 
   @override
-  String get focus => 'Fokus-Zone';
+  String get focus => 'Fokus';
 
   @override
-  String get repsLabel => 'Zyklen';
+  String get repsLabel => 'Wdh.';
 
   @override
   String get pushUps => 'Liegestütze';
@@ -226,43 +225,42 @@ class AppLocalizationsDe extends AppLocalizations {
   String get planks => 'Unterarmstütz';
 
   @override
-  String get pushUpsTraining => 'Liegestütze-Optimierung';
+  String get pushUpsTraining => 'Liegestütze';
 
   @override
   String get pushUpsDescription =>
-      'Tiefe neuronale Formanalyse und automatisierte Wiederholungszählung für Liegestütze.';
+      'Echtzeit-Haltungsanalyse und Zählen von Liegestützen.';
 
   @override
-  String get squatsTraining => 'Kniebeugen-Optimierung';
+  String get squatsTraining => 'Kniebeugen';
 
   @override
   String get squatsDescription =>
-      'Tiefe neuronale Formanalyse und automatisierte Wiederholungszählung für Kniebeugen.';
+      'Echtzeit-Haltungsanalyse und Zählen von Kniebeugen.';
 
   @override
-  String get planksTraining => 'Unterarmstütz-Optimierung';
+  String get planksTraining => 'Unterarmstütz';
 
   @override
-  String get planksDescription =>
-      'Tiefe neuronale Formanalyse und zeitliche Verfolgung für Unterarmstütz.';
+  String get planksDescription => 'Echtzeit-Haltungsanalyse und Zeitmessung.';
 
   @override
-  String get tempo => 'Puls';
+  String get tempo => 'Tempo';
 
   @override
-  String get getReady => 'Kalibrierung...';
+  String get getReady => 'Bereit machen!';
 
   @override
-  String get analyzingEnvironment => 'Umgebung scannen...';
+  String get analyzingEnvironment => 'Umgebung wird gescannt...';
 
   @override
-  String get standInFrame => 'Im Sichtfeld zentrieren';
+  String get standInFrame => 'In die Mitte stellen';
 
   @override
-  String get comeCloser => 'Abstand optimieren';
+  String get comeCloser => 'Näher kommen';
 
   @override
-  String get pause => 'Aussetzen';
+  String get pause => 'Pause';
 
   @override
   String get resume => 'Fortsetzen';
@@ -271,27 +269,40 @@ class AppLocalizationsDe extends AppLocalizations {
   String get finish => 'Beenden';
 
   @override
-  String get excellent => 'Spitzenleistung!';
+  String get excellent => 'Ausgezeichnet!';
 
   @override
-  String get keepGoing => 'Protokoll fortsetzen!';
+  String get keepGoing => 'Weiter so!';
 
   @override
-  String get upgradeToPremium => 'Aufstieg zu Elite';
+  String get upgradeToPremium => 'Premium holen';
 
   @override
-  String get unlockFullPotential => 'Neuronales Potenzial entfalten';
+  String get unlockFullPotential => 'Alle Funktionen freischalten';
 
   @override
   String get premiumDescription =>
-      'Erhalten Sie fortschrittliche Rhockai-Pose-Analyse, unbegrenzte Protokolle und bevorzugten neuronalen Support.';
+      'Erhalten Sie fortschrittliche biometrische Analysen und unbegrenzte Trainings.';
 
   @override
-  String get monthlyPlanPrice => 'Monatlicher Knoten - 9,99 €/Mo';
+  String get monthlyPlanPrice => '9,99 € / Monat';
 
   @override
-  String get yearlyPlanPrice => 'Jährlicher Sync - 79,99 €/Jahr';
+  String get yearlyPlanPrice => '79,99 € / Jahr';
 
   @override
-  String get lifetimePlanPrice => 'Permanente Integration - 149,99 €';
+  String get lifetimePlanPrice => '149,99 € Einmalig';
+
+  @override
+  String get manageSubscription => 'Abonnement verwalten';
+
+  @override
+  String get subscriptionStatus => 'Abonnement-Status';
+
+  @override
+  String get premiumMemberStatus => 'Du bist ein Premium-Mitglied! 🚀';
+
+  @override
+  String get premiumMemberDescription =>
+      'Vielen Dank für deine Unterstützung von Rhockai. Du hast vollen Zugriff auf alle KI-Funktionen.';
 }

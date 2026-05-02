@@ -4,19 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:confetti/confetti.dart';
 import 'package:rhockai/core/constants/api_constants.dart';
 import 'package:rhockai/core/network/dio_client.dart';
+import 'package:rhockai/features/auth/presentation/providers/auth_provider.dart';
 
 final paymentServiceProvider = Provider<PaymentService>((ref) {
   final dio = ref.watch(dioClientProvider);
-  return PaymentService(dio);
+  return PaymentService(dio, ref);
 });
 
 class PaymentService {
   final Dio _dio;
+  final Ref _ref; // Added to access other providers
   WebSocketChannel? _channel;
 
-  PaymentService(this._dio);
+  PaymentService(this._dio, this._ref);
 
   /// Initiate the checkout process
   Future<void> purchasePlan(String planType) async {
@@ -35,6 +38,27 @@ class PaymentService {
       }
     } catch (e) {
       debugPrint('Checkout Error: $e');
+      rethrow;
+    }
+  }
+
+  /// Get the customer portal URL and launch it
+  Future<void> getCustomerPortal() async {
+    try {
+      final response = await _dio.get('/payments/portal');
+
+      if (response.statusCode == 200) {
+        final portalUrl = response.data['portal_url'];
+        final Uri url = Uri.parse(portalUrl);
+        
+        if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+          throw Exception('Could not launch portal URL');
+        }
+      } else {
+        throw Exception('Failed to get customer portal');
+      }
+    } catch (e) {
+      debugPrint('Portal Error: $e');
       rethrow;
     }
   }
@@ -68,25 +92,88 @@ class PaymentService {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: const Text('Payment Successful! 🎉', style: TextStyle(color: Colors.green)),
-        content: Text(message),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // Trigger app reload or state update here
-              // e.g., ref.refresh(userProvider)
-            },
-            child: const Text('Awesome!', style: TextStyle(fontSize: 16)),
-          ),
-        ],
+      builder: (context) => PaymentSuccessDialog(
+        message: message,
+        onDismiss: () => _ref.invalidate(currentUserProvider),
       ),
     );
   }
 
   void dispose() {
     _channel?.sink.close();
+  }
+}
+
+class PaymentSuccessDialog extends StatefulWidget {
+  final String message;
+  final VoidCallback onDismiss;
+
+  const PaymentSuccessDialog({
+    super.key,
+    required this.message,
+    required this.onDismiss,
+  });
+
+  @override
+  State<PaymentSuccessDialog> createState() => _PaymentSuccessDialogState();
+}
+
+class _PaymentSuccessDialogState extends State<PaymentSuccessDialog> {
+  late ConfettiController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = ConfettiController(duration: const Duration(seconds: 3));
+    _controller.play();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: [
+        AlertDialog(
+          title: const Text('Payment Successful! 🎉',
+              style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.check_circle_outline, size: 64, color: Colors.green),
+              const SizedBox(height: 16),
+              Text(widget.message, textAlign: TextAlign.center),
+            ],
+          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                widget.onDismiss();
+              },
+              child: const Text('Awesome!', style: TextStyle(fontSize: 16)),
+            ),
+          ],
+        ),
+        ConfettiWidget(
+          confettiController: _controller,
+          blastDirectionality: BlastDirectionality.explosive,
+          shouldLoop: false,
+          colors: const [
+            Colors.green,
+            Colors.blue,
+            Colors.pink,
+            Colors.orange,
+            Colors.purple
+          ],
+        ),
+      ],
+    );
   }
 }

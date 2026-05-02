@@ -47,6 +47,7 @@ dependencies:
   share_plus: ^12.0.1
   web_socket_channel: ^3.0.3
   url_launcher: ^6.3.2
+  confetti: ^0.8.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
