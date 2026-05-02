@@ -3,7 +3,7 @@ Main API router - combines all endpoint routers
 """
 
 from fastapi import APIRouter
-from app.api.v1.endpoints import auth, sessions, analytics, tracking, admin_analytics, ai, workouts, gamification, payments, notifications
+from app.api.v1.endpoints import auth, sessions, analytics, tracking, admin_analytics, ai, workouts, gamification, payments, notifications, system
 
 # Create main API router
 api_router = APIRouter()
@@ -67,4 +67,10 @@ api_router.include_router(
     notifications.router,
     prefix="/notifications",
     tags=["Notifications"],
+)
+
+api_router.include_router(
+    system.router,
+    prefix="/system",
+    tags=["System"],
 )

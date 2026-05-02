@@ -18,6 +18,7 @@ import 'features/auth/data/repositories/auth_repository.dart';
 import 'core/providers/settings_provider.dart';
 import 'features/payments/premium_upgrade_screen.dart';
 import 'features/payments/payment_service.dart';
+import 'core/services/update_service.dart';
 
 class AIWorkoutTrackerApp extends ConsumerStatefulWidget {
   const AIWorkoutTrackerApp({super.key});
@@ -58,6 +59,13 @@ class _AIWorkoutTrackerAppState extends ConsumerState<AIWorkoutTrackerApp> {
       setState(() {
         _isLoggedIn = loggedIn;
         _isLoading = false;
+      });
+      
+      // Check for app updates once the app has finished loading
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          UpdateService.checkForUpdate(context);
+        }
       });
     }
   }
