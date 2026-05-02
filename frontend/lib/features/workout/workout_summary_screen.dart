@@ -209,8 +209,6 @@ class _WorkoutSummaryScreenState extends State<WorkoutSummaryScreen> {
                     ],
                   ),
                 ),
-              ),
-              
               const SizedBox(height: 40),
               
               ElevatedButton.icon(
