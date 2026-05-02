@@ -26,8 +26,6 @@ class WorkoutSummaryScreen extends StatefulWidget {
 }
 
 class _WorkoutSummaryScreenState extends State<WorkoutSummaryScreen> {
-  final GlobalKey _scorecardKey = GlobalKey();
-  bool _isCapturing = false;
   int _streak = 0;
   late ConfettiController _confettiController;
 
@@ -83,28 +81,26 @@ class _WorkoutSummaryScreenState extends State<WorkoutSummaryScreen> {
               ),
               const SizedBox(height: 30),
               
-              // THE SCORECARD - This is what gets captured and shared
-              RepaintBoundary(
-                key: _scorecardKey,
-                child: Container(
-                  padding: const EdgeInsets.all(30),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Color(0xFF1A1A1A), Color(0xFF0D0D0D)],
-                    ),
-                    borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: Colors.white10, width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.greenAccent.withOpacity(0.1),
-                        blurRadius: 30,
-                        spreadRadius: 5,
-                      ),
-                    ],
+              // THE SCORECARD
+              Container(
+                padding: const EdgeInsets.all(30),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFF1A1A1A), Color(0xFF0D0D0D)],
                   ),
-                  child: Column(
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Colors.white10, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.greenAccent.withOpacity(0.1),
+                      blurRadius: 30,
+                      spreadRadius: 5,
+                    ),
+                  ],
+                ),
+                child: Column(
                     children: [
                       const Text(
                         'RHOCKAI PERFORMANCE',
