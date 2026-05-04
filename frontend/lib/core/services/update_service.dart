@@ -8,8 +8,8 @@ import 'package:rhockai/core/constants/api_constants.dart';
 class UpdateService {
   static final Dio _dio = Dio(BaseOptions(
     baseUrl: ApiConstants.baseUrl,
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
+    connectTimeout: const Duration(seconds: 50),
+    receiveTimeout: const Duration(seconds: 50),
   ));
 
   /// Checks for an update and shows a dialog if one is available

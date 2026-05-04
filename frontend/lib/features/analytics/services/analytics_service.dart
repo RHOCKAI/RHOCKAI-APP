@@ -41,10 +41,18 @@ class AnalyticsService {
     _sessionStart = DateTime.now();
 
     try {
+      // Guard: Check for token before hitting protected endpoint
+      final token = await _apiClient.getToken();
+      if (token == null) {
+        debugPrint('Analytics: Skipping session start (not logged in)');
+        return;
+      }
+
       await _apiClient.post('/track/session/start', data: request.toJson());
       debugPrint('Analytics: Session started - $_currentSessionId');
     } catch (e) {
       debugPrint('Analytics Error: Failed to start session - $e');
+      rethrow; // Rethrow to allow app to handle (e.g. 401)
     }
   }
 

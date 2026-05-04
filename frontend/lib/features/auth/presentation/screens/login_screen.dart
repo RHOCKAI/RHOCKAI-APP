@@ -180,7 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       Text(
-                        AppLocalizations.of(context)!.signInToContinue,
+                        AppLocalizations.of(context)?.signInToContinue ?? 'Sign in to continue',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurface
                               .withValues(alpha: 0.6),
@@ -194,11 +194,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // Welcome text
                 Text(
-                  AppLocalizations.of(context)!.welcomeBack,
+                  AppLocalizations.of(context)?.welcomeBack ?? 'Welcome Back',
                   style: theme.textTheme.headlineLarge,
                 ),
                 Text(
-                  AppLocalizations.of(context)!.signInToContinue,
+                  AppLocalizations.of(context)?.signInToContinue ?? 'Sign in to continue',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
@@ -209,7 +209,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Email field
                 _buildTextField(
                   controller: _emailController,
-                  label: AppLocalizations.of(context)!.email,
+                  label: AppLocalizations.of(context)?.email ?? 'Email',
                   hint: 'your.email@example.com',
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
@@ -231,7 +231,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Password field
                 _buildTextField(
                   controller: _passwordController,
-                  label: AppLocalizations.of(context)!.password,
+                  label: AppLocalizations.of(context)?.password ?? 'Password',
                   hint: '••••••••',
                   icon: Icons.lock_outlined,
                   obscureText: _obscurePassword,
@@ -268,7 +268,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: TextButton(
                     onPressed: _isLoading ? null : _handleForgotPassword,
                     child: Text(
-                      AppLocalizations.of(context)!.forgotPasswordQuestion,
+                      AppLocalizations.of(context)?.forgotPasswordQuestion ?? 'Forgot Password?',
                       style: TextStyle(
                         color: colorScheme.primary,
                       ),
@@ -316,8 +316,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       AlwaysStoppedAnimation(Colors.white),
                                 ),
                               )
-                            : Text(AppLocalizations.of(context)!
-                                .login
+                            : Text((AppLocalizations.of(context)?.login ?? 'Login')
                                 .toUpperCase()),
                       ),
                     ),
@@ -338,7 +337,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        AppLocalizations.of(context)!.or,
+                        AppLocalizations.of(context)?.or ?? 'OR',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurface
                               .withValues(alpha: 0.6),
@@ -391,7 +390,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        '${AppLocalizations.of(context)!.dontHaveAccount} ',
+                        '${AppLocalizations.of(context)?.dontHaveAccount ?? 'New to Rhockai?'} ',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurface
                               .withValues(alpha: 0.6),
@@ -407,7 +406,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           );
                         },
                         child: Text(
-                          AppLocalizations.of(context)!.signup,
+                          AppLocalizations.of(context)?.signup ?? 'Sign Up',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: colorScheme.primary,

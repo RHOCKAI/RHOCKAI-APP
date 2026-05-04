@@ -12,8 +12,8 @@ class ApiClient {
   ApiClient()
       : _dio = Dio(BaseOptions(
           baseUrl: baseUrl,
-          connectTimeout: const Duration(seconds: 30),
-          receiveTimeout: const Duration(seconds: 30),
+          connectTimeout: const Duration(seconds: 50),
+          receiveTimeout: const Duration(seconds: 50),
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
@@ -62,6 +62,10 @@ class ApiClient {
         },
       ),
     );
+  }
+
+  Future<String?> getToken() async {
+    return await _storage.read(key: 'auth_token');
   }
 
   Future<Response> get(String path,

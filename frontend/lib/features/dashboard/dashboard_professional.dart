@@ -62,7 +62,7 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
                 // Mobile/Tablet app bar
                 if (isMobile)
                   AppBar(
-                    title: Text(AppLocalizations.of(context)!.appTitle, 
+                    title: Text(AppLocalizations.of(context)?.appTitle ?? 'Rhockai', 
                       style: const TextStyle(fontFamily: 'Rajdhani', fontWeight: FontWeight.bold, letterSpacing: 2)),
                     backgroundColor: theme.colorScheme.surface,
                     elevation: 0,
@@ -223,7 +223,8 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
 
   Widget _buildTopStatsRow(bool isMobile) {
     final statsAsync = ref.watch(combinedStatsProvider);
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
 
     return statsAsync.when(
       data: (stats) => Wrap(

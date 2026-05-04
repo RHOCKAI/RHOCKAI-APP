@@ -39,34 +39,78 @@ class _AIWorkoutTrackerAppState extends ConsumerState<AIWorkoutTrackerApp> {
   }
 
   Future<void> _initializeApp() async {
-    await _checkAuth();
-    await _initAnalytics();
+    // Safety timeout: ensure we proceed even if network calls hang
+    Future.delayed(const Duration(seconds: 8), () {
+      if (mounted && _isLoading) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    });
+
+    try {
+      await _checkAuth();
+      await _initAnalytics();
+    } catch (e) {
+      debugPrint('Initialization error: $e');
+      if (e.toString().contains('401')) {
+        final authRepo = AuthRepository();
+        await authRepo.logout();
+        if (mounted) {
+          setState(() {
+            _isLoggedIn = false;
+          });
+        }
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> _checkAuth() async {
-    final authRepo = AuthRepository();
-    final loggedIn = await authRepo.isLoggedIn();
+    try {
+      final authRepo = AuthRepository();
+      bool loggedIn = await authRepo.isLoggedIn();
 
-    if (loggedIn) {
-      final token = await authRepo.getToken();
-      if (token != null && mounted) {
-        final paymentService = ref.read(paymentServiceProvider);
-        paymentService.connectToNotifications(token, context);
-      }
-    }
-
-    if (mounted) {
-      setState(() {
-        _isLoggedIn = loggedIn;
-        _isLoading = false;
-      });
-      
-      // Check for app updates once the app has finished loading
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          UpdateService.checkForUpdate(context);
+      if (loggedIn) {
+        try {
+          // Verify token by getting current user
+          await authRepo.getCurrentUser();
+        } catch (e) {
+          debugPrint('Token verification failed: $e');
+          if (e.toString().contains('401') || e.toString().contains('Session expired')) {
+            await authRepo.logout();
+            loggedIn = false;
+          }
         }
-      });
+      }
+
+      if (mounted) {
+        setState(() {
+          _isLoggedIn = loggedIn;
+        });
+
+        if (loggedIn) {
+          final token = await authRepo.getToken();
+          if (token != null) {
+            final paymentService = ref.read(paymentServiceProvider);
+            paymentService.connectToNotifications(token, context);
+          }
+        }
+        
+        // Check for app updates once we know auth status
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            UpdateService.checkForUpdate(context);
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('Auth check error: $e');
     }
   }
 
@@ -95,21 +139,11 @@ class _AIWorkoutTrackerAppState extends ConsumerState<AIWorkoutTrackerApp> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
-      );
-    }
-
     final locale = ref.watch(localeProvider);
     final analytics = ref.watch(analyticsServiceProvider);
     final settings = ref.watch(settingsProvider);
 
+    // Main App with consistent structure
     return MaterialApp(
       title: 'Rhockai',
       debugShowCheckedModeBanner: false,
@@ -126,30 +160,66 @@ class _AIWorkoutTrackerAppState extends ConsumerState<AIWorkoutTrackerApp> {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('en'), // English
-        Locale('de'), // German
-        Locale('ja'), // Japanese
-        Locale('fr'), // French
-        Locale('es'), // Spanish
-        Locale('pt'), // Portuguese
-        Locale('ar'), // Arabic
-      ],
-      initialRoute: _isLoggedIn ? '/home' : '/demo',
-      routes: {
-        '/': (context) => const LoginScreen(),
-        '/demo': (context) => const CameraAIScreen(exerciseType: 'pushup', isDemo: true),
-        '/home': (context) => const AdaptiveDashboard(),
-        '/history': (context) => const WorkoutHistoryScreen(),
-        '/progress': (context) => const ProgressScreen(),
-        '/settings': (context) => const SettingsScreen(),
-        '/premium': (context) => const PremiumUpgradeScreen(),
-        '/camera': (context) {
-          final args =
-              ModalRoute.of(context)?.settings.arguments as String? ?? 'pushup';
-          return CameraAIScreen(exerciseType: args);
-        },
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: _isLoading 
+        ? _buildLoadingScreen() 
+        : (_isLoggedIn ? const AdaptiveDashboard() : const LoginScreen()),
+      onGenerateRoute: (settings) {
+        // Handle named routes safely
+        if (settings.name == '/home') {
+          return MaterialPageRoute(builder: (_) => const AdaptiveDashboard());
+        }
+        if (settings.name == '/demo') {
+          return MaterialPageRoute(builder: (_) => const CameraAIScreen(exerciseType: 'pushup', isDemo: true));
+        }
+        if (settings.name == '/camera') {
+          final args = settings.arguments as String? ?? 'pushup';
+          return MaterialPageRoute(builder: (_) => CameraAIScreen(exerciseType: args));
+        }
+        if (settings.name == '/history') {
+          return MaterialPageRoute(builder: (_) => const WorkoutHistoryScreen());
+        }
+        if (settings.name == '/progress') {
+          return MaterialPageRoute(builder: (_) => const ProgressScreen());
+        }
+        if (settings.name == '/settings') {
+          return MaterialPageRoute(builder: (_) => const SettingsScreen());
+        }
+        if (settings.name == '/premium') {
+          return MaterialPageRoute(builder: (_) => const PremiumUpgradeScreen());
+        }
+        if (settings.name == '/') {
+          return MaterialPageRoute(builder: (_) => const LoginScreen());
+        }
+        return null;
       },
+    );
+  }
+
+  Widget _buildLoadingScreen() {
+    return const Scaffold(
+      backgroundColor: Color(0xFF0A0E27), // Match brand dark background
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00D9FF)), // Neon Blue
+            ),
+            SizedBox(height: 24),
+            Text(
+              'RHOCKAI',
+              style: TextStyle(
+                color: Color(0xFF00D9FF),
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 4,
+                fontFamily: 'Rajdhani',
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

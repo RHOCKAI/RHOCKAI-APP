@@ -109,7 +109,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     setState(() {
       _isWarmingUp = true;
       _isWorkoutActive = false;
-      _feedbackMessage = AppLocalizations.of(context)!.getReady;
+      _feedbackMessage = AppLocalizations.of(context)?.getReady ?? 'Get ready...';
       _feedbackColor = const Color(0xFFFFD700); // Gold
     });
 
@@ -152,7 +152,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     Future.delayed(const Duration(seconds: 1), () {
       if (mounted && _isWorkoutActive) {
         setState(() {
-          _feedbackMessage = AppLocalizations.of(context)!.keepGoing;
+          _feedbackMessage = AppLocalizations.of(context)?.keepGoing ?? 'Keep going!';
         });
       }
     });
@@ -304,7 +304,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       _currentSet++;
 
       // Keep feedback message transient or reset
-      _feedbackMessage = AppLocalizations.of(context)!.keepGoing;
+      _feedbackMessage = AppLocalizations.of(context)?.keepGoing ?? 'Keep going!';
     });
   }
 
@@ -353,7 +353,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     if (poses.isEmpty) {
       if (mounted) {
         setState(() {
-          _feedbackMessage = AppLocalizations.of(context)!.standInFrame;
+          _feedbackMessage = AppLocalizations.of(context)?.standInFrame ?? 'Stand in frame';
           _feedbackColor = const Color(0xFFFF6B35); // Neon Orange
           _currentPose = null;
         });
@@ -368,7 +368,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
         .hasGoodConfidence(ExerciseThresholds.minLandmarkConfidence)) {
       if (mounted) {
         setState(() {
-          _feedbackMessage = AppLocalizations.of(context)!.comeCloser;
+          _feedbackMessage = AppLocalizations.of(context)?.comeCloser ?? 'Come closer';
           _feedbackColor = const Color(0xFFFF6B35);
           _currentPose = poseLandmarks;
         });
@@ -405,8 +405,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       } else if (_repsInSet >= _targetReps && _currentSet >= _targetSets) {
         // Workout Complete logic handled by user pressing stop or we auto-finish?
         if (mounted) {
-          final l10n = AppLocalizations.of(context)!;
-          _feedbackMessage = l10n.workoutComplete;
+          _feedbackMessage = AppLocalizations.of(context)?.workoutComplete ?? 'Workout complete!';
           _feedbackColor = const Color(0xFF00FF88);
         }
       }
@@ -761,7 +760,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
                             ? 'WARMUP'
                             : (_isResting
                                 ? 'REST'
-                                : '${AppLocalizations.of(context)!.repsLabel.toUpperCase()} / $_targetReps'),
+                                : '${(AppLocalizations.of(context)?.repsLabel ?? 'Reps').toUpperCase()} / $_targetReps'),
                         style: const TextStyle(
                           fontFamily: 'Outfit',
                           fontSize: 16,
@@ -832,19 +831,19 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       child: Column(
         children: [
           _buildStatBadge(
-            AppLocalizations.of(context)!.accuracy,
+            AppLocalizations.of(context)?.accuracy ?? 'Accuracy',
             '${_accuracy.toInt()}%',
             Icons.check_circle_outline,
           ),
           const SizedBox(height: 16),
           _buildStatBadge(
-            AppLocalizations.of(context)!.tempo,
+            AppLocalizations.of(context)?.tempo ?? 'Tempo',
             '${_repMachine?.lastTempoScore.toInt() ?? 0}',
             Icons.speed,
           ),
           const SizedBox(height: 16),
           _buildStatBadge(
-            AppLocalizations.of(context)!.calories,
+            AppLocalizations.of(context)?.calories ?? 'Calories',
             '${(_repCount * (Exercises.getById(widget.exerciseType)?.caloriesPerRep ?? 0.5)).toInt()}',
             Icons.local_fire_department,
           ),
@@ -924,8 +923,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
                 _isResting
                     ? 'Skip Rest'
                     : (_isWorkoutActive
-                        ? AppLocalizations.of(context)!.pause
-                        : AppLocalizations.of(context)!.resume),
+                        ? AppLocalizations.of(context)?.pause ?? 'Pause'
+                        : AppLocalizations.of(context)?.resume ?? 'Resume'),
                 () {
                   if (_isResting) {
                     _skipRest();
@@ -952,7 +951,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
               if (!_isWarmingUp)
                 _buildControlButton(
                   Icons.stop,
-                  AppLocalizations.of(context)!.finish,
+                  AppLocalizations.of(context)?.finish ?? 'Finish',
                   _completeWorkout,
                 ),
             ],
