@@ -272,21 +272,31 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
   }
 
   void _initializeRepMachine() {
-    ExerciseType type;
-    switch (widget.exerciseType.toLowerCase()) {
-      case 'pushup':
-        type = ExerciseType.pushup;
-        break;
-      case 'squat':
-        type = ExerciseType.squat;
-        break;
-      case 'plank':
-        type = ExerciseType.plank;
-        break;
-      default:
-        type = ExerciseType.pushup;
-    }
+    final typeMap = {
+      'pushup': ExerciseType.pushup,
+      'push-up': ExerciseType.pushup,
+      'squat': ExerciseType.squat,
+      'plank': ExerciseType.plank,
+      'glute_bridge': ExerciseType.gluteBridge,
+      'inchworm': ExerciseType.inchworm,
+      'high_knees': ExerciseType.highKnees,
+      'lunge': ExerciseType.lunge,
+      'tricep_dip': ExerciseType.tricepDip,
+      'mountain_climber': ExerciseType.mountainClimber,
+      'side_plank': ExerciseType.sidePlank,
+      'reverse_lunge': ExerciseType.reverseLunge,
+      'pike_pushup': ExerciseType.pikePushup,
+      'sumo_squat': ExerciseType.sumoSquat,
+      'pistol_squat': ExerciseType.pistolSquat,
+      'diamond_pushup': ExerciseType.diamondPushup,
+      'archer_pushup': ExerciseType.archerPushup,
+      'jump_squat': ExerciseType.jumpSquat,
+      'burpee': ExerciseType.burpee,
+      'single_leg_deadlift': ExerciseType.singleLegDeadlift,
+      'spiderman_pushup': ExerciseType.spidermanPushup,
+    };
 
+    final type = typeMap[widget.exerciseType.toLowerCase()] ?? ExerciseType.pushup;
     _repMachine = RepStateMachine(type);
   }
 
