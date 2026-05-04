@@ -8,6 +8,7 @@ import 'package:rhockai/features/auth/presentation/providers/auth_provider.dart'
 import 'package:rhockai/features/camera_ai/session/session_provider.dart';
 import 'package:rhockai/features/gamification/widgets/streak_card.dart';
 import 'package:rhockai/features/gamification/widgets/level_progress_card.dart';
+import 'package:rhockai/core/utils/premium_gate.dart';
 
 import 'package:rhockai/shared/widgets/pulse_animation.dart';
 import 'package:rhockai/core/config/app_theme.dart';
@@ -515,14 +516,18 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
             Navigator.push(context, MaterialPageRoute(builder: (context) => const ExercisesListScreen()));
           }),
           _buildSidebarItem(Icons.analytics_outlined, 'Progress', false, onTap: () {
+            // is_premium from API = true during trial OR paid subscription
             if (user != null && user['is_premium'] == true) {
               Navigator.pushNamed(context, '/progress');
             } else {
               Navigator.pushNamed(context, '/premium');
             }
           }),
-          _buildSidebarItem(Icons.settings_outlined, 'Settings', false),
+          _buildSidebarItem(Icons.settings_outlined, 'Settings', false, onTap: () {
+            Navigator.pushNamed(context, '/settings');
+          }),
           const Spacer(),
+          // Only show premium banner if user has NO access at all (no trial, no paid)
           if (user == null || user['is_premium'] != true) _buildPremiumBanner(),
           const SizedBox(height: 16),
           _buildSidebarItem(Icons.logout_rounded, 'Logout', false, onTap: _logout),
