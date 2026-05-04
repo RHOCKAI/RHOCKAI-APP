@@ -852,11 +852,17 @@ abstract class AppLocalizations {
   /// **'Share Performance Scorecard'**
   String get sharePerformance;
 
+  /// No description provided for @shareVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Video Instead'**
+  String get shareVideo;
+
   /// No description provided for @greatSession.
   ///
   /// In en, this message translates to:
   /// **'Great session, {name} 💪'**
-  String greatSession(String name);
+  String greatSession(Object name);
 
   /// No description provided for @eliteForm.
   ///
@@ -894,11 +900,47 @@ abstract class AppLocalizations {
   /// **'Help others discover AI training'**
   String get helpOthersDiscover;
 
+  /// No description provided for @saveToCameraRoll.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to Camera Roll'**
+  String get saveToCameraRoll;
+
   /// No description provided for @savedToHistory.
   ///
   /// In en, this message translates to:
   /// **'Saved to your Rhockai history automatically'**
   String get savedToHistory;
+
+  /// No description provided for @dayStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} day streak'**
+  String dayStreak(Object days);
+
+  /// No description provided for @fitnessLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fitness Level'**
+  String get fitnessLevel;
+
+  /// No description provided for @beginner.
+  ///
+  /// In en, this message translates to:
+  /// **'Beginner'**
+  String get beginner;
+
+  /// No description provided for @intermediate.
+  ///
+  /// In en, this message translates to:
+  /// **'Intermediate'**
+  String get intermediate;
+
+  /// No description provided for @advanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get advanced;
 }
 
 class _AppLocalizationsDelegate

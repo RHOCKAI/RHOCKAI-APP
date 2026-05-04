@@ -382,7 +382,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get sharePerformance => 'Share Performance Scorecard';
 
   @override
-  String greatSession(String name) => 'Great session, $name 💪';
+  String get shareVideo => 'Share Video Instead';
+
+  @override
+  String greatSession(Object name) {
+    return 'Great session, $name 💪';
+  }
 
   @override
   String get eliteForm => 'Elite form 🏆';
@@ -403,5 +408,25 @@ class AppLocalizationsJa extends AppLocalizations {
   String get helpOthersDiscover => 'Help others discover AI training';
 
   @override
+  String get saveToCameraRoll => 'Save to Camera Roll';
+
+  @override
   String get savedToHistory => 'Saved to your Rhockai history automatically';
+
+  @override
+  String dayStreak(Object days) {
+    return '$days day streak';
+  }
+
+  @override
+  String get fitnessLevel => 'Fitness Level';
+
+  @override
+  String get beginner => 'Beginner';
+
+  @override
+  String get intermediate => 'Intermediate';
+
+  @override
+  String get advanced => 'Advanced';
 }
