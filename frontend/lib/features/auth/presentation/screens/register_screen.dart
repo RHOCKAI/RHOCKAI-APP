@@ -59,7 +59,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (!mounted) {
         return;
       }
-      await Navigator.pushReplacementNamed(context, '/premium');
+      await Navigator.pushReplacementNamed(context, '/onboarding');
     } catch (e) {
       if (!mounted) {
         return;

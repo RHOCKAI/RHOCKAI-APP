@@ -38,11 +38,14 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     with TickerProviderStateMixin {
   // Logic Controllers
   CameraController? _cameraController;
+  List<CameraDescription> _availableCameras = [];
+  CameraLensDirection _currentCameraFacing = CameraLensDirection.front;
   PoseDetector? _poseDetector;
   RepStateMachine? _repMachine;
 
   bool _isDetecting = false;
   bool _isCameraInitialized = false;
+  bool _isSwitchingCamera = false;
   bool _isWorkoutActive = false; // Started as false, user can start/pause
 
   // Data
@@ -177,33 +180,63 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
 
   Future<void> _initializeCamera() async {
     try {
-      final cameras = await availableCameras();
-      final frontCamera = cameras.firstWhere(
-        (camera) => camera.lensDirection == CameraLensDirection.front,
-        orElse: () => cameras.first,
-      );
-
-      _cameraController = CameraController(
-        frontCamera,
-        ResolutionPreset.high,
-        enableAudio: false,
-        imageFormatGroup: Platform.isAndroid
-            ? ImageFormatGroup.nv21 // Better performance on Android
-            : ImageFormatGroup.bgra8888,
-      );
-
-      await _cameraController!.initialize();
-
-      if (mounted) {
-        setState(() {
-          _isCameraInitialized = true;
-        });
-      }
-
-      _startImageStream();
+      _availableCameras = await availableCameras();
+      await _startCamera(_currentCameraFacing);
     } catch (e) {
       debugPrint('Camera initialization error: $e');
     }
+  }
+
+  Future<void> _startCamera(CameraLensDirection direction) async {
+    try {
+      final camera = _availableCameras.firstWhere(
+        (c) => c.lensDirection == direction,
+        orElse: () => _availableCameras.first,
+      );
+
+      final newController = CameraController(
+        camera,
+        ResolutionPreset.high,
+        enableAudio: false,
+        imageFormatGroup: Platform.isAndroid
+            ? ImageFormatGroup.nv21
+            : ImageFormatGroup.bgra8888,
+      );
+
+      await newController.initialize();
+
+      if (!mounted) {
+        await newController.dispose();
+        return;
+      }
+
+      // Dispose old controller
+      await _cameraController?.dispose();
+
+      setState(() {
+        _cameraController = newController;
+        _currentCameraFacing = direction;
+        _isCameraInitialized = true;
+        _isSwitchingCamera = false;
+      });
+
+      _startImageStream();
+    } catch (e) {
+      debugPrint('Camera start error: $e');
+      if (mounted) setState(() => _isSwitchingCamera = false);
+    }
+  }
+
+  Future<void> _switchCamera() async {
+    if (_isSwitchingCamera || _availableCameras.length < 2) return;
+    setState(() {
+      _isCameraInitialized = false;
+      _isSwitchingCamera = true;
+    });
+    final newDirection = _currentCameraFacing == CameraLensDirection.front
+        ? CameraLensDirection.back
+        : CameraLensDirection.front;
+    await _startCamera(newDirection);
   }
 
   Future<void> _startRecording() async {
@@ -625,7 +658,39 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
               ),
             ),
             const Spacer(),
-            // Timer (Placeholder for now, can be hooked up to Session)
+            // Camera flip button
+            if (_availableCameras.length >= 2)
+              GestureDetector(
+                onTap: _switchCamera,
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.2)),
+                  ),
+                  child: _isSwitchingCamera
+                      ? const Center(
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        )
+                      : const Icon(
+                          Icons.flip_camera_ios_rounded,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                ),
+              ),
+            const SizedBox(width: 8),
+            // Timer / Set counter
             _buildTimerButton(),
           ],
         ),

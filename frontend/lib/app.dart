@@ -18,6 +18,7 @@ import 'features/auth/data/repositories/auth_repository.dart';
 import 'core/providers/settings_provider.dart';
 import 'features/payments/premium_upgrade_screen.dart';
 import 'features/payments/payment_service.dart';
+import 'features/onboarding/onboarding_screen.dart';
 import 'core/services/update_service.dart';
 
 class AIWorkoutTrackerApp extends ConsumerStatefulWidget {
@@ -168,6 +169,9 @@ class _AIWorkoutTrackerAppState extends ConsumerState<AIWorkoutTrackerApp> {
         // Handle named routes safely
         if (settings.name == '/home') {
           return MaterialPageRoute(builder: (_) => const AdaptiveDashboard());
+        }
+        if (settings.name == '/onboarding') {
+          return MaterialPageRoute(builder: (_) => const OnboardingScreen());
         }
         if (settings.name == '/demo') {
           return MaterialPageRoute(builder: (_) => const CameraAIScreen(exerciseType: 'pushup', isDemo: true));
