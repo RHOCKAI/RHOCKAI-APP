@@ -4,6 +4,7 @@ User repository
 
 from typing import Optional
 from sqlalchemy.orm import Session
+from datetime import datetime, timezone, timedelta
 
 from app.repositories.base import BaseRepository
 from app.models.user import User
@@ -19,6 +20,7 @@ class UserRepository(BaseRepository[User, UserCreate, UserUpdate]):
         return db.query(User).filter(User.email == email).first()
     
     def create_user(self, db: Session, *, obj_in: UserCreate) -> User:
+        trial_end = datetime.now(timezone.utc) + timedelta(days=7)
         db_obj = User(
             email=obj_in.email,
             hashed_password=get_password_hash(obj_in.password),
@@ -28,6 +30,7 @@ class UserRepository(BaseRepository[User, UserCreate, UserUpdate]):
             height=obj_in.height,
             weight=obj_in.weight,
             fitness_level=obj_in.fitness_level,
+            trial_ends_at=trial_end,
         )
         db.add(db_obj)
         db.commit()

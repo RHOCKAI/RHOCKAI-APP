@@ -35,7 +35,9 @@ class UserUpdate(BaseModel):
 
 class UserResponse(UserBase):
     id: int = Field(..., description="User ID")
-    is_premium: bool = Field(default=False, description="Premium subscription status")
+    is_premium: bool = Field(default=False, description="Premium access (paid subscription or active trial)")
+    is_trial: bool = Field(default=False, description="True if user is in free trial period")
+    trial_ends_at: Optional[datetime] = Field(None, description="When the free trial expires")
     language: str = Field(default="en", description="Preferred language")
     theme: str = Field(default="light", description="UI theme")
     voice_feedback: bool = Field(default=True, description="Voice feedback enabled")

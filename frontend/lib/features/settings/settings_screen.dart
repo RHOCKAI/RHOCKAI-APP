@@ -21,10 +21,12 @@ class SettingsScreen extends ConsumerWidget {
         children: [
           const LanguageSelector(),
           const Divider(),
-          
+
           // Upgrade to Premium
           ListTile(
-            title: Text(l10n.upgradeToPremium, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.amber)),
+            title: Text(l10n.upgradeToPremium,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.amber)),
             subtitle: Text(l10n.unlockFullPotential),
             leading: const Icon(Icons.star, color: Colors.amber),
             onTap: () {

@@ -3,6 +3,7 @@ User database model
 """
 
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum
+from datetime import datetime, timezone
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 import enum
@@ -55,8 +56,22 @@ class User(Base):
     # Subscription
     is_premium = Column(Boolean, default=False, nullable=False)
     subscription_end = Column(DateTime(timezone=True), nullable=True)
+    trial_ends_at = Column(DateTime(timezone=True), nullable=True)  # 7-day free trial
     stripe_customer_id = Column(String, nullable=True)
     lemon_squeezy_customer_id = Column(String, nullable=True)
+
+    @property
+    def is_in_trial(self) -> bool:
+        """Check if user is currently in free trial period"""
+        if self.trial_ends_at is None:
+            return False
+        now = datetime.now(timezone.utc)
+        return now <= self.trial_ends_at
+
+    @property
+    def has_premium_access(self) -> bool:
+        """True if user has premium via subscription OR active trial"""
+        return self.is_premium or self.is_in_trial
     
     # Account status
     is_active = Column(Boolean, default=True, nullable=False)
@@ -88,4 +103,4 @@ class User(Base):
     error_logs = relationship("ErrorLog", back_populates="user")
     
     def __repr__(self):
-        return f"<User(id={self.id}, email={self.email})>"
+        return f"<User(id={self.id}, email={self.email}, trial={self.is_in_trial})>"

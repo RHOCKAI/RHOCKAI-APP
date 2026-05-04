@@ -110,9 +110,22 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> wit
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
     final bool isPremium = user != null && user['is_premium'] == true;
+    final bool isInTrial = user != null && user['is_trial'] == true;
 
-    if (isPremium) {
+    // Full paid premium member
+    if (isPremium && !isInTrial) {
       return _buildPremiumActiveView(context);
+    }
+
+    // In free trial — show trial active banner
+    if (isInTrial) {
+      final trialEndsAt = user?['trial_ends_at'] != null
+          ? DateTime.tryParse(user!['trial_ends_at'])
+          : null;
+      final daysLeft = trialEndsAt != null
+          ? trialEndsAt.difference(DateTime.now()).inDays + 1
+          : 7;
+      return _buildTrialActiveView(context, daysLeft);
     }
 
     final l10n = AppLocalizations.of(context)!;
@@ -376,6 +389,156 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> wit
                 ),
               ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTrialActiveView(BuildContext context, int daysLeft) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
+      backgroundColor: const Color(0xFF0A0A0A),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 32),
+              // Trial badge
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF00D9FF), Color(0xFF9C27FF)],
+                    ),
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: const Text(
+                    '🎉 FREE TRIAL ACTIVE',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 14,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+              // Days remaining card
+              Container(
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      const Color(0xFF00D9FF).withOpacity(0.1),
+                      const Color(0xFF9C27FF).withOpacity(0.1),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(
+                    color: const Color(0xFF00D9FF).withOpacity(0.3),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      '$daysLeft',
+                      style: const TextStyle(
+                        fontSize: 80,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF00D9FF),
+                        fontFamily: 'Rajdhani',
+                        height: 1,
+                      ),
+                    ),
+                    const Text(
+                      'DAYS LEFT IN YOUR FREE TRIAL',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.5,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+              const Text(
+                'All Premium Features Unlocked',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              // Feature list
+              _buildFeatureRow(l10n.featureHistory),
+              const SizedBox(height: 12),
+              _buildFeatureRow(l10n.featureAccuracy),
+              const SizedBox(height: 12),
+              _buildFeatureRow(l10n.featureHeatmap),
+              const SizedBox(height: 12),
+              _buildFeatureRow(l10n.featureAchievements),
+              const SizedBox(height: 12),
+              _buildFeatureRow(l10n.featureVoice),
+              const SizedBox(height: 12),
+              _buildFeatureRow(l10n.featureSupport),
+              const SizedBox(height: 40),
+              // Upgrade CTA
+              ElevatedButton(
+                onPressed: _handleSubscribe,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.greenAccent,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    const Text(
+                      'UPGRADE TO PREMIUM',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      'Keep all features after trial ends',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.black.withOpacity(0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Center(
+                child: TextButton(
+                  onPressed: () {
+                    if (Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    } else {
+                      Navigator.pushReplacementNamed(context, '/home');
+                    }
+                  },
+                  child: const Text(
+                    'Continue Using Free Trial',
+                    style: TextStyle(color: Colors.white54),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );
