@@ -36,7 +36,11 @@ class AuthRepository {
       return response.data;
     } on DioException catch (e) {
       if (e.response != null) {
-        throw Exception(e.response!.data['detail'] ?? 'Registration failed');
+        final detail = e.response!.data['detail'];
+        if (detail != null && (detail.toString().contains('SELECT') || detail.toString().contains('column'))) {
+          throw Exception('Database sync error on server. Please contact support.');
+        }
+        throw Exception(detail ?? 'Registration failed');
       }
       throw Exception('Network error. Please check your connection.');
     }
@@ -66,7 +70,11 @@ class AuthRepository {
       await _storage.write(key: 'user_email', value: email);
     } on DioException catch (e) {
       if (e.response != null) {
-        throw Exception(e.response!.data['detail'] ?? 'Login failed');
+        final detail = e.response!.data['detail'];
+        if (detail != null && (detail.toString().contains('SELECT') || detail.toString().contains('column'))) {
+          throw Exception('Database sync error on server. Please contact support.');
+        }
+        throw Exception(detail ?? 'Login failed');
       }
       throw Exception('Network error. Please check your connection.');
     }
@@ -111,7 +119,14 @@ class AuthRepository {
         await logout();
         throw Exception('Session expired. Please login again.');
       }
-      throw Exception('Failed to get user profile');
+      
+      // If the backend returns a database error or SQL dump, don't show it to the user
+      final errorDetail = e.response?.data?['detail'];
+      if (errorDetail != null && (errorDetail.toString().contains('SELECT') || errorDetail.toString().contains('column'))) {
+        throw Exception('Database sync error. Please run the database fix script on the server.');
+      }
+      
+      throw Exception('Failed to get user profile. ${e.message}');
     }
   }
 

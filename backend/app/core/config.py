@@ -37,14 +37,13 @@ class Settings(BaseSettings):
             return v
         return ["*"]
 
-    # Stripe
-    STRIPE_SECRET_KEY: str = ""
-    STRIPE_PUBLISHABLE_KEY: str = ""
-    STRIPE_WEBHOOK_SECRET: str = ""
-
-    # Flutterwave
-    FLUTTERWAVE_SECRET_KEY: str = ""
-    FLUTTERWAVE_PUBLIC_KEY: str = ""
+    # Lemon Squeezy
+    LEMONSQUEEZY_API_KEY: str = ""
+    LEMONSQUEEZY_STORE_ID: str = ""
+    LEMONSQUEEZY_WEBHOOK_SECRET: str = ""
+    LEMONSQUEEZY_VARIANT_ID_MONTHLY: str = ""
+    LEMONSQUEEZY_VARIANT_ID_YEARLY: str = ""
+    LEMONSQUEEZY_VARIANT_ID_LIFETIME: str = ""
 
     # Email
     SENDGRID_API_KEY: str = ""

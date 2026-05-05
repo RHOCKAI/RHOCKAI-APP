@@ -207,6 +207,28 @@ class _AIWorkoutTrackerAppState extends ConsumerState<AIWorkoutTrackerApp> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0xFF00D9FF).withValues(alpha: 0.3),
+                    blurRadius: 30,
+                    spreadRadius: 5,
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(60),
+                child: Image.asset(
+                  'assets/app_icon/login.png',
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            SizedBox(height: 48),
             CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00D9FF)), // Neon Blue
             ),

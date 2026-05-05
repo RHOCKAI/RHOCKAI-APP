@@ -189,7 +189,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
 
   Widget _buildGoalPage() {
     return _buildPage(
-      emoji: '🎯',
+      image: 'assets/app_icon/login.png',
       headline: "What's your\nmain goal?",
       subtext: "We'll build your perfect plan around this.",
       child: Column(
@@ -428,7 +428,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   }
 
   Widget _buildPage({
-    required String emoji,
+    String? emoji,
+    String? image,
     required String headline,
     required String subtext,
     required Widget child,
@@ -438,7 +439,26 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 48)),
+          if (emoji != null) Text(emoji, style: const TextStyle(fontSize: 48)),
+          if (image != null)
+            Container(
+              width: 100,
+              height: 100,
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.neonBlue.withValues(alpha: 0.2),
+                    blurRadius: 20,
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(50),
+                child: Image.asset(image, fit: BoxFit.cover),
+              ),
+            ),
           const SizedBox(height: 16),
           Text(
             headline,

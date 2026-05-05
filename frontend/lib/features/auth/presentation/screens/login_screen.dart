@@ -205,30 +205,27 @@ class _LoginScreenState extends State<LoginScreen> {
                 Center(
                   child: Column(
                     children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              colorScheme.primary,
-                              colorScheme.secondary
-                            ],
+                    Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: colorScheme.primary.withValues(alpha: 0.3),
+                            blurRadius: 30,
+                            spreadRadius: 5,
                           ),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: colorScheme.primary.withValues(alpha: 0.3),
-                              blurRadius: 20,
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.fitness_center,
-                          color: Colors.white,
-                          size: 40,
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(60),
+                        child: Image.asset(
+                          'assets/app_icon/login.png',
+                          fit: BoxFit.cover,
                         ),
                       ),
+                    ),
                       const SizedBox(height: 24),
                       ShaderMask(
                         shaderCallback: (bounds) => LinearGradient(

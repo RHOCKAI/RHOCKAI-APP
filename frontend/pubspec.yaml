@@ -67,6 +67,7 @@ flutter:
     - assets/images/exercises/
     - assets/icons/
     - assets/sounds/  # Enabled sound effects directory
+    - assets/app_icon/
     - .env
 
   fonts:

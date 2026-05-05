@@ -57,7 +57,6 @@ class User(Base):
     is_premium = Column(Boolean, default=False, nullable=False)
     subscription_end = Column(DateTime(timezone=True), nullable=True)
     trial_ends_at = Column(DateTime(timezone=True), nullable=True)  # 7-day free trial
-    stripe_customer_id = Column(String, nullable=True)
     lemon_squeezy_customer_id = Column(String, nullable=True)
     
     # Social Login
