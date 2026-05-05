@@ -129,10 +129,10 @@ class _ExercisesListScreenState extends State<ExercisesListScreen>
                   Container(
                     height: 44,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.06),
+                      color: Colors.white.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                          color: Colors.white.withOpacity(0.08)),
+                          color: Colors.white.withValues(alpha: 0.08)),
                     ),
                     child: TextField(
                       style: const TextStyle(color: Colors.white),
@@ -171,14 +171,14 @@ class _ExercisesListScreenState extends State<ExercisesListScreen>
                             decoration: BoxDecoration(
                               color: isSelected
                                   ? const Color(0xFF00D9FF)
-                                      .withOpacity(0.15)
-                                  : Colors.white.withOpacity(0.04),
+                                      .withValues(alpha: 0.15)
+                                  : Colors.white.withValues(alpha: 0.04),
                               borderRadius:
                                   BorderRadius.circular(20),
                               border: Border.all(
                                 color: isSelected
                                     ? const Color(0xFF00D9FF)
-                                    : Colors.white.withOpacity(0.1),
+                                    : Colors.white.withValues(alpha: 0.1),
                               ),
                             ),
                             child: Text(
@@ -237,7 +237,7 @@ class _ExercisesListScreenState extends State<ExercisesListScreen>
             padding:
                 const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.08),
+              color: Colors.white.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -315,11 +315,11 @@ class _ExercisesListScreenState extends State<ExercisesListScreen>
           color: const Color(0xFF141B38),
           borderRadius: BorderRadius.circular(22),
           border: Border.all(
-            color: diffColor.withOpacity(0.15),
+            color: diffColor.withValues(alpha: 0.15),
           ),
           boxShadow: [
             BoxShadow(
-              color: diffColor.withOpacity(0.05),
+              color: diffColor.withValues(alpha: 0.05),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -348,7 +348,9 @@ class _ExercisesListScreenState extends State<ExercisesListScreen>
                         ),
                       ),
                       loadingBuilder: (_, child, progress) {
-                        if (progress == null) return child;
+                        if (progress == null) {
+                          return child;
+                        }
                         return Container(
                           color: const Color(0xFF1E2749),
                           child: Center(
@@ -366,7 +368,7 @@ class _ExercisesListScreenState extends State<ExercisesListScreen>
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.transparent,
-                            Colors.black.withOpacity(0.5),
+                            Colors.black.withValues(alpha: 0.5),
                           ],
                         ),
                       ),
@@ -379,7 +381,7 @@ class _ExercisesListScreenState extends State<ExercisesListScreen>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: diffColor.withOpacity(0.85),
+                          color: diffColor.withValues(alpha: 0.85),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
@@ -401,11 +403,11 @@ class _ExercisesListScreenState extends State<ExercisesListScreen>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 3),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5),
+                          color: Colors.black.withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                               color: const Color(0xFF00D9FF)
-                                  .withOpacity(0.4)),
+                                  .withValues(alpha: 0.4)),
                         ),
                         child: const Text(
                           '🤖 AI',
@@ -453,7 +455,7 @@ class _ExercisesListScreenState extends State<ExercisesListScreen>
                               .toUpperCase(),
                           style: TextStyle(
                             fontSize: 9,
-                            color: diffColor.withOpacity(0.8),
+                            color: diffColor.withValues(alpha: 0.8),
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.8,
                           ),
@@ -464,7 +466,7 @@ class _ExercisesListScreenState extends State<ExercisesListScreen>
                     Row(
                       children: [
                         _statChip(
-                          '${exercise.defaultReps == 1 ? "${exercise.defaultSets}x hold" : "${exercise.defaultSets}×${exercise.defaultReps}"}',
+                          exercise.defaultReps == 1 ? '${exercise.defaultSets}x hold' : '${exercise.defaultSets}×${exercise.defaultReps}',
                           Icons.repeat_rounded,
                         ),
                         const SizedBox(width: 6),
@@ -508,7 +510,7 @@ class _ExercisesListScreenState extends State<ExercisesListScreen>
       padding:
           const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(

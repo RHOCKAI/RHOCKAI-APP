@@ -79,7 +79,7 @@ class _DailyCircuitScreenState extends State<DailyCircuitScreen> {
                   decoration: BoxDecoration(
                     color: const Color(0xFF141B38),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white.withOpacity(0.05)),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
                   ),
                   child: Row(
                     children: [
@@ -144,9 +144,9 @@ class _DailyCircuitScreenState extends State<DailyCircuitScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: AppTheme.neonBlue.withOpacity(0.1),
+        color: AppTheme.neonBlue.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.neonBlue.withOpacity(0.3)),
+        border: Border.all(color: AppTheme.neonBlue.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

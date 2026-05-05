@@ -45,10 +45,10 @@ class ShareCardController {
 
       final text = 'My Rhockai Workout: $reps reps of $exercise with ${accuracy.toInt()}% accuracy! 🔥 $streak day streak. 🦾 #Rhockai #AITraining';
 
-      await Share.shareXFiles(
-        [XFile(imagePath.path)],
+      await SharePlus.instance.share(ShareParams(
+        files: [XFile(imagePath.path)],
         text: text,
-      );
+      ));
 
       // In a real app, you would POST to /track here
       debugPrint('Analytics: share_completed event tracked');

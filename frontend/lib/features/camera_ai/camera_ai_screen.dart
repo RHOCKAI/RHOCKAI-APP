@@ -223,12 +223,16 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       _startImageStream();
     } catch (e) {
       debugPrint('Camera start error: $e');
-      if (mounted) setState(() => _isSwitchingCamera = false);
+      if (mounted) {
+        setState(() => _isSwitchingCamera = false);
+      }
     }
   }
 
   Future<void> _switchCamera() async {
-    if (_isSwitchingCamera || _availableCameras.length < 2) return;
+    if (_isSwitchingCamera || _availableCameras.length < 2) {
+      return;
+    }
     setState(() {
       _isCameraInitialized = false;
       _isSwitchingCamera = true;
@@ -424,7 +428,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
         FormChecker.checkForm(widget.exerciseType, poseLandmarks);
 
     if (newRepCompleted) {
-      HapticFeedback.heavyImpact(); // Add haptic feedback for each rep
+      await HapticFeedback.heavyImpact(); // Add haptic feedback for each rep
       await _counterController.forward(from: 0); // Trigger animation
       _repsInSet++;
 
@@ -1000,18 +1004,20 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
                     : (_isWorkoutActive
                         ? AppLocalizations.of(context)?.pause ?? 'Pause'
                         : AppLocalizations.of(context)?.resume ?? 'Resume'),
-                () {
+                () async {
                   if (_isResting) {
+                    await HapticFeedback.heavyImpact();
                     _skipRest();
                     return;
                   }
 
                   final analytics = ref.read(analyticsServiceProvider);
-                  analytics.trackFeature(
+                  await analytics.trackFeature(
                     'workout',
                     _isWorkoutActive ? 'paused' : 'resumed',
                     extraData: {'exercise': widget.exerciseType},
                   );
+                  await HapticFeedback.heavyImpact();
                   setState(() {
                     _isWorkoutActive = !_isWorkoutActive;
                   });

@@ -97,7 +97,7 @@ class _AIWorkoutTrackerAppState extends ConsumerState<AIWorkoutTrackerApp> {
 
         if (loggedIn) {
           final token = await authRepo.getToken();
-          if (token != null) {
+          if (token != null && mounted) {
             final paymentService = ref.read(paymentServiceProvider);
             paymentService.connectToNotifications(token, context);
           }

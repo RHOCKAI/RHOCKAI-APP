@@ -31,14 +31,14 @@ class _SquadChallengeCardState extends State<SquadChallengeCard> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              const Color(0xFFFF3366).withOpacity(0.8),
-              const Color(0xFF9C27FF).withOpacity(0.8),
+              const Color(0xFFFF3366).withValues(alpha: 0.8),
+              const Color(0xFF9C27FF).withValues(alpha: 0.8),
             ],
           ),
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFFF3366).withOpacity(0.3),
+              color: const Color(0xFFFF3366).withValues(alpha: 0.3),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -53,7 +53,7 @@ class _SquadChallengeCardState extends State<SquadChallengeCard> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Row(
@@ -101,7 +101,7 @@ class _ChallengeCreatorSheetState extends State<_ChallengeCreatorSheet> {
   String _selectedExerciseId = 'pushup';
   String _selectedDuration = '7 Days';
   
-  void _shareChallenge() {
+  Future<void> _shareChallenge() async {
     final exercise = Exercises.allExercises.firstWhere((e) => e.id == _selectedExerciseId, orElse: () => Exercises.allExercises.first);
     
     final inviteMessage = '''
@@ -114,8 +114,10 @@ https://rhockai.com/invite?challenge=${exercise.id}&duration=${_selectedDuration
 Let's go! 🚀
 ''';
 
-    Share.share(inviteMessage);
-    Navigator.pop(context);
+    await SharePlus.instance.share(ShareParams(text: inviteMessage));
+    if (mounted) {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -131,8 +133,13 @@ Let's go! 🚀
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Center(
-              child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.all(Radius.circular(2)))),
+            Center(
+              child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: const BoxDecoration(
+                      color: Colors.white24,
+                      borderRadius: BorderRadius.all(Radius.circular(2)))),
             ),
             const SizedBox(height: 24),
             const Text(
@@ -163,7 +170,9 @@ Let's go! 🚀
                     );
                   }).toList(),
                   onChanged: (val) {
-                    if (val != null) setState(() => _selectedExerciseId = val);
+                    if (val != null) {
+                      setState(() => _selectedExerciseId = val);
+                    }
                   },
                 ),
               ),
@@ -213,7 +222,7 @@ Let's go! 🚀
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.neonBlue.withOpacity(0.2) : const Color(0xFF141B38),
+          color: isSelected ? AppTheme.neonBlue.withValues(alpha: 0.2) : const Color(0xFF141B38),
           border: Border.all(color: isSelected ? AppTheme.neonBlue : Colors.white10),
           borderRadius: BorderRadius.circular(16),
         ),

@@ -67,8 +67,12 @@ class _AccuracyRingWidgetState extends State<AccuracyRingWidget>
   }
 
   Color _getColor(double accuracy) {
-    if (accuracy < 61) return const Color(0xFFE85D24); // Coral
-    if (accuracy < 81) return const Color(0xFFEF9F27); // Amber
+    if (accuracy < 61) {
+      return const Color(0xFFE85D24); // Coral
+    }
+    if (accuracy < 81) {
+      return const Color(0xFFEF9F27); // Amber
+    }
     return const Color(0xFF1D9E75); // Green
   }
 
@@ -130,7 +134,7 @@ class _RingPainter extends CustomPainter {
 
     // Background Ring
     final bgPaint = Paint()
-      ..color = Colors.white.withOpacity(0.1)
+      ..color = Colors.white.withValues(alpha: 0.1)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;

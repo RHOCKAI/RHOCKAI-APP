@@ -8,7 +8,6 @@ import 'package:rhockai/features/auth/presentation/providers/auth_provider.dart'
 import 'package:rhockai/features/camera_ai/session/session_provider.dart';
 import 'package:rhockai/features/gamification/widgets/streak_card.dart';
 import 'package:rhockai/features/gamification/widgets/level_progress_card.dart';
-import 'package:rhockai/core/utils/premium_gate.dart';
 
 import 'package:rhockai/shared/widgets/pulse_animation.dart';
 import 'package:rhockai/core/config/app_theme.dart';
@@ -46,7 +45,9 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
 
   Future<void> _logout() async {
     await _authRepo.logout();
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     unawaited(Navigator.pushReplacementNamed(context, '/'));
   }
 
@@ -56,8 +57,12 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
       type: FileType.video,
     );
 
-    if (result == null || result.files.isEmpty) return;
-    if (!mounted) return;
+    if (result == null || result.files.isEmpty) {
+      return;
+    }
+    if (!mounted) {
+      return;
+    }
 
     // 2. Show exercise selector
     final exerciseType = await showModalBottomSheet<String>(
@@ -68,8 +73,12 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
       builder: (context) => const ExerciseSelectorSheet(),
     );
 
-    if (exerciseType == null) return;
-    if (!mounted) return;
+    if (exerciseType == null) {
+      return;
+    }
+    if (!mounted) {
+      return;
+    }
 
     // 3. Navigate to analysis screen
     unawaited(Navigator.push(
@@ -270,7 +279,7 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF9C27FF).withOpacity(0.2),
+                  backgroundColor: const Color(0xFF9C27FF).withValues(alpha: 0.2),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   side: const BorderSide(color: Colors.white24, width: 1),
@@ -305,7 +314,9 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
   Widget _buildTopStatsRow(bool isMobile) {
     final statsAsync = ref.watch(combinedStatsProvider);
     final l10n = AppLocalizations.of(context);
-    if (l10n == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (l10n == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     return statsAsync.when(
       data: (stats) => Wrap(
@@ -557,7 +568,7 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
                   onTap: _uploadVideo,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(color: AppTheme.neonBlue.withOpacity(0.2), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.neonBlue)),
+                    decoration: BoxDecoration(color: AppTheme.neonBlue.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.neonBlue)),
                     child: const Row(
                       children: [
                         Icon(Icons.video_file, color: AppTheme.neonBlue, size: 18),

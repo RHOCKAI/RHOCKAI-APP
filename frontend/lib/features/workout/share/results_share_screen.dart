@@ -173,7 +173,7 @@ class _ResultsShareScreenState extends ConsumerState<ResultsShareScreen>
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF7B5EA7).withOpacity(0.2),
+                    color: const Color(0xFF7B5EA7).withValues(alpha: 0.2),
                     blurRadius: 40,
                     spreadRadius: 5,
                   ),
@@ -290,9 +290,15 @@ class _ResultsShareScreenState extends ConsumerState<ResultsShareScreen>
   }
 
   String _getAccuracyTone(double accuracy, AppLocalizations l10n) {
-    if (accuracy >= 81) return l10n.eliteForm;
-    if (accuracy >= 61) return l10n.solidSession;
-    if (accuracy >= 50) return l10n.keepPushing;
+    if (accuracy >= 81) {
+      return l10n.eliteForm;
+    }
+    if (accuracy >= 61) {
+      return l10n.solidSession;
+    }
+    if (accuracy >= 50) {
+      return l10n.keepPushing;
+    }
     return l10n.formInProgress;
   }
 
@@ -300,9 +306,9 @@ class _ResultsShareScreenState extends ConsumerState<ResultsShareScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -340,9 +346,9 @@ class _ResultsShareScreenState extends ConsumerState<ResultsShareScreen>
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
+            color: Colors.white.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: Colors.white.withOpacity(0.1)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -352,7 +358,7 @@ class _ResultsShareScreenState extends ConsumerState<ResultsShareScreen>
               Text(
                 'RHOCKAI · AI-POWERED FORM TRAINING',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.withValues(alpha: 0.7),
                   fontSize: 10,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1,
@@ -373,7 +379,7 @@ class _ResultsShareScreenState extends ConsumerState<ResultsShareScreen>
         color: const Color(0xFF111111),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 20, offset: const Offset(0, -5)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 20, offset: const Offset(0, -5)),
         ],
       ),
       child: Column(
@@ -417,7 +423,7 @@ class _ResultsShareScreenState extends ConsumerState<ResultsShareScreen>
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -459,7 +465,7 @@ class _ResultsShareScreenState extends ConsumerState<ResultsShareScreen>
         const SizedBox(width: 12),
         Switch.adaptive(
           value: _showWatermark,
-          activeColor: const Color(0xFF00D9FF),
+          activeTrackColor: const Color(0xFF00D9FF),
           onChanged: (val) {
             setState(() => _showWatermark = val);
             _controller.saveWatermarkPreference(val);
@@ -476,7 +482,7 @@ class _ParticlePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = const Color(0xFF7B5EA7).withOpacity(0.05);
+    final paint = Paint()..color = const Color(0xFF7B5EA7).withValues(alpha: 0.05);
     final random = math.Random(42);
     for (int i = 0; i < 20; i++) {
       final x = random.nextDouble() * size.width;

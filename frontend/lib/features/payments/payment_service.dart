@@ -75,13 +75,16 @@ class PaymentService {
       final data = jsonDecode(message);
       
       if (data['type'] == 'payment_success') {
-        _showSuccessDialog(context, data['message']);
+        if (context.mounted) {
+          _showSuccessDialog(context, data['message']);
+        }
       } else if (data['type'] == 'admin_payment_alert') {
         debugPrint("ADMIN ALERT: ${data['message']}");
-        // Here you could also show a snackbar or toast for admins
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Admin Alert: ${data['message']}')),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Admin Alert: ${data['message']}')),
+          );
+        }
       }
     }, onError: (error) {
       debugPrint('WebSocket Error: $error');

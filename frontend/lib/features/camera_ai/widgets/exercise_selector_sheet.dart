@@ -58,9 +58,9 @@ class _ExerciseSelectorSheetState extends State<ExerciseSelectorSheet> {
           Container(
             height: 44,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.06),
+              color: Colors.white.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.white.withOpacity(0.08)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
             ),
             child: TextField(
               style: const TextStyle(color: Colors.white),
@@ -95,10 +95,14 @@ class _ExerciseSelectorSheetState extends State<ExerciseSelectorSheet> {
   Widget _buildExerciseOption(BuildContext context, ExerciseData exercise) {
     Color getDifficultyColor(String diff) {
       switch (diff) {
-        case 'beginner': return const Color(0xFF00FF88);
-        case 'intermediate': return const Color(0xFFFFAA00);
-        case 'advanced': return const Color(0xFFFF3366);
-        default: return AppTheme.neonBlue;
+        case 'beginner':
+          return const Color(0xFF00FF88);
+        case 'intermediate':
+          return const Color(0xFFFFAA00);
+        case 'advanced':
+          return const Color(0xFFFF3366);
+        default:
+          return AppTheme.neonBlue;
       }
     }
     
@@ -111,7 +115,7 @@ class _ExerciseSelectorSheetState extends State<ExerciseSelectorSheet> {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: const Color(0xFF141B38),
-          border: Border.all(color: Colors.white.withOpacity(0.05)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(

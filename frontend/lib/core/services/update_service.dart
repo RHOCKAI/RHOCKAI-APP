@@ -15,7 +15,9 @@ class UpdateService {
   /// Checks for an update and shows a dialog if one is available
   static Future<void> checkForUpdate(BuildContext context) async {
     // Only check on Android for this specific direct APK deployment
-    if (!Platform.isAndroid) return;
+    if (!Platform.isAndroid) {
+      return;
+    }
 
     try {
       final response = await _dio.get('/system/version');
@@ -48,8 +50,12 @@ class UpdateService {
       final current = i < currentParts.length ? currentParts[i] : 0;
       final latest = i < latestParts.length ? latestParts[i] : 0;
 
-      if (latest > current) return true;
-      if (current > latest) return false;
+      if (latest > current) {
+        return true;
+      }
+      if (current > latest) {
+        return false;
+      }
     }
     return false; // Same version
   }

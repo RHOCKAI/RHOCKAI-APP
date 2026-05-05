@@ -26,7 +26,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   final List<String> _selectedInterests = [];
 
   late AnimationController _fadeController;
-  late Animation<double> _fadeAnimation;
 
   final AuthRepository _authRepo = AuthRepository();
 
@@ -36,10 +35,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 400),
-    );
-    _fadeAnimation = CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeInOut,
     );
     _fadeController.forward();
   }
@@ -249,8 +244,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   Widget _buildLevelPage() {
     return _buildPage(
       emoji: '📊',
-      headline: "What's your\nfitness level?",
-      subtext: "Honest answer = better results.",
+      headline: 'What\'s your\nfitness level?',
+      subtext: 'Honest answer = better results.',
       child: Column(
         children: [
           _buildOptionCard(
@@ -293,8 +288,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   Widget _buildDaysPage() {
     return _buildPage(
       emoji: '📅',
-      headline: "How many days\ncan you train?",
-      subtext: "Even 2 days a week produces real results.",
+      headline: 'How many days\ncan you train?',
+      subtext: 'Even 2 days a week produces real results.',
       child: Column(
         children: [
           _buildOptionCard(
@@ -329,8 +324,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   Widget _buildTimePage() {
     return _buildPage(
       emoji: '⏱️',
-      headline: "How long per\nsession?",
-      subtext: "We optimise workouts to fit your schedule.",
+      headline: 'How long per\nsession?',
+      subtext: 'We optimise workouts to fit your schedule.',
       child: Column(
         children: [
           _buildOptionCard(
@@ -376,8 +371,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
 
     return _buildPage(
       emoji: '🏠',
-      headline: "Pick your\nfavourite workouts",
-      subtext: "All home-based — zero gym equipment needed.",
+      headline: 'Pick your\nfavourite workouts',
+      subtext: 'All home-based — zero gym equipment needed.',
       child: Wrap(
         spacing: 12,
         runSpacing: 12,
@@ -400,13 +395,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? const Color(0xFF00D9FF).withOpacity(0.15)
-                    : Colors.white.withOpacity(0.05),
+                    ? const Color(0xFF00D9FF).withValues(alpha: 0.15)
+                    : Colors.white.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isSelected
                       ? const Color(0xFF00D9FF)
-                      : Colors.white.withOpacity(0.1),
+                      : Colors.white.withValues(alpha: 0.1),
                   width: isSelected ? 1.5 : 1,
                 ),
               ),
@@ -491,13 +486,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFF00D9FF).withOpacity(0.1)
-              : Colors.white.withOpacity(0.03),
+              ? const Color(0xFF00D9FF).withValues(alpha: 0.1)
+              : Colors.white.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
                 ? const Color(0xFF00D9FF)
-                : Colors.white.withOpacity(0.08),
+                : Colors.white.withValues(alpha: 0.08),
             width: isSelected ? 1.5 : 1,
           ),
         ),
@@ -566,7 +561,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
               boxShadow: _canProceed
                   ? [
                       BoxShadow(
-                        color: const Color(0xFF00D9FF).withOpacity(0.3),
+                        color: const Color(0xFF00D9FF).withValues(alpha: 0.3),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),

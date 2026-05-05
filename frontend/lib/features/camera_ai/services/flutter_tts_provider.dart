@@ -68,7 +68,9 @@ class FlutterTTSProvider implements TTSProvider {
   Future<void> _setHighQualityVoice(String languageCode) async {
     try {
       final List<dynamic>? voices = await _tts.getVoices;
-      if (voices == null || voices.isEmpty) return;
+      if (voices == null || voices.isEmpty) {
+        return;
+      }
 
       // Filter voices matching the requested language
       final availableVoices = voices.where((v) {
@@ -76,25 +78,32 @@ class FlutterTTSProvider implements TTSProvider {
         return locale.startsWith(languageCode.split('-').first);
       }).toList();
 
-      if (availableVoices.isEmpty) return;
+      if (availableVoices.isEmpty) {
+        return;
+      }
 
       Map<String, String>? bestVoice;
 
       for (dynamic v in availableVoices) {
         final name = v['name']?.toString().toLowerCase() ?? '';
-        
+
         // Android: Network voices are Google's cloud TTS (highly natural/motivational)
         // iOS: Premium/Enhanced voices sound much less robotic
-        if (name.contains('network') || name.contains('premium') || name.contains('enhanced')) {
-          bestVoice = {"name": v["name"].toString(), "locale": v["locale"].toString()};
+        if (name.contains('network') ||
+            name.contains('premium') ||
+            name.contains('enhanced')) {
+          bestVoice = {
+            'name': v['name'].toString(),
+            'locale': v['locale'].toString()
+          };
           break; // Found a high-quality voice
         }
       }
 
       // Fallback: If no network voice, just pick the first one matching the locale
       bestVoice ??= {
-        "name": availableVoices.first["name"].toString(),
-        "locale": availableVoices.first["locale"].toString()
+        'name': availableVoices.first['name'].toString(),
+        'locale': availableVoices.first['locale'].toString()
       };
 
       await _tts.setVoice(bestVoice);

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:health/health.dart';
 
@@ -12,10 +11,12 @@ class HealthService {
   Health? _health;
 
   Future<void> initialize() async {
-    if (_isConfigured || kIsWeb) return;
-    
+    if (_isConfigured || kIsWeb) {
+      return;
+    }
+
     try {
-      Health().configure();
+      await Health().configure();
       _health = Health();
       _isConfigured = true;
     } catch (e) {
@@ -24,7 +25,9 @@ class HealthService {
   }
 
   Future<bool> requestPermissions() async {
-    if (!_isConfigured || _health == null) return false;
+    if (!_isConfigured || _health == null) {
+      return false;
+    }
 
     try {
       final types = [
@@ -50,11 +53,15 @@ class HealthService {
     required DateTime startTime,
     required DateTime endTime,
   }) async {
-    if (!_isConfigured || _health == null) return;
+    if (!_isConfigured || _health == null) {
+      return;
+    }
     
     try {
       bool hasPermissions = await requestPermissions();
-      if (!hasPermissions) return;
+      if (!hasPermissions) {
+        return;
+      }
 
       // 1. Write Calories
       if (caloriesBurned > 0) {

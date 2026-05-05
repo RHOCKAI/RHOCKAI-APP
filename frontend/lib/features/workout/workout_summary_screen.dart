@@ -100,7 +100,7 @@ class _WorkoutSummaryScreenState extends State<WorkoutSummaryScreen> {
                   border: Border.all(color: Colors.white10, width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.greenAccent.withOpacity(0.1),
+                      color: Colors.greenAccent.withValues(alpha: 0.1),
                       blurRadius: 30,
                       spreadRadius: 5,
                     ),
@@ -200,7 +200,7 @@ class _WorkoutSummaryScreenState extends State<WorkoutSummaryScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.05),
+                          color: Colors.white.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
@@ -363,11 +363,16 @@ class _WorkoutSummaryScreenState extends State<WorkoutSummaryScreen> {
   }
 
   Future<void> _shareVideo(BuildContext context) async {
-    if (widget.session.videoUrl == null) return;
+    if (widget.session.videoUrl == null) {
+      return;
+    }
 
     final text = 'Check out my ${widget.session.exerciseType} form on Rhockai! Accuracy: ${widget.session.averageAccuracy.toStringAsFixed(1)}% | Reps: ${widget.session.totalReps}';
     
-    await Share.shareXFiles([XFile(widget.session.videoUrl!)], text: text);
+    await SharePlus.instance.share(ShareParams(
+      files: [XFile(widget.session.videoUrl!)],
+      text: text,
+    ));
   }
 }
 

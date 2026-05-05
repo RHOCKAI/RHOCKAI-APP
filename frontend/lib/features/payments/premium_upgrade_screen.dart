@@ -63,19 +63,19 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> wit
   void _handleSubscribe() async {
     final service = ref.read(paymentServiceProvider);
     try {
-      showDialog(
+      unawaited(showDialog(
         context: context,
         barrierDismissible: false,
         builder: (context) => const Center(child: CircularProgressIndicator()),
-      );
+      ));
       
       await service.purchasePlan(_selectedPlan);
       
-      if (context.mounted) {
+      if (mounted) {
         Navigator.pop(context); // close dialog
       }
     } catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         Navigator.pop(context); // close dialog
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Checkout failed: $e')),
@@ -87,17 +87,19 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> wit
   void _handleRestore() async {
     final service = ref.read(paymentServiceProvider);
     try {
-      showDialog(
+      unawaited(showDialog(
         context: context,
         barrierDismissible: false,
         builder: (context) => const Center(child: CircularProgressIndicator()),
-      );
+      ));
       
       await service.getCustomerPortal();
       
-      if (context.mounted) Navigator.pop(context);
+      if (mounted) {
+        Navigator.pop(context);
+      }
     } catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Portal error: $e')),
@@ -119,8 +121,8 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> wit
 
     // In free trial — show trial active banner
     if (isInTrial) {
-      final trialEndsAt = user?['trial_ends_at'] != null
-          ? DateTime.tryParse(user!['trial_ends_at'])
+      final trialEndsAt = user['trial_ends_at'] != null
+          ? DateTime.tryParse(user['trial_ends_at'])
           : null;
       final daysLeft = trialEndsAt != null
           ? trialEndsAt.difference(DateTime.now()).inDays + 1
@@ -319,13 +321,13 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> wit
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isSelected 
-              ? (isHero ? Colors.greenAccent.withOpacity(0.1) : Colors.white.withOpacity(0.05))
+              ? (isHero ? Colors.greenAccent.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.05))
               : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected 
                 ? (isHero ? Colors.greenAccent : Colors.white) 
-                : Colors.white.withOpacity(isFaded ? 0.1 : 0.2),
+                : Colors.white.withValues(alpha: isFaded ? 0.1 : 0.2),
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -341,7 +343,7 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> wit
                     Text(
                       title,
                       style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.white.withOpacity(isFaded ? 0.5 : 0.8),
+                        color: isSelected ? Colors.white : Colors.white.withValues(alpha: isFaded ? 0.5 : 0.8),
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -361,7 +363,7 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> wit
                 Text(
                   price,
                   style: TextStyle(
-                    color: isSelected ? Colors.white : Colors.white.withOpacity(isFaded ? 0.5 : 0.8),
+                    color: isSelected ? Colors.white : Colors.white.withValues(alpha: isFaded ? 0.5 : 0.8),
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -435,13 +437,13 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> wit
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      const Color(0xFF00D9FF).withOpacity(0.1),
-                      const Color(0xFF9C27FF).withOpacity(0.1),
+                      const Color(0xFF00D9FF).withValues(alpha: 0.1),
+                      const Color(0xFF9C27FF).withValues(alpha: 0.1),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(28),
                   border: Border.all(
-                    color: const Color(0xFF00D9FF).withOpacity(0.3),
+                    color: const Color(0xFF00D9FF).withValues(alpha: 0.3),
                   ),
                 ),
                 child: Column(
@@ -514,7 +516,7 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> wit
                       'Keep all features after trial ends',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.black.withOpacity(0.6),
+                        color: Colors.black.withValues(alpha: 0.6),
                       ),
                     ),
                   ],

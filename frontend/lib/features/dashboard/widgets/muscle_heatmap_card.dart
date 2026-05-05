@@ -22,7 +22,7 @@ class MuscleHeatmapCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF141B38),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,7 +50,7 @@ class MuscleHeatmapCard extends ConsumerWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppTheme.neonBlue.withOpacity(0.1),
+                    color: AppTheme.neonBlue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Text('LIVE', style: TextStyle(color: AppTheme.neonBlue, fontSize: 10, fontWeight: FontWeight.bold)),
@@ -59,7 +59,7 @@ class MuscleHeatmapCard extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 24),
-          ...muscleStrain.entries.map((e) => _buildMuscleBar(e.key, e.value)).toList(),
+          ...muscleStrain.entries.map((e) => _buildMuscleBar(e.key, e.value)),
         ],
       ),
     );
@@ -70,8 +70,11 @@ class MuscleHeatmapCard extends ConsumerWidget {
     // strain > 0.4 = Orange/Yellow (Medium)
     // strain <= 0.4 = Green/Blue (Fresh)
     Color barColor = AppTheme.neonBlue;
-    if (strain > 0.7) barColor = AppTheme.neonOrange; // Reddish orange
-    else if (strain > 0.4) barColor = Colors.amber;
+    if (strain > 0.7) {
+      barColor = AppTheme.neonOrange; // Reddish orange
+    } else if (strain > 0.4) {
+      barColor = Colors.amber;
+    }
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
@@ -96,7 +99,7 @@ class MuscleHeatmapCard extends ConsumerWidget {
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
               value: strain,
-              backgroundColor: Colors.white.withOpacity(0.05),
+              backgroundColor: Colors.white.withValues(alpha: 0.05),
               valueColor: AlwaysStoppedAnimation<Color>(barColor),
               minHeight: 8,
             ),
