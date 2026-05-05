@@ -14,6 +14,7 @@ import 'package:rhockai/shared/widgets/pulse_animation.dart';
 import 'package:rhockai/core/config/app_theme.dart';
 import 'package:rhockai/features/dashboard/widgets/calendar_card.dart';
 import 'package:rhockai/features/dashboard/widgets/muscle_heatmap_card.dart';
+import 'package:rhockai/features/gamification/widgets/squad_challenge_card.dart';
 import 'package:rhockai/features/camera_ai/camera_ai_screen.dart';
 import 'package:rhockai/features/exercises/exercises_list_screen.dart';
 import 'package:rhockai/features/gamification/widgets/daily_challenge_card.dart';
@@ -424,6 +425,8 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
             const CalendarCard(),
             const SizedBox(height: 16),
             const MuscleHeatmapCard(),
+            const SizedBox(height: 16),
+            const SquadChallengeCard(),
           ],
         );
       }
@@ -439,6 +442,8 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
                 CalendarCard(),
                 SizedBox(height: 16),
                 MuscleHeatmapCard(),
+                SizedBox(height: 16),
+                SquadChallengeCard(),
               ],
             ),
           ),
