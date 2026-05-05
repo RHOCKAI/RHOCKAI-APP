@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:rhockai/l10n/app_localizations.dart';
+import 'package:rhockai/core/config/app_theme.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../../../shared/widgets/pulse_animation.dart';
 import '../../../../shared/widgets/language_selector.dart';
 import 'register_screen.dart';
+import 'reset_password_screen.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 /// 🔐 Modern Login Screen
 class LoginScreen extends StatefulWidget {
@@ -45,16 +48,33 @@ class _LoginScreenState extends State<LoginScreen> {
         await showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            backgroundColor: Theme.of(context).colorScheme.surface,
-            title: const Text('Reset Link Sent',
+            backgroundColor: const Color(0xFF1A1A1A),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            title: const Text('RESET LINK SENT',
                 style: TextStyle(
-                    fontFamily: 'Rajdhani', fontWeight: FontWeight.bold)),
+                    fontFamily: 'Rajdhani', fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 1)),
             content: Text(
-                'A password reset link has been sent to $email. Please check your inbox.'),
+                'A password reset link has been sent to $email. Please check your inbox.',
+                style: const TextStyle(color: Colors.white70)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
+                child: const Text('OK', style: TextStyle(color: Colors.white38)),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ResetPasswordScreen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.neonBlue,
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('ENTER CODE', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -76,6 +96,45 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleSocialLogin(String provider) async {
+    if (provider == 'Google') {
+      setState(() => _isLoading = true);
+      try {
+        final GoogleSignIn googleSignIn = GoogleSignIn(
+          scopes: ['email', 'profile'],
+        );
+
+        final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+        if (googleUser == null) {
+          setState(() => _isLoading = false);
+          return;
+        }
+
+        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+        final String? idToken = googleAuth.idToken;
+
+        if (idToken != null) {
+          await _authRepo.loginWithGoogle(idToken);
+          if (mounted) {
+            await Navigator.pushReplacementNamed(context, '/home');
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Google Login failed: ${e.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
+      return;
+    }
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('$provider login coming soon!',

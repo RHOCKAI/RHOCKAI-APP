@@ -10,6 +10,28 @@ class AppTheme {
   static const Color darkBackground = Color(0xFF0A0E27);
   static const Color darkSurface = Color(0xFF1E2749);
   static const Color textGrey = Color(0xFF6B7394);
+  static const Color glassBorder = Color(0x1AFFFFFF);
+  static const Color cardShadow = Color(0x33000000);
+
+  // Modern Card Decorations
+  static BoxDecoration cardDecoration(BuildContext context) => BoxDecoration(
+    color: Theme.of(context).colorScheme.surface,
+    borderRadius: BorderRadius.circular(24),
+    border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+    boxShadow: [
+      BoxShadow(
+        color: cardShadow,
+        blurRadius: 20,
+        offset: const Offset(0, 10),
+      ),
+    ],
+  );
+
+  static BoxDecoration glassDecoration() => BoxDecoration(
+    color: Colors.white.withValues(alpha: 0.05),
+    borderRadius: BorderRadius.circular(24),
+    border: Border.all(color: glassBorder),
+  );
 
   // Fonts - Using GoogleFonts
   static final String? _headingsFontFamily = GoogleFonts.rajdhani().fontFamily;

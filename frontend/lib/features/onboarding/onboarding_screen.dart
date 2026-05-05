@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/config/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rhockai/features/auth/data/repositories/auth_repository.dart';
 import 'package:rhockai/features/auth/presentation/providers/auth_provider.dart';
@@ -109,13 +110,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0E27),
+      backgroundColor: AppTheme.darkBackground,
       body: SafeArea(
         child: Column(
           children: [
             // Progress bar
             _buildProgressBar(),
-
+            const SizedBox(height: 20),
             // Page content
             Expanded(
               child: PageView(
@@ -142,47 +143,44 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   Widget _buildProgressBar() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-      child: Column(
+      child: Row(
         children: [
-          Row(
-            children: [
-              if (_currentStep > 0)
-                GestureDetector(
-                  onTap: () {
-                    setState(() => _currentStep--);
-                    _pageController.previousPage(
-                      duration: const Duration(milliseconds: 400),
-                      curve: Curves.easeInOutCubic,
-                    );
-                  },
-                  child: const Icon(Icons.arrow_back_ios,
-                      color: Colors.white54, size: 20),
-                )
-              else
-                const SizedBox(width: 20),
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: (_currentStep + 1) / 5,
-                    backgroundColor: Colors.white12,
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      Color(0xFF00D9FF),
-                    ),
-                    minHeight: 5,
-                  ),
-                ),
+          if (_currentStep > 0)
+            GestureDetector(
+              onTap: () {
+                setState(() => _currentStep--);
+                _pageController.previousPage(
+                  duration: const Duration(milliseconds: 400),
+                  curve: Curves.easeInOutCubic,
+                );
+              },
+              child: const Icon(Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white24, size: 18),
+            )
+          else
+            const SizedBox(width: 18),
+          const SizedBox(width: 16),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: LinearProgressIndicator(
+                value: (_currentStep + 1) / 5,
+                backgroundColor: Colors.white.withValues(alpha: 0.05),
+                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.neonBlue),
+                minHeight: 6,
               ),
-              const SizedBox(width: 16),
-              Text(
-                '${_currentStep + 1}/5',
-                style: const TextStyle(
-                  color: Colors.white38,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          Text(
+            '${_currentStep + 1}/5',
+            style: const TextStyle(
+              color: Colors.white24,
+              fontSize: 11,
+              fontWeight: FontWeight.w900,
+              fontFamily: 'Rajdhani',
+              letterSpacing: 1,
+            ),
           ),
         ],
       ),
@@ -370,9 +368,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     ];
 
     return _buildPage(
-      emoji: '🏠',
-      headline: 'Pick your\nfavourite workouts',
-      subtext: 'All home-based — zero gym equipment needed.',
+      emoji: '🏡',
+      headline: 'PICK YOUR\nINTERESTS',
+      subtext: 'We\'ll tailor your sessions to what you love.',
       child: Wrap(
         spacing: 12,
         runSpacing: 12,
@@ -395,29 +393,29 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? const Color(0xFF00D9FF).withValues(alpha: 0.15)
-                    : Colors.white.withValues(alpha: 0.05),
+                    ? AppTheme.neonBlue.withValues(alpha: 0.1)
+                    : Colors.white.withValues(alpha: 0.03),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isSelected
-                      ? const Color(0xFF00D9FF)
-                      : Colors.white.withValues(alpha: 0.1),
-                  width: isSelected ? 1.5 : 1,
+                      ? AppTheme.neonBlue
+                      : Colors.white.withValues(alpha: 0.05),
+                  width: 1.5,
                 ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(icon, style: const TextStyle(fontSize: 18)),
+                  Text(icon, style: const TextStyle(fontSize: 16)),
                   const SizedBox(width: 8),
                   Text(
-                    label,
+                    label.toUpperCase(),
                     style: TextStyle(
                       color: isSelected ? Colors.white : Colors.white60,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 11,
+                      fontFamily: 'Rajdhani',
+                      letterSpacing: 1,
                     ),
                   ),
                 ],
@@ -483,56 +481,59 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFF00D9FF).withValues(alpha: 0.1)
-              : Colors.white.withValues(alpha: 0.03),
+              ? AppTheme.neonBlue.withValues(alpha: 0.05)
+              : Colors.white.withValues(alpha: 0.02),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFF00D9FF)
-                : Colors.white.withValues(alpha: 0.08),
-            width: isSelected ? 1.5 : 1,
+                ? AppTheme.neonBlue
+                : Colors.white.withValues(alpha: 0.05),
+            width: 1.5,
           ),
         ),
         child: Row(
           children: [
-            Text(icon, style: const TextStyle(fontSize: 28)),
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: isSelected ? AppTheme.neonBlue.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Center(child: Text(icon, style: const TextStyle(fontSize: 24))),
+            ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title,
+                    title.toUpperCase(),
                     style: TextStyle(
                       color: isSelected ? Colors.white : Colors.white70,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                      fontFamily: 'Rajdhani',
+                      letterSpacing: 1,
                     ),
                   ),
+                  const SizedBox(height: 2),
                   Text(
                     subtitle,
                     style: const TextStyle(
                       color: Colors.white38,
-                      fontSize: 13,
+                      fontSize: 12,
+                      fontFamily: 'Outfit',
                     ),
                   ),
                 ],
               ),
             ),
             if (isSelected)
-              Container(
-                width: 24,
-                height: 24,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF00D9FF),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.check,
-                    color: Colors.black, size: 16),
-              ),
+              const Icon(Icons.check_circle_rounded, color: AppTheme.neonBlue, size: 24),
           ],
         ),
       ),
@@ -546,38 +547,24 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
       child: AnimatedOpacity(
         opacity: _canProceed ? 1.0 : 0.4,
         duration: const Duration(milliseconds: 200),
-        child: GestureDetector(
-          onTap: _canProceed ? _nextStep : null,
-          child: Container(
-            height: 60,
-            decoration: BoxDecoration(
-              gradient: _canProceed
-                  ? const LinearGradient(
-                      colors: [Color(0xFF00D9FF), Color(0xFF9C27FF)],
-                    )
-                  : null,
-              color: _canProceed ? null : Colors.white12,
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: _canProceed
-                  ? [
-                      BoxShadow(
-                        color: const Color(0xFF00D9FF).withValues(alpha: 0.3),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                    ]
-                  : null,
+        child: SizedBox(
+          width: double.infinity,
+          height: 64,
+          child: ElevatedButton(
+            onPressed: _canProceed ? _nextStep : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.neonBlue,
+              foregroundColor: Colors.black,
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             ),
-            child: Center(
-              child: Text(
-                isLast ? "LET'S GO →" : 'CONTINUE →',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 2,
-                  fontFamily: 'Rajdhani',
-                ),
+            child: Text(
+              isLast ? 'GET STARTED →' : 'CONTINUE →',
+              style: const TextStyle(
+                fontWeight: FontWeight.w900,
+                letterSpacing: 2,
+                fontSize: 15,
+                fontFamily: 'Rajdhani',
               ),
             ),
           ),

@@ -68,12 +68,12 @@ class _AccuracyRingWidgetState extends State<AccuracyRingWidget>
 
   Color _getColor(double accuracy) {
     if (accuracy < 61) {
-      return const Color(0xFFE85D24); // Coral
+      return const Color(0xFFF05151); // Red
     }
     if (accuracy < 81) {
-      return const Color(0xFFEF9F27); // Amber
+      return const Color(0xFFFFB800); // Amber
     }
-    return const Color(0xFF1D9E75); // Green
+    return const Color(0xFF00FFA3); // Neon Green
   }
 
   @override
@@ -100,14 +100,16 @@ class _AccuracyRingWidgetState extends State<AccuracyRingWidget>
                       fontWeight: FontWeight.w900,
                       color: Colors.white,
                       height: 1,
+                      fontFamily: 'Rajdhani',
                     ),
                   ),
                   Text(
                     '%',
                     style: TextStyle(
                       fontSize: widget.size * 0.12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white54,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white.withValues(alpha: 0.5),
+                      fontFamily: 'Rajdhani',
                     ),
                   ),
                 ],

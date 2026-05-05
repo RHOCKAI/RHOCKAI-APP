@@ -72,6 +72,26 @@ class AuthRepository {
     }
   }
 
+  /// Login with Google
+  Future<void> loginWithGoogle(String idToken) async {
+    try {
+      final response = await _apiClient.post(
+        '/auth/google',
+        data: {'id_token': idToken},
+      );
+
+      final token = response.data['access_token'];
+
+      // Save token securely
+      await _storage.write(key: 'auth_token', value: token);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception(e.response!.data['detail'] ?? 'Google login failed');
+      }
+      throw Exception('Network error');
+    }
+  }
+
   /// Get current user profile
   Future<Map<String, dynamic>> getCurrentUser() async {
     try {
@@ -103,6 +123,25 @@ class AuthRepository {
       if (e.response != null) {
         throw Exception(
             e.response!.data['detail'] ?? 'Failed to send reset email');
+      }
+      throw Exception('Network error');
+    }
+  }
+
+  /// Reset password using token
+  Future<void> resetPassword({
+    required String token,
+    required String newPassword,
+  }) async {
+    try {
+      await _apiClient.post('/auth/reset-password', data: {
+        'token': token,
+        'new_password': newPassword,
+      });
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception(
+            e.response!.data['detail'] ?? 'Failed to reset password');
       }
       throw Exception('Network error');
     }

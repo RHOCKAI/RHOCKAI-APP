@@ -34,9 +34,9 @@ class _DailyCircuitScreenState extends State<DailyCircuitScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0E27),
+      backgroundColor: AppTheme.darkBackground,
       appBar: AppBar(
-        title: const Text('AI Daily Circuit', style: TextStyle(fontFamily: 'Rajdhani', fontWeight: FontWeight.bold)),
+        title: const Text('AI CIRCUIT BUILDER', style: TextStyle(fontFamily: 'Rajdhani', fontWeight: FontWeight.w900, letterSpacing: 2)),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -47,21 +47,34 @@ class _DailyCircuitScreenState extends State<DailyCircuitScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'YOUR PERSONALIZED PLAN',
-                  style: TextStyle(color: AppTheme.neonBlue, fontWeight: FontWeight.bold, letterSpacing: 2),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Based on your goals and fitness level, we built this 4-exercise full-body circuit to maximize results.',
-                  style: TextStyle(color: Colors.white70),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppTheme.neonBlue.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: const Text(
+                    'DAILY OPTIMIZATION',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      color: AppTheme.neonBlue,
+                      letterSpacing: 2,
+                      fontFamily: 'Rajdhani',
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
+                const Text(
+                  'Based on your goals and current fatigue levels, we\'ve built this 4-step protocol.',
+                  style: TextStyle(color: Colors.white60, fontSize: 14, height: 1.4),
+                ),
+                const SizedBox(height: 24),
                 Row(
                   children: [
-                    _buildTag(Icons.timer, '15 Min'),
-                    const SizedBox(width: 8),
-                    _buildTag(Icons.local_fire_department, '~150 kcal'),
+                    _buildTag(Icons.timer_outlined, '15 MIN'),
+                    const SizedBox(width: 12),
+                    _buildTag(Icons.local_fire_department_outlined, '150 KCAL'),
                   ],
                 ),
               ],
@@ -76,23 +89,17 @@ class _DailyCircuitScreenState extends State<DailyCircuitScreen> {
                 final exercise = _circuit[index];
                 return Container(
                   padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF141B38),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-                  ),
+                  decoration: AppTheme.cardDecoration(context),
                   child: Row(
                     children: [
                       Container(
-                        width: 60,
-                        height: 60,
+                        width: 70,
+                        height: 70,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF1E2749),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(16),
                           image: DecorationImage(
                             image: NetworkImage(exercise.imageUrl),
                             fit: BoxFit.cover,
-                            opacity: 0.8,
                           ),
                         ),
                       ),
@@ -102,24 +109,31 @@ class _DailyCircuitScreenState extends State<DailyCircuitScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              exercise.name,
+                              exercise.name.toUpperCase(),
                               style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w900,
                                 color: Colors.white,
                                 fontFamily: 'Rajdhani',
+                                letterSpacing: 1,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '${exercise.defaultSets} Sets × ${exercise.defaultReps} Reps',
-                              style: const TextStyle(color: Colors.white54, fontSize: 14),
+                              '${exercise.defaultSets} SETS × ${exercise.defaultReps} REPS',
+                              style: const TextStyle(
+                                color: AppTheme.neonBlue, 
+                                fontSize: 11, 
+                                fontWeight: FontWeight.w900,
+                                fontFamily: 'Rajdhani',
+                                letterSpacing: 1,
+                              ),
                             ),
                           ],
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.play_circle_fill, color: AppTheme.neonBlue, size: 36),
+                        icon: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white24, size: 20),
                         onPressed: () {
                           Navigator.push(
                             context,
@@ -133,6 +147,33 @@ class _DailyCircuitScreenState extends State<DailyCircuitScreen> {
                   ),
                 );
               },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: SizedBox(
+              width: double.infinity,
+              height: 64,
+              child: ElevatedButton(
+                onPressed: () {
+                  // Start the first exercise in circuit
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CameraAIScreen(exerciseType: _circuit.first.id),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.neonBlue,
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                ),
+                child: const Text(
+                  'START CIRCUIT SESSION', 
+                  style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2, fontFamily: 'Rajdhani'),
+                ),
+              ),
             ),
           ),
         ],

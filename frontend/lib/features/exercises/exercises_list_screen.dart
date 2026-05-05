@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/config/app_theme.dart';
 import '../../core/constants/exercises.dart';
 import '../../features/workout/pre_workout_screen.dart';
 
@@ -58,7 +59,7 @@ class _ExercisesListScreenState extends State<ExercisesListScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0E27),
+      backgroundColor: AppTheme.darkBackground,
       body: NestedScrollView(
         headerSliverBuilder: (context, _) => [
           SliverAppBar(
@@ -66,7 +67,7 @@ class _ExercisesListScreenState extends State<ExercisesListScreen>
             floating: true,
             snap: true,
             pinned: true,
-            backgroundColor: const Color(0xFF0A0E27),
+            backgroundColor: AppTheme.darkBackground,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back_ios_new,
                   color: Colors.white70, size: 20),
@@ -86,12 +87,8 @@ class _ExercisesListScreenState extends State<ExercisesListScreen>
                 ),
               ),
               background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0xFF1E2749), Color(0xFF0A0E27)],
-                  ),
+                decoration: BoxDecoration(
+                  color: AppTheme.darkBackground,
                 ),
               ),
             ),
@@ -99,9 +96,9 @@ class _ExercisesListScreenState extends State<ExercisesListScreen>
               preferredSize: const Size.fromHeight(48),
               child: TabBar(
                 controller: _tabController,
-                indicatorColor: const Color(0xFF00D9FF),
+                indicatorColor: AppTheme.neonBlue,
                 indicatorWeight: 3,
-                labelColor: const Color(0xFF00D9FF),
+                labelColor: AppTheme.neonBlue,
                 unselectedLabelColor: Colors.white38,
                 labelStyle: const TextStyle(
                   fontWeight: FontWeight.w800,
@@ -128,12 +125,7 @@ class _ExercisesListScreenState extends State<ExercisesListScreen>
                   // Search bar
                   Container(
                     height: 44,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.06),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.08)),
-                    ),
+                    decoration: AppTheme.glassDecoration(),
                     child: TextField(
                       style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
@@ -170,27 +162,26 @@ class _ExercisesListScreenState extends State<ExercisesListScreen>
                                 horizontal: 14, vertical: 7),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? const Color(0xFF00D9FF)
-                                      .withValues(alpha: 0.15)
+                                  ? AppTheme.neonBlue.withValues(alpha: 0.1)
                                   : Colors.white.withValues(alpha: 0.04),
                               borderRadius:
                                   BorderRadius.circular(20),
                               border: Border.all(
                                 color: isSelected
-                                    ? const Color(0xFF00D9FF)
+                                    ? AppTheme.neonBlue
                                     : Colors.white.withValues(alpha: 0.1),
                               ),
                             ),
                             child: Text(
-                              cat,
+                              cat.toUpperCase(),
                               style: TextStyle(
                                 color: isSelected
-                                    ? const Color(0xFF00D9FF)
+                                    ? AppTheme.neonBlue
                                     : Colors.white54,
-                                fontSize: 11,
-                                fontWeight: isSelected
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                fontFamily: 'Rajdhani',
+                                letterSpacing: 1,
                               ),
                             ),
                           ),
@@ -311,20 +302,7 @@ class _ExercisesListScreenState extends State<ExercisesListScreen>
         ),
       ),
       child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFF141B38),
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(
-            color: diffColor.withValues(alpha: 0.15),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: diffColor.withValues(alpha: 0.05),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
+        decoration: AppTheme.cardDecoration(context),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

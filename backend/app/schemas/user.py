@@ -84,3 +84,7 @@ class ChangePassword(BaseModel):
     """Schema for changing password"""
     current_password: str = Field(..., description="Current password")
     new_password: str = Field(..., min_length=6, description="New password")
+
+class GoogleLoginRequest(BaseModel):
+    """Schema for Google login request"""
+    id_token: str = Field(..., description="Google ID token")

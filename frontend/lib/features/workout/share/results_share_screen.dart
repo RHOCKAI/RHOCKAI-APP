@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/config/app_theme.dart';
 import 'package:rhockai/l10n/app_localizations.dart';
 import 'dart:math' as math;
 
@@ -95,7 +96,7 @@ class _ResultsShareScreenState extends ConsumerState<ResultsShareScreen>
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF000000),
+      backgroundColor: AppTheme.darkBackground,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -166,18 +167,8 @@ class _ResultsShareScreenState extends ConsumerState<ResultsShareScreen>
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF0D0D0D), Color(0xFF1A1A2E)],
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF7B5EA7).withValues(alpha: 0.2),
-                    blurRadius: 40,
-                    spreadRadius: 5,
-                  ),
-                ],
+                color: const Color(0xFF0D0D0D),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
               ),
               clipBehavior: Clip.antiAlias,
               child: Stack(
@@ -241,12 +232,19 @@ class _ResultsShareScreenState extends ConsumerState<ResultsShareScreen>
             ],
           ),
         ),
-        CircleAvatar(
-          radius: 28,
-          backgroundColor: const Color(0xFF7B5EA7),
-          child: Text(
-            userName[0].toUpperCase(),
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+        Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: AppTheme.neonBlue.withValues(alpha: 0.1),
+            border: Border.all(color: AppTheme.neonBlue.withValues(alpha: 0.3)),
+          ),
+          child: Center(
+            child: Text(
+              userName[0].toUpperCase(),
+              style: const TextStyle(color: AppTheme.neonBlue, fontWeight: FontWeight.w900, fontSize: 20, fontFamily: 'Rajdhani'),
+            ),
           ),
         ),
       ],
@@ -313,7 +311,7 @@ class _ResultsShareScreenState extends ConsumerState<ResultsShareScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: const Color(0xFF7B5EA7), size: 20),
+        Icon(icon, color: AppTheme.neonBlue, size: 20),
           const SizedBox(height: 12),
           Text(
             value,
@@ -353,7 +351,7 @@ class _ResultsShareScreenState extends ConsumerState<ResultsShareScreen>
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.fitness_center, color: Color(0xFF00D9FF), size: 14),
+              const Icon(Icons.fitness_center, color: AppTheme.neonBlue, size: 14),
               const SizedBox(width: 8),
               Text(
                 'RHOCKAI · AI-POWERED FORM TRAINING',
@@ -403,8 +401,8 @@ class _ResultsShareScreenState extends ConsumerState<ResultsShareScreen>
                 style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5, fontFamily: 'Rajdhani'),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF7B5EA7),
-                foregroundColor: Colors.white,
+                backgroundColor: AppTheme.neonBlue,
+                foregroundColor: Colors.black,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
             ),
@@ -441,7 +439,7 @@ class _ResultsShareScreenState extends ConsumerState<ResultsShareScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: active ? const Color(0xFF7B5EA7) : Colors.transparent,
+          color: active ? AppTheme.neonBlue : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Text(
@@ -465,7 +463,7 @@ class _ResultsShareScreenState extends ConsumerState<ResultsShareScreen>
         const SizedBox(width: 12),
         Switch.adaptive(
           value: _showWatermark,
-          activeTrackColor: const Color(0xFF00D9FF),
+          activeTrackColor: AppTheme.neonBlue,
           onChanged: (val) {
             setState(() => _showWatermark = val);
             _controller.saveWatermarkPreference(val);
@@ -482,7 +480,7 @@ class _ParticlePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = const Color(0xFF7B5EA7).withValues(alpha: 0.05);
+    final paint = Paint()..color = AppTheme.neonBlue.withValues(alpha: 0.05);
     final random = math.Random(42);
     for (int i = 0; i < 20; i++) {
       final x = random.nextDouble() * size.width;

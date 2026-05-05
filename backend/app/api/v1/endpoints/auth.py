@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.schemas.user import UserCreate, UserResponse, LoginRequest, UserUpdate
+from app.schemas.user import UserCreate, UserResponse, LoginRequest, UserUpdate, PasswordResetRequest, PasswordResetConfirm, GoogleLoginRequest
 from app.schemas.response import TokenResponse
 from app.services.auth_service import auth_service
 from app.api.deps import get_current_active_user
@@ -87,6 +87,38 @@ async def login_for_access_token(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Token generation failed: {str(e)}"
         )
+
+@router.post("/forgot-password")
+async def forgot_password(
+    data: PasswordResetRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Send password reset email
+    """
+    auth_service.forgot_password(db, data)
+    return {"detail": "Password reset email sent if account exists"}
+
+@router.post("/reset-password")
+async def reset_password(
+    data: PasswordResetConfirm,
+    db: Session = Depends(get_db)
+):
+    """
+    Reset password using token
+    """
+    auth_service.reset_password(db, data)
+    return {"detail": "Password reset successful"}
+
+@router.post("/google", response_model=TokenResponse)
+async def google_login(
+    data: GoogleLoginRequest,
+    db: Session = Depends(get_db)
+) -> TokenResponse:
+    """
+    Authenticate with Google ID token
+    """
+    return auth_service.login_with_google(db, data.id_token)
 
 @router.get("/me", response_model=UserResponse)
 async def read_users_me(
