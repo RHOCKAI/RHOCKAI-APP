@@ -42,7 +42,6 @@ def fix_database():
                 ('is_premium', 'BOOLEAN', 'FALSE'),
                 ('subscription_end', 'TIMESTAMP WITH TIME ZONE', 'NULL'),
                 ('trial_ends_at', 'TIMESTAMP WITH TIME ZONE', 'NULL'),
-                ('stripe_customer_id', 'VARCHAR', 'NULL'),
                 ('lemon_squeezy_customer_id', 'VARCHAR', 'NULL'),
                 ('social_provider', 'VARCHAR', 'NULL'),
                 ('social_id', 'VARCHAR', 'NULL'),

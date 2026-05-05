@@ -32,13 +32,6 @@ class Subscription(Base):
     plan = Column(Enum(SubscriptionPlan), default=SubscriptionPlan.FREE, nullable=False)
     status = Column(Enum(SubscriptionStatus), default=SubscriptionStatus.ACTIVE, nullable=False)
     
-    stripe_customer_id = Column(String, nullable=True, index=True)
-    stripe_subscription_id = Column(String, nullable=True, index=True)
-    stripe_price_id = Column(String, nullable=True)
-    
-    flutterwave_customer_id = Column(String, nullable=True)
-    flutterwave_subscription_id = Column(String, nullable=True)
-    
     lemon_squeezy_customer_id = Column(String, nullable=True)
     lemon_squeezy_subscription_id = Column(String, nullable=True)
     lemon_squeezy_order_id = Column(String, nullable=True) # Useful for lifetime/one-time payments

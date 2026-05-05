@@ -201,7 +201,7 @@ class _AIWorkoutTrackerAppState extends ConsumerState<AIWorkoutTrackerApp> {
   }
 
   Widget _buildLoadingScreen() {
-    return const Scaffold(
+    return Scaffold(
       backgroundColor: Color(0xFF0A0E27), // Match brand dark background
       body: Center(
         child: Column(
