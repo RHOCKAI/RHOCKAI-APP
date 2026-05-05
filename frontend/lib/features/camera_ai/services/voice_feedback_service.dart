@@ -51,10 +51,10 @@ class VoiceFeedbackService {
   bool _isSpeaking = false;
   bool _isEnabled = true;
 
-  // Settings
-  double _volume = 0.8;
-  double _pitch = 1.0;
-  double _rate = 0.5; // Speech rate (0.0 - 1.0)
+  // Settings optimized for a motivational, natural, and energetic tone
+  double _volume = 1.0;
+  double _pitch = 1.15; // Slightly elevated for higher energy/motivation
+  double _rate = 0.55; // Natural conversational pace (less robotic than 0.5)
   String _language = 'en-US';
   String _locale = 'en';
 
