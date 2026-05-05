@@ -19,6 +19,12 @@ import 'package:rhockai/features/gamification/widgets/daily_challenge_card.dart'
 import 'package:rhockai/features/gamification/widgets/leaderboard_view.dart';
 import 'package:rhockai/features/gamification/widgets/fitness_rating_view.dart';
 import 'package:rhockai/features/gamification/data/models/daily_challenge.dart';
+import 'package:rhockai/features/gamification/providers/gamification_provider.dart';
+
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import 'package:rhockai/features/camera_ai/screens/video_analysis_screen.dart';
+import 'package:rhockai/features/camera_ai/widgets/exercise_selector_sheet.dart';
 
 /// 🏠 Professional Dashboard - Restored Premium AI Design
 class ProfessionalDashboard extends ConsumerStatefulWidget {
@@ -39,6 +45,39 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
     await _authRepo.logout();
     if (!mounted) return;
     unawaited(Navigator.pushReplacementNamed(context, '/'));
+  }
+
+  Future<void> _uploadVideo() async {
+    // 1. Pick video file
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.video,
+    );
+
+    if (result == null || result.files.isEmpty) return;
+    if (!mounted) return;
+
+    // 2. Show exercise selector
+    final exerciseType = await showModalBottomSheet<String>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => const ExerciseSelectorSheet(),
+    );
+
+    if (exerciseType == null) return;
+    if (!mounted) return;
+
+    // 3. Navigate to analysis screen
+    unawaited(Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VideoAnalysisScreen(
+          videoFile: File(result.files.single.path!),
+          exerciseType: exerciseType,
+        ),
+      ),
+    ));
   }
 
   @override
@@ -333,22 +372,25 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
   }
 
   Widget _buildSocialRow(bool isMobile) {
+    final leaderboardAsync = ref.watch(dailyLeaderboardProvider);
+    final entries = leaderboardAsync.valueOrNull ?? [];
+
     return LayoutBuilder(builder: (context, constraints) {
       if (constraints.maxWidth < 900) {
-        return const Column(
+        return Column(
           children: [
-            LeaderboardView(entries: []),
-            SizedBox(height: 16),
-            CalendarCard(),
+            LeaderboardView(entries: entries),
+            const SizedBox(height: 16),
+            const CalendarCard(),
           ],
         );
       }
-      return const Row(
+      return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(flex: 3, child: LeaderboardView(entries: [])),
-          SizedBox(width: 20),
-          Expanded(flex: 2, child: CalendarCard()),
+          Expanded(flex: 3, child: LeaderboardView(entries: entries)),
+          const SizedBox(width: 20),
+          const Expanded(flex: 2, child: CalendarCard()),
         ],
       );
     });
@@ -441,16 +483,35 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
           Positioned(
             bottom: 20,
             left: 20,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(12)),
-              child: const Row(
-                children: [
-                  Icon(Icons.videocam_rounded, color: AppTheme.neonGreen, size: 18),
-                  SizedBox(width: 8),
-                  Text('CAMERA ACTIVE', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
-                ],
-              ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(12)),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.videocam_rounded, color: AppTheme.neonGreen, size: 18),
+                      SizedBox(width: 8),
+                      Text('CAMERA ACTIVE', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                GestureDetector(
+                  onTap: _uploadVideo,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(color: AppTheme.neonBlue.withOpacity(0.2), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.neonBlue)),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.video_file, color: AppTheme.neonBlue, size: 18),
+                        SizedBox(width: 8),
+                        Text('UPLOAD VIDEO', style: TextStyle(color: AppTheme.neonBlue, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

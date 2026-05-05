@@ -151,7 +151,7 @@ class Exercises {
     category: 'lower_body',
     idealTempo: ExerciseTempo(eccentric: 2.0, isometric: 1.0, concentric: 1.0),
     caloriesPerRep: 0.28,
-    imageUrl: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1544367567056-41c2cb2df638?auto=format&fit=crop&q=80',
   );
 
   static const inchworm = ExerciseData(
@@ -168,7 +168,7 @@ class Exercises {
     category: 'full_body',
     idealTempo: ExerciseTempo(eccentric: 2.0, isometric: 0.5, concentric: 2.0),
     caloriesPerRep: 0.40,
-    imageUrl: 'https://images.unsplash.com/photo-1599058917765-a780eda07a3e?auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1518611012118-69b125028f8f?auto=format&fit=crop&q=80',
   );
 
   static const standingMarchHigh = ExerciseData(
@@ -185,7 +185,7 @@ class Exercises {
     category: 'full_body',
     idealTempo: ExerciseTempo(eccentric: 0.3, isometric: 0, concentric: 0.3),
     caloriesPerRep: 0.20,
-    imageUrl: 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&q=80',
   );
 
   // ─────────────────────────────────────────────
@@ -206,7 +206,7 @@ class Exercises {
     category: 'lower_body',
     idealTempo: ExerciseTempo(eccentric: 2.5, isometric: 0.5, concentric: 1.5),
     caloriesPerRep: 0.38,
-    imageUrl: 'https://images.unsplash.com/photo-1434608519344-49d77a124f7e?auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&q=80',
   );
 
   static const tricepDip = ExerciseData(
@@ -223,7 +223,7 @@ class Exercises {
     category: 'upper_body',
     idealTempo: ExerciseTempo(eccentric: 2.5, isometric: 0.5, concentric: 1.0),
     caloriesPerRep: 0.45,
-    imageUrl: 'https://images.unsplash.com/photo-1604480132736-44c188fe4d20?auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&q=80',
   );
 
   static const mountainClimber = ExerciseData(
@@ -240,7 +240,7 @@ class Exercises {
     category: 'full_body',
     idealTempo: ExerciseTempo(eccentric: 0.5, isometric: 0, concentric: 0.5),
     caloriesPerRep: 0.30,
-    imageUrl: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1571019615399-f2e1dfd490c6?auto=format&fit=crop&q=80',
   );
 
   static const sidePlank = ExerciseData(
@@ -257,7 +257,7 @@ class Exercises {
     category: 'core',
     idealTempo: ExerciseTempo(eccentric: 0, isometric: 30, concentric: 0),
     caloriesPerRep: 0.10,
-    imageUrl: 'https://images.unsplash.com/photo-1609952543555-9f9c5cd25374?auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1518398092300-56ac591e0a29?auto=format&fit=crop&q=80',
   );
 
   static const reverseLunge = ExerciseData(
@@ -274,7 +274,7 @@ class Exercises {
     category: 'lower_body',
     idealTempo: ExerciseTempo(eccentric: 2.5, isometric: 0.5, concentric: 1.5),
     caloriesPerRep: 0.36,
-    imageUrl: 'https://images.unsplash.com/photo-1434608519344-49d77a124f7e?auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80',
   );
 
   static const pikePushup = ExerciseData(
@@ -291,7 +291,7 @@ class Exercises {
     category: 'upper_body',
     idealTempo: ExerciseTempo(eccentric: 2.0, isometric: 0.5, concentric: 1.0),
     caloriesPerRep: 0.55,
-    imageUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1541534741627-52d80d2109ba?auto=format&fit=crop&q=80',
   );
 
   static const sumoSquat = ExerciseData(
@@ -308,7 +308,7 @@ class Exercises {
     category: 'lower_body',
     idealTempo: ExerciseTempo(eccentric: 2.5, isometric: 1.0, concentric: 1.0),
     caloriesPerRep: 0.35,
-    imageUrl: 'https://images.unsplash.com/photo-1604480132736-44c188fe4d20?auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1518611012118-69b125028f8f?auto=format&fit=crop&q=80',
   );
 
   // ─────────────────────────────────────────────
@@ -329,7 +329,7 @@ class Exercises {
     category: 'lower_body',
     idealTempo: ExerciseTempo(eccentric: 3.0, isometric: 1.0, concentric: 2.0),
     caloriesPerRep: 0.60,
-    imageUrl: 'https://images.unsplash.com/photo-1434608519344-49d77a124f7e?auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1566241142559-40e1dab266c6?auto=format&fit=crop&q=80',
   );
 
   static const diamondPushup = ExerciseData(
@@ -346,7 +346,7 @@ class Exercises {
     category: 'upper_body',
     idealTempo: ExerciseTempo(eccentric: 2.5, isometric: 0.5, concentric: 1.0),
     caloriesPerRep: 0.65,
-    imageUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1583454155184-870a1f63aebc?auto=format&fit=crop&q=80',
   );
 
   static const archerPushup = ExerciseData(
@@ -363,7 +363,7 @@ class Exercises {
     category: 'upper_body',
     idealTempo: ExerciseTempo(eccentric: 3.0, isometric: 0.5, concentric: 1.5),
     caloriesPerRep: 0.70,
-    imageUrl: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1599058917200-a6cb82dbbcbd?auto=format&fit=crop&q=80',
   );
 
   static const jumpSquat = ExerciseData(
@@ -380,7 +380,7 @@ class Exercises {
     category: 'lower_body',
     idealTempo: ExerciseTempo(eccentric: 1.5, isometric: 0, concentric: 0.5),
     caloriesPerRep: 0.55,
-    imageUrl: 'https://images.unsplash.com/photo-1576678927484-cc907957088c?auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1552674605-b04b9015c92c?auto=format&fit=crop&q=80',
   );
 
   static const burpee = ExerciseData(
@@ -397,7 +397,7 @@ class Exercises {
     category: 'full_body',
     idealTempo: ExerciseTempo(eccentric: 1.0, isometric: 0, concentric: 1.0),
     caloriesPerRep: 0.80,
-    imageUrl: 'https://images.unsplash.com/photo-1599058917765-a780eda07a3e?auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80',
   );
 
   static const singleLegDeadlift = ExerciseData(
@@ -414,7 +414,7 @@ class Exercises {
     category: 'lower_body',
     idealTempo: ExerciseTempo(eccentric: 3.0, isometric: 0.5, concentric: 2.0),
     caloriesPerRep: 0.45,
-    imageUrl: 'https://images.unsplash.com/photo-1574680096141-1cddd32e04ca?auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&q=80',
   );
 
   static const spiderManPushup = ExerciseData(
@@ -431,7 +431,7 @@ class Exercises {
     category: 'upper_body',
     idealTempo: ExerciseTempo(eccentric: 2.0, isometric: 0.5, concentric: 1.0),
     caloriesPerRep: 0.68,
-    imageUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1571019615399-f2e1dfd490c6?auto=format&fit=crop&q=80',
   );
 
   // ─────────────────────────────────────────────
