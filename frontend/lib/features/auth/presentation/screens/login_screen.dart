@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rhockai/l10n/app_localizations.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../../../shared/widgets/pulse_animation.dart';
+import '../../../../shared/widgets/language_selector.dart';
 import 'register_screen.dart';
 
 /// 🔐 Modern Login Screen
@@ -130,14 +131,16 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 40),
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 40),
 
                 // Logo & Title
                 Center(
@@ -420,8 +423,15 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-      ),
-    );
+        const Positioned(
+          top: 16,
+          right: 16,
+          child: LanguageSelector(),
+        ),
+      ],
+    ),
+  ),
+);
   }
 
   Widget _buildTextField({

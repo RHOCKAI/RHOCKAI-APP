@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rhockai/l10n/app_localizations.dart';
 import '../../data/repositories/auth_repository.dart';
+import '../../../../shared/widgets/language_selector.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -82,6 +83,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.createAccount),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 8.0),
+            child: LanguageSelector(),
+          ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
