@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import '../camera_ai/session/session_model.dart';
 import '../gamification/data/repositories/gamification_repository.dart';
+import '../../core/services/health_service.dart';
 import '../workout/share/results_share_screen.dart';
 import 'package:confetti/confetti.dart';
 import 'dart:math';
@@ -45,6 +46,16 @@ class _WorkoutSummaryScreenState extends State<WorkoutSummaryScreen> {
       setState(() {
         _streak = stats.currentStreak;
       });
+    }
+
+    if (!widget.isDemo) {
+      await HealthService().initialize();
+      await HealthService().saveWorkout(
+        exerciseName: widget.session.exerciseType,
+        caloriesBurned: widget.session.caloriesBurned.toDouble(),
+        startTime: widget.session.startTime,
+        endTime: widget.session.endTime ?? DateTime.now(),
+      );
     }
   }
 

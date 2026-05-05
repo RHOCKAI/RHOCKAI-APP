@@ -13,6 +13,7 @@ import 'package:rhockai/core/utils/premium_gate.dart';
 import 'package:rhockai/shared/widgets/pulse_animation.dart';
 import 'package:rhockai/core/config/app_theme.dart';
 import 'package:rhockai/features/dashboard/widgets/calendar_card.dart';
+import 'package:rhockai/features/dashboard/widgets/muscle_heatmap_card.dart';
 import 'package:rhockai/features/camera_ai/camera_ai_screen.dart';
 import 'package:rhockai/features/exercises/exercises_list_screen.dart';
 import 'package:rhockai/features/gamification/widgets/daily_challenge_card.dart';
@@ -20,6 +21,7 @@ import 'package:rhockai/features/gamification/widgets/leaderboard_view.dart';
 import 'package:rhockai/features/gamification/widgets/fitness_rating_view.dart';
 import 'package:rhockai/features/gamification/data/models/daily_challenge.dart';
 import 'package:rhockai/features/gamification/providers/gamification_provider.dart';
+import 'package:rhockai/features/workout/screens/daily_circuit_screen.dart';
 
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
@@ -225,36 +227,74 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
             ),
           ),
           const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ExercisesListScreen()),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF00D9FF),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.bolt_rounded, size: 20),
-                SizedBox(width: 8),
-                Text(
-                  'QUICK START',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.5,
-                    fontFamily: 'Rajdhani',
+          Row(
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ExercisesListScreen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: const Color(0xFF00D9FF),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-              ],
-            ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.bolt_rounded, size: 20),
+                    SizedBox(width: 8),
+                    Text(
+                      'QUICK START',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.5,
+                        fontFamily: 'Rajdhani',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const DailyCircuitScreen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF9C27FF).withOpacity(0.2),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  side: const BorderSide(color: Colors.white24, width: 1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 0,
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.auto_awesome, size: 20),
+                    SizedBox(width: 8),
+                    Text(
+                      'AI CIRCUIT',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.5,
+                        fontFamily: 'Rajdhani',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -382,6 +422,8 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
             LeaderboardView(entries: entries),
             const SizedBox(height: 16),
             const CalendarCard(),
+            const SizedBox(height: 16),
+            const MuscleHeatmapCard(),
           ],
         );
       }
@@ -390,7 +432,16 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
         children: [
           Expanded(flex: 3, child: LeaderboardView(entries: entries)),
           const SizedBox(width: 20),
-          const Expanded(flex: 2, child: CalendarCard()),
+          Expanded(
+            flex: 2, 
+            child: Column(
+              children: const [
+                CalendarCard(),
+                SizedBox(height: 16),
+                MuscleHeatmapCard(),
+              ],
+            ),
+          ),
         ],
       );
     });
