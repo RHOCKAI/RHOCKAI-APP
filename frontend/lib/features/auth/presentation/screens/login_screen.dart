@@ -7,6 +7,7 @@ import '../../../../shared/widgets/language_selector.dart';
 import 'register_screen.dart';
 import 'reset_password_screen.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 /// 🔐 Modern Login Screen
 class LoginScreen extends StatefulWidget {
@@ -123,6 +124,48 @@ class _LoginScreenState extends State<LoginScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Google Login failed: ${e.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
+      return;
+    }
+
+    if (provider == 'Apple') {
+      setState(() => _isLoading = true);
+      try {
+        final credential = await SignInWithApple.getAppleIDCredential(
+          scopes: [
+            AppleIDAuthorizationScopes.email,
+            AppleIDAuthorizationScopes.fullName,
+          ],
+        );
+
+        final idToken = credential.identityToken;
+        if (idToken != null) {
+          final fullName = credential.givenName != null && credential.familyName != null
+              ? '${credential.givenName} ${credential.familyName}'
+              : null;
+              
+          await _authRepo.loginWithApple(
+            idToken,
+            email: credential.email,
+            fullName: fullName,
+          );
+          if (mounted) {
+            await Navigator.pushReplacementNamed(context, '/home');
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Apple Login failed: ${e.toString()}'),
               backgroundColor: Colors.red,
             ),
           );

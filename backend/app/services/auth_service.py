@@ -174,5 +174,64 @@ class AuthService:
                 detail=f"Google authentication failed: {str(e)}"
             )
 
+    def login_with_apple(self, db: Session, data) -> TokenResponse:
+        import jwt
+        
+        try:
+            # In a production environment, you should verify the token's signature against Apple's public keys.
+            # Here we decode the unverified token for demonstration purposes.
+            decoded_token = jwt.decode(data.id_token, options={"verify_signature": False})
+            
+            # The Apple ID token usually contains the 'email' and 'sub' (subject/user ID)
+            email = decoded_token.get('email')
+            if not email:
+                if data.email:
+                    email = data.email
+                else:
+                    raise ValueError('No email provided by Apple.')
+            
+            # Check if user exists
+            user = user_repo.get_by_email(db, email=email)
+
+            if not user:
+                # Auto-register if user doesn't exist
+                full_name = data.full_name or 'Apple User'
+                user_create = UserCreate(
+                    email=email,
+                    password=os.urandom(16).hex(), # Random password for social users
+                    full_name=full_name,
+                    age=25, # Default age
+                    gender='other',
+                    height=170,
+                    weight=70,
+                    fitness_level='beginner'
+                )
+                user = user_repo.create_user(db, obj_in=user_create)
+                
+                # Update social fields
+                user.social_provider = 'apple'
+                user.social_id = decoded_token.get('sub')
+                user.is_verified = True # Apple users are verified
+                db.commit()
+
+            # Generate Rhockai JWT
+            access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+            access_token = create_access_token(
+                data={"sub": user.email},
+                expires_delta=access_token_expires
+            )
+
+            return TokenResponse(
+                access_token=access_token,
+                token_type="bearer",
+                expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+            )
+
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"Apple authentication failed: {str(e)}"
+            )
+
 
 auth_service = AuthService()

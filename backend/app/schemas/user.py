@@ -92,3 +92,9 @@ class ChangePassword(BaseModel):
 class GoogleLoginRequest(BaseModel):
     """Schema for Google login request"""
     id_token: str = Field(..., description="Google ID token")
+
+class AppleLoginRequest(BaseModel):
+    """Schema for Apple login request"""
+    id_token: str = Field(..., description="Apple identity token")
+    email: Optional[EmailStr] = Field(None, description="Email (only provided by Apple on first login)")
+    full_name: Optional[str] = Field(None, description="Full name (only provided by Apple on first login)")

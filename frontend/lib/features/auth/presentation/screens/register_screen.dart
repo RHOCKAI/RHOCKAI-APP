@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:rhockai/l10n/app_localizations.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../../../shared/widgets/language_selector.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -318,6 +320,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                 ),
+                const SizedBox(height: 24),
+                // Divider
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        AppLocalizations.of(context)?.or ?? 'OR',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface
+                              .withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                // Social login buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildSocialButton(
+                        'Google',
+                        Icons.g_mobiledata,
+                        context,
+                        onTap: () => _handleSocialLogin('Google'),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _buildSocialButton(
+                        'Apple',
+                        Icons.apple,
+                        context,
+                        onTap: () => _handleSocialLogin('Apple'),
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 16),
 
                 // Already have account
@@ -337,6 +390,134 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _handleSocialLogin(String provider) async {
+    if (provider == 'Google') {
+      setState(() => _isLoading = true);
+      try {
+        final GoogleSignIn googleSignIn = GoogleSignIn(
+          scopes: ['email', 'profile'],
+        );
+
+        final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+        if (googleUser == null) {
+          setState(() => _isLoading = false);
+          return;
+        }
+
+        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+        final String? idToken = googleAuth.idToken;
+
+        if (idToken != null) {
+          await _authRepo.loginWithGoogle(idToken);
+          if (mounted) {
+            await Navigator.pushReplacementNamed(context, '/home');
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Google Login failed: ${e.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
+      return;
+    }
+
+    if (provider == 'Apple') {
+      setState(() => _isLoading = true);
+      try {
+        final credential = await SignInWithApple.getAppleIDCredential(
+          scopes: [
+            AppleIDAuthorizationScopes.email,
+            AppleIDAuthorizationScopes.fullName,
+          ],
+        );
+
+        final idToken = credential.identityToken;
+        if (idToken != null) {
+          final fullName = credential.givenName != null && credential.familyName != null
+              ? '${credential.givenName} ${credential.familyName}'
+              : null;
+              
+          await _authRepo.loginWithApple(
+            idToken,
+            email: credential.email,
+            fullName: fullName,
+          );
+          if (mounted) {
+            await Navigator.pushReplacementNamed(context, '/home');
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Apple Login failed: ${e.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$provider login coming soon!',
+            style: const TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  Widget _buildSocialButton(String text, IconData icon, BuildContext context,
+      {VoidCallback? onTap}) {
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.1),
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: Colors.white, size: 24),
+              const SizedBox(width: 8),
+              Text(
+                text,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ],
           ),
         ),
       ),

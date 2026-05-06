@@ -100,6 +100,30 @@ class AuthRepository {
     }
   }
 
+  /// Login with Apple
+  Future<void> loginWithApple(String idToken, {String? email, String? fullName}) async {
+    try {
+      final response = await _apiClient.post(
+        '/auth/apple',
+        data: {
+          'id_token': idToken,
+          if (email != null) 'email': email,
+          if (fullName != null) 'full_name': fullName,
+        },
+      );
+
+      final token = response.data['access_token'];
+
+      // Save token securely
+      await _storage.write(key: 'auth_token', value: token);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception(e.response!.data['detail'] ?? 'Apple login failed');
+      }
+      throw Exception('Network error');
+    }
+  }
+
   /// Get current user profile
   Future<Map<String, dynamic>> getCurrentUser() async {
     try {

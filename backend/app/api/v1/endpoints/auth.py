@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.schemas.user import UserCreate, UserResponse, LoginRequest, UserUpdate, PasswordResetRequest, PasswordResetConfirm, GoogleLoginRequest
+from app.schemas.user import UserCreate, UserResponse, LoginRequest, UserUpdate, PasswordResetRequest, PasswordResetConfirm, GoogleLoginRequest, AppleLoginRequest
 from app.schemas.response import TokenResponse
 from app.services.auth_service import auth_service
 from app.api.deps import get_current_active_user
@@ -121,6 +121,16 @@ async def google_login(
     Authenticate with Google ID token
     """
     return auth_service.login_with_google(db, data.id_token)
+
+@router.post("/apple", response_model=TokenResponse)
+async def apple_login(
+    data: AppleLoginRequest,
+    db: Session = Depends(get_db)
+) -> TokenResponse:
+    """
+    Authenticate with Apple ID token
+    """
+    return auth_service.login_with_apple(db, data)
 
 @router.get("/me", response_model=UserResponse)
 async def read_users_me(
