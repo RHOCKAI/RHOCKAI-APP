@@ -42,6 +42,8 @@ async def register(
             language=user.language,
             theme=user.theme,
             voice_feedback=user.voice_feedback,
+            profile_picture=user.profile_picture,
+            profile_emoji=user.profile_emoji,
             created_at=user.created_at
         )
     except HTTPException:
@@ -142,6 +144,8 @@ async def read_users_me(
         language=current_user.language,
         theme=current_user.theme,
         voice_feedback=current_user.voice_feedback,
+        profile_picture=current_user.profile_picture,
+        profile_emoji=current_user.profile_emoji,
         created_at=current_user.created_at
     )
 
@@ -177,5 +181,7 @@ async def update_user_profile(
         language=current_user.language,
         theme=current_user.theme,
         voice_feedback=current_user.voice_feedback,
+        profile_picture=current_user.profile_picture,
+        profile_emoji=current_user.profile_emoji,
         created_at=current_user.created_at
     )

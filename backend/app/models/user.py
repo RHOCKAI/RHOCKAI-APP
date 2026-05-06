@@ -48,6 +48,9 @@ class User(Base):
     )
     ai_fitness_rating = Column(Integer, default=0, nullable=False)  # 0-100 scale computed by AI
     
+    profile_picture = Column(String, nullable=True)
+    profile_emoji = Column(String, nullable=True)
+    
     # Preferences
     language = Column(String, default="en", nullable=False)
     theme = Column(String, default="light", nullable=False)

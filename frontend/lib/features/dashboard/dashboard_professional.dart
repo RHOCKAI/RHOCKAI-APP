@@ -843,6 +843,23 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
   }
 
   Widget _buildProfileHeader(Map<String, dynamic>? user) {
+    final emoji = user?['profile_emoji'];
+    final picUrl = user?['profile_picture'];
+    final name = user?['full_name'] ?? 'Champ';
+    final initial = name.isNotEmpty ? name[0].toUpperCase() : 'C';
+
+    Widget avatarContent;
+    if (picUrl != null && picUrl.toString().isNotEmpty) {
+      avatarContent = CircleAvatar(
+        radius: 37,
+        backgroundImage: NetworkImage(picUrl),
+      );
+    } else if (emoji != null && emoji.toString().isNotEmpty) {
+      avatarContent = Text(emoji, style: const TextStyle(fontSize: 40));
+    } else {
+      avatarContent = Text(initial, style: const TextStyle(fontSize: 32, color: Colors.white, fontWeight: FontWeight.bold));
+    }
+
     return Column(
       children: [
         Container(
@@ -860,12 +877,12 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
               color: Color(0xFF1E2749),
               shape: BoxShape.circle,
             ),
-            child: const Center(child: Icon(Icons.person_rounded, color: Colors.white, size: 40)),
+            child: Center(child: avatarContent),
           ),
         ),
         const SizedBox(height: 20),
         Text(
-          user?['full_name'] ?? 'ENTITY-01', 
+          name, 
           style: const TextStyle(
             color: Colors.white, 
             fontSize: 16, 

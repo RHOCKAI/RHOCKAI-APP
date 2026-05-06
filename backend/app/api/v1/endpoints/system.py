@@ -41,6 +41,8 @@ async def fix_database(db: Session = Depends(get_db)):
                 ('weight', 'INTEGER', 'NULL'),
                 ('fitness_level', 'VARCHAR', "'beginner'"),
                 ('ai_fitness_rating', 'INTEGER', '0'),
+                ('profile_picture', 'VARCHAR', 'NULL'),
+                ('profile_emoji', 'VARCHAR', 'NULL'),
                 ('language', 'VARCHAR', "'en'"),
                 ('theme', 'VARCHAR', "'light'"),
                 ('voice_feedback', 'BOOLEAN', 'TRUE'),

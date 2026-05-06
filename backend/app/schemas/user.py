@@ -32,6 +32,8 @@ class UserUpdate(BaseModel):
     language: Optional[str] = Field(None, description="Preferred language")
     theme: Optional[str] = Field(None, description="UI theme preference")
     voice_feedback: Optional[bool] = Field(None, description="Enable voice feedback")
+    profile_picture: Optional[str] = Field(None, description="URL of the profile picture")
+    profile_emoji: Optional[str] = Field(None, description="Emoji representing the user profile")
 
 class UserResponse(UserBase):
     id: int = Field(..., description="User ID")
@@ -41,6 +43,8 @@ class UserResponse(UserBase):
     language: str = Field(default="en", description="Preferred language")
     theme: str = Field(default="light", description="UI theme")
     voice_feedback: bool = Field(default=True, description="Voice feedback enabled")
+    profile_picture: Optional[str] = Field(None, description="URL of the profile picture")
+    profile_emoji: Optional[str] = Field(None, description="Emoji representing the user profile")
     created_at: datetime = Field(..., description="Account creation timestamp")
     updated_at: Optional[datetime] = Field(None, description="Last update timestamp")
     
