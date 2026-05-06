@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:rhockai/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:camera/camera.dart';
-import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
+import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart' hide PoseLandmark;
 
 import 'pose/pose_landmark_model.dart';
 import 'analysis/rep_state_machine.dart';
@@ -465,13 +465,13 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
         if (mounted) {
           _feedbackMessage = AppLocalizations.of(context)?.workoutComplete ?? 'Workout complete!';
           _feedbackColor = const Color(0xFF00FF88);
-          VoiceFeedbackService().announceWorkoutComplete(_repCount, _accuracy);
+          unawaited(VoiceFeedbackService().announceWorkoutComplete(_repCount, _accuracy));
         }
       }
 
       // Provide voice feedback for the rep
-      VoiceFeedbackService().announceRepCount(_repCount, _targetReps);
-      VoiceFeedbackService().provideFormFeedback(_accuracy, formFeedback.issues);
+      unawaited(VoiceFeedbackService().announceRepCount(_repCount, _targetReps));
+      unawaited(VoiceFeedbackService().provideFormFeedback(_accuracy, formFeedback.issues));
     }
 
     final envStatus = EnvironmentValidator.validate(image, poseLandmarks);

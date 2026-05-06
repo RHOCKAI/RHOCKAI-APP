@@ -21,7 +21,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
   Widget build(BuildContext context) {
     final statsAsync = ref.watch(statsProvider(_selectedDays));
     final chartAsync = ref.watch(progressChartProvider(_selectedDays));
-    final l10n = AppLocalizations.of(context) ?? AppLocalizationsEn();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
@@ -59,7 +59,9 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                   letterSpacing: 1,
                 ),
                 onChanged: (value) {
-                  if (value != null) setState(() => _selectedDays = value);
+                  if (value != null) {
+                    setState(() => _selectedDays = value);
+                  }
                 },
                 items: const [
                   DropdownMenuItem(value: 7, child: Text('7 DAYS')),

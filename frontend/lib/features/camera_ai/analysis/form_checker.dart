@@ -348,8 +348,5 @@ class FormChecker {
       default:
         return FormFeedback.perfect();
     }
-      default:
-        return FormFeedback.perfect();
-    }
   }
 }

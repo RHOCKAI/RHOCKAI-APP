@@ -8,7 +8,7 @@ class StreakCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final statsAsync = ref.watch(userStatsProvider);
+    final statsAsync = ref.watch(gamificationProvider);
 
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;

@@ -6,8 +6,13 @@ final levelServiceProvider = Provider((ref) => LevelService());
 
 class LevelService {
   /// Calculate XP earned from a workout session
-  int calculateXp(int reps, double accuracy, {double tempoScore = 0.0}) {
-    return AdaptiveIntelligence.calculateXPGained(reps, accuracy, tempoScore);
+  int calculateXp(int reps, double accuracy, {double tempoScore = 0.0, int currentStreak = 1}) {
+    return AdaptiveIntelligence.calculateXPGained(
+      reps: reps,
+      avgAccuracy: accuracy,
+      avgTempo: tempoScore,
+      currentStreak: currentStreak,
+    );
   }
   
   /// Update user level and XP

@@ -20,6 +20,7 @@ import 'features/payments/premium_upgrade_screen.dart';
 import 'features/payments/payment_service.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'core/services/update_service.dart';
+import 'core/services/sync_service.dart';
 
 class AIWorkoutTrackerApp extends ConsumerStatefulWidget {
   const AIWorkoutTrackerApp({super.key});
@@ -52,6 +53,7 @@ class _AIWorkoutTrackerAppState extends ConsumerState<AIWorkoutTrackerApp> {
     try {
       await _checkAuth();
       await _initAnalytics();
+      _initSync();
     } catch (e) {
       debugPrint('Initialization error: $e');
       if (e.toString().contains('401')) {
@@ -136,6 +138,10 @@ class _AIWorkoutTrackerAppState extends ConsumerState<AIWorkoutTrackerApp> {
       osVersion: osVersion,
       deviceType: deviceType,
     );
+  }
+
+  void _initSync() {
+    ref.read(syncServiceProvider).init();
   }
 
   @override

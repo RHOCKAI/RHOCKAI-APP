@@ -5,6 +5,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../data/models/user_stats.dart';
 import '../logic/adaptive_intelligence.dart';
 import '../../../features/camera_ai/session/session_model.dart';
+import '../data/models/leaderboard_entry.dart';
+
+import '../../../core/providers/api_client_provider.dart';
+import '../data/repositories/gamification_repository.dart';
+
+// ─────────────────────────────────────────────
+// Providers
+// ─────────────────────────────────────────────
+final gamificationRepositoryProvider = Provider((ref) => GamificationRepository());
+
+final dailyLeaderboardProvider = FutureProvider<List<LeaderboardEntry>>((ref) async {
+  final apiClient = ref.watch(apiClientProvider);
+  final repo = ref.watch(gamificationRepositoryProvider);
+  return repo.getDailyLeaderboard(apiClient);
+});
 
 // ─────────────────────────────────────────────
 // Result object returned after recording a workout
@@ -140,7 +155,9 @@ class GamificationNotifier extends StateNotifier<AsyncValue<UserStats>> {
     if (feedback != null) {
       final history = updatedHistory[exerciseId] ?? [];
       history.add(feedback.name);
-      if (history.length > 5) history.removeAt(0); // keep last 5
+      if (history.length > 5) {
+        history.removeAt(0); // keep last 5
+      }
       updatedHistory[exerciseId] = history;
     }
 

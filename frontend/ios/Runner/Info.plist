@@ -49,5 +49,9 @@
 	<string>We will sync your data with Apple Health to give you better insights</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>We will sync your workouts with Apple Health</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Rhockai needs camera access to analyze your posture and count reps using AI.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Rhockai needs microphone access to record videos of your workouts.</string>
 </dict>
 </plist>

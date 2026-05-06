@@ -36,7 +36,6 @@ class _WorkoutSummaryScreenState extends ConsumerState<WorkoutSummaryScreen> {
   int _xpGained = 0;
   int _newStreak = 0;
   int _newLevel = 1;
-  bool _leveledUp = false;
   bool _showXpOverlay = false;
 
   UserStats _stats = const UserStats();
@@ -70,17 +69,20 @@ class _WorkoutSummaryScreenState extends ConsumerState<WorkoutSummaryScreen> {
   }
 
   Future<void> _recordWorkout({DifficultyFeedback? feedback}) async {
-    if (widget.isDemo) return;
+    if (widget.isDemo) {
+      return;
+    }
     final result = await ref
         .read(gamificationProvider.notifier)
         .recordWorkout(session: widget.session, feedback: feedback);
 
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     setState(() {
       _xpGained = result.xpGained;
       _newStreak = result.newStreak;
       _newLevel = result.newLevel;
-      _leveledUp = result.leveledUp;
       _stats = result.updatedStats;
       _showXpOverlay = true;
     });
@@ -88,7 +90,7 @@ class _WorkoutSummaryScreenState extends ConsumerState<WorkoutSummaryScreen> {
     if (result.leveledUp) {
       await Future.delayed(const Duration(milliseconds: 800));
       if (mounted) {
-        showDialog(
+        await showDialog(
           context: context,
           barrierDismissible: false,
           builder: (_) => LevelUpDialog(
@@ -101,7 +103,9 @@ class _WorkoutSummaryScreenState extends ConsumerState<WorkoutSummaryScreen> {
   }
 
   Future<void> _submitFeedback(DifficultyFeedback feedback) async {
-    if (_feedbackSubmitted) return;
+    if (_feedbackSubmitted) {
+      return;
+    }
     setState(() {
       _selectedFeedback = feedback;
       _feedbackSubmitted = true;
@@ -287,7 +291,9 @@ class _WorkoutSummaryScreenState extends ConsumerState<WorkoutSummaryScreen> {
                 child: XpGainedOverlay(
                   xp: _xpGained,
                   onDone: () {
-                    if (mounted) setState(() => _showXpOverlay = false);
+                    if (mounted) {
+                      setState(() => _showXpOverlay = false);
+                    }
                   },
                 ),
               ),
@@ -730,7 +736,9 @@ class _WorkoutSummaryScreenState extends ConsumerState<WorkoutSummaryScreen> {
   }
 
   Future<void> _shareVideo(BuildContext context) async {
-    if (widget.session.videoUrl == null) return;
+    if (widget.session.videoUrl == null) {
+      return;
+    }
     final text =
         'Check out my ${widget.session.exerciseType} form on Rhockai! '
         'Accuracy: ${widget.session.averageAccuracy.toStringAsFixed(1)}% | '

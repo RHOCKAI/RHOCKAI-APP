@@ -102,11 +102,21 @@ class UserStats {
 
   /// Human-readable rank title based on level
   String get rankTitle {
-    if (level >= 20) return 'ELITE';
-    if (level >= 15) return 'MASTER';
-    if (level >= 10) return 'PRO';
-    if (level >= 5) return 'WARRIOR';
-    if (level >= 3) return 'ATHLETE';
+    if (level >= 20) {
+      return 'ELITE';
+    }
+    if (level >= 15) {
+      return 'MASTER';
+    }
+    if (level >= 10) {
+      return 'PRO';
+    }
+    if (level >= 5) {
+      return 'WARRIOR';
+    }
+    if (level >= 3) {
+      return 'ATHLETE';
+    }
     return 'ROOKIE';
   }
 

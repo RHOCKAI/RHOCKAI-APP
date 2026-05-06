@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
+
 
 /// Floating "+XP" animation that slides up and fades out
 class XpGainedOverlay extends StatefulWidget {

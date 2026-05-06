@@ -20,7 +20,9 @@ class AdaptiveIntelligence {
   static int calculateNextSetGoal(UserStats stats, ExerciseData exercise) {
     final base = exercise.defaultSets;
     final modifier = stats.getDifficultyModifier(exercise.id);
-    if (modifier >= 1.4) return base + 1;
+    if (modifier >= 1.4) {
+      return base + 1;
+    }
     return base;
   }
 
@@ -52,8 +54,12 @@ class AdaptiveIntelligence {
 
   /// Determine the recommended difficulty tier for the next session
   static String recommendedDifficulty(UserStats stats) {
-    if (stats.level >= 10) return 'advanced';
-    if (stats.level >= 4) return 'intermediate';
+    if (stats.level >= 10) {
+      return 'advanced';
+    }
+    if (stats.level >= 4) {
+      return 'intermediate';
+    }
     return 'beginner';
   }
 

@@ -48,10 +48,18 @@ class _DailyCircuitScreenState extends ConsumerState<DailyCircuitScreen> {
     ExerciseData? cardio;
 
     for (final e in pool) {
-      if (upper == null && (e.category == 'upper_body')) upper = e;
-      if (lower == null && e.category == 'lower_body') lower = e;
-      if (core == null && e.category == 'core') core = e;
-      if (cardio == null && e.category == 'full_body') cardio = e;
+      if (upper == null && (e.category == 'upper_body')) {
+        upper = e;
+      }
+      if (lower == null && e.category == 'lower_body') {
+        lower = e;
+      }
+      if (core == null && e.category == 'core') {
+        core = e;
+      }
+      if (cardio == null && e.category == 'full_body') {
+        cardio = e;
+      }
     }
 
     // Fallbacks if any slot empty
