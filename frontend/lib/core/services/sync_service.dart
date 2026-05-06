@@ -3,8 +3,9 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/camera_ai/session/session_storage.dart';
-import '../../features/workout/data/repositories/session_repository.dart';
-import '../network/api_client.dart';
+
+
+import '../providers/api_client_provider.dart';
 
 final syncServiceProvider = Provider((ref) => SyncService(ref));
 
@@ -43,7 +44,7 @@ class SyncService {
 
       debugPrint('🔄 Found ${pending.length} pending sessions to sync...');
       
-      final apiClient = ApiClient(); // Or get from provider
+      final apiClient = _ref.read(apiClientProvider);
       
       for (final session in pending) {
         try {
