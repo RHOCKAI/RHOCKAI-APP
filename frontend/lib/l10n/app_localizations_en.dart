@@ -433,4 +433,81 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get advanced => 'Advanced';
+
+  @override
+  String get activeSession => 'ACTIVE SESSION';
+
+  @override
+  String get aiCircuit => 'AI CIRCUIT';
+
+  @override
+  String get uploadVideo => 'UPLOAD VIDEO';
+
+  @override
+  String get intelligenceInsight => 'AI INTELLIGENCE';
+
+  @override
+  String get dailyChallenges => 'DAILY CHALLENGES';
+
+  @override
+  String get leaderboard => 'LEADERBOARD';
+
+  @override
+  String get squadGoals => 'SQUAD GOALS';
+
+  @override
+  String get calendar => 'WORKOUT CALENDAR';
+
+  @override
+  String get muscleHeatmap => 'MUSCLE RECOVERY';
+
+  @override
+  String postureScoreHigher(Object percent) {
+    return 'Your AI Posture Score is $percent% higher this week. Keep up the perfect form.';
+  }
+
+  @override
+  String helloUser(Object name) {
+    return 'HELLO, $name';
+  }
+
+  @override
+  String get go => 'GO!';
+
+  @override
+  String get paused => 'Paused';
+
+  @override
+  String get resuming => 'Resuming...';
+
+  @override
+  String get noCamerasFound => 'No cameras found on this device.';
+
+  @override
+  String get cameraPermissionError =>
+      'Failed to access cameras. Please check permissions.';
+
+  @override
+  String get rest => 'REST';
+
+  @override
+  String get nextSet => 'NEXT SET';
+
+  @override
+  String get completeWorkout => 'COMPLETE WORKOUT';
+
+  @override
+  String get set => 'Set';
+
+  @override
+  String get reps => 'Reps';
+
+  @override
+  String get perfect => 'PERFECT';
+
+  @override
+  String get good => 'GOOD';
+
+  @override
+  String get adjust => 'ADJUST';
 }

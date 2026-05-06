@@ -941,6 +941,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Advanced'**
   String get advanced;
+
+  /// No description provided for @activeSession.
+  String get activeSession;
+
+  /// No description provided for @aiCircuit.
+  String get aiCircuit;
+
+  /// No description provided for @uploadVideo.
+  String get uploadVideo;
+
+  /// No description provided for @intelligenceInsight.
+  String get intelligenceInsight;
+
+  /// No description provided for @dailyChallenges.
+  String get dailyChallenges;
+
+  /// No description provided for @leaderboard.
+  String get leaderboard;
+
+  /// No description provided for @squadGoals.
+  String get squadGoals;
+
+  /// No description provided for @calendar.
+  String get calendar;
+
+  /// No description provided for @muscleHeatmap.
+  String get muscleHeatmap;
+
+  /// No description provided for @postureScoreHigher.
+  String postureScoreHigher(Object percent);
+
+  /// No description provided for @helloUser.
+  String helloUser(Object name);
+
+  /// No description provided for @go.
+  String get go;
+
+  /// No description provided for @paused.
+  String get paused;
+
+  /// No description provided for @resuming.
+  String get resuming;
+
+  /// No description provided for @noCamerasFound.
+  String get noCamerasFound;
+
+  /// No description provided for @cameraPermissionError.
+  String get cameraPermissionError;
+
+  /// No description provided for @rest.
+  String get rest;
+
+  /// No description provided for @nextSet.
+  String get nextSet;
+
+  /// No description provided for @completeWorkout.
+  String get completeWorkout;
+
+  /// No description provided for @set.
+  String get set;
+
+  /// No description provided for @reps.
+  String get reps;
+
+  /// No description provided for @perfect.
+  String get perfect;
+
+  /// No description provided for @good.
+  String get good;
+
+  /// No description provided for @adjust.
+  String get adjust;
 }
 
 class _AppLocalizationsDelegate

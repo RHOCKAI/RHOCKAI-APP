@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/camera_ai/services/voice_feedback_service.dart';
+import '../../features/camera_ai/services/voice_command_service.dart';
 
 class LocaleNotifier extends StateNotifier<Locale> {
   LocaleNotifier() : super(const Locale('en')) {
@@ -38,6 +39,7 @@ class LocaleNotifier extends StateNotifier<Locale> {
     
     final ttsCode = ttsLanguages[languageCode] ?? 'en-US';
     VoiceFeedbackService().setVoice(language: ttsCode);
+    VoiceCommandService().setLocale(ttsCode);
   }
 }
 

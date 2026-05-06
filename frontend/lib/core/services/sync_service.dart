@@ -32,7 +32,9 @@ class SyncService {
 
   /// Sync all pending sessions to the cloud
   Future<void> _syncPendingSessions() async {
-    if (_isSyncing) return;
+    if (_isSyncing) {
+      return;
+    }
     _isSyncing = true;
 
     try {

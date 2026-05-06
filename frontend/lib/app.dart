@@ -21,6 +21,7 @@ import 'features/payments/payment_service.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'core/services/update_service.dart';
 import 'core/services/sync_service.dart';
+import 'shared/widgets/error_screen.dart';
 
 class AIWorkoutTrackerApp extends ConsumerStatefulWidget {
   const AIWorkoutTrackerApp({super.key});
@@ -149,13 +150,14 @@ class _AIWorkoutTrackerAppState extends ConsumerState<AIWorkoutTrackerApp> {
     final locale = ref.watch(localeProvider);
     final analytics = ref.watch(analyticsServiceProvider);
     final settings = ref.watch(settingsProvider);
+    final dynamicTheme = AppTheme.buildTheme(settings.energyColor);
 
     // Main App with consistent structure
     return MaterialApp(
       title: 'Rhockai',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
+      theme: dynamicTheme,
+      darkTheme: dynamicTheme,
       themeMode: settings.themeMode,
       locale: locale,
       navigatorObservers: [
@@ -168,6 +170,12 @@ class _AIWorkoutTrackerAppState extends ConsumerState<AIWorkoutTrackerApp> {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: AppLocalizations.supportedLocales,
+      builder: (context, child) {
+        ErrorWidget.builder = (FlutterErrorDetails details) {
+          return RhockaiErrorScreen(details: details);
+        };
+        return child!;
+      },
       home: _isLoading 
         ? _buildLoadingScreen() 
         : (_isLoggedIn ? const AdaptiveDashboard() : const LoginScreen()),

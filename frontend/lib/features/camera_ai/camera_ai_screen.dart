@@ -16,10 +16,12 @@ import 'session/session_model.dart';
 import 'session/session_provider.dart';
 import '../../core/constants/exercises.dart';
 import '../../../shared/widgets/pulse_animation.dart';
+import 'package:rhockai/features/gamification/providers/gamification_provider.dart';
 import '../../core/providers/settings_provider.dart';
 import '../analytics/providers/analytics_provider.dart';
 import '../workout/workout_summary_screen.dart';
 import 'services/voice_feedback_service.dart';
+import 'services/voice_command_service.dart';
 
 /// 📸 Enhanced Camera AI Screen - Futuristic Workout Overlay
 class CameraAIScreen extends ConsumerStatefulWidget {
@@ -48,7 +50,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
   bool _isDetecting = false;
   bool _isCameraInitialized = false;
   bool _isSwitchingCamera = false;
-  bool _isWorkoutActive = false; // Started as false, user can start/pause
+  bool _isWorkoutActive = false;
+  bool _isSetupPhase = true; // New phase for pre-flight check
 
   // Data
   int _repCount = 0; // Total session reps
@@ -74,6 +77,13 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
   PoseLandmarks? _currentPose;
   String _environmentMessage = 'Analyzing environment...';
   bool _isEnvironmentValid = false;
+  
+  // Error Handling
+  String? _errorMessage;
+  int _mlKitErrorCount = 0;
+  static const int _maxMlKitErrors = 5;
+  
+  Size? _imageSize;
 
   // Animation Controllers
   late AnimationController _counterController;
@@ -97,10 +107,11 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       ref.read(sessionProvider.notifier).startSession(widget.exerciseType);
 
       // Initialize Voice Feedback
-      final voiceEnabled = ref.read(settingsProvider).voiceEnabled;
+      final settings = ref.read(settingsProvider);
       final voiceService = VoiceFeedbackService();
       await voiceService.initialize();
-      voiceService.setEnabled(voiceEnabled);
+      voiceService.setEnabled(settings.voiceEnabled);
+      await voiceService.setVoice(personality: settings.voicePersonality);
 
       final analytics = ref.read(analyticsServiceProvider);
       await analytics.trackFeature(
@@ -109,16 +120,63 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
         extraData: {'exercise': widget.exerciseType},
       );
 
+      // Initialize Voice Commands
+      if (settings.voiceEnabled) {
+        final voiceCommandService = VoiceCommandService();
+        await voiceCommandService.initialize();
+        await voiceCommandService.startListening(_handleVoiceCommand);
+      }
+
       setState(() {
-        // Start warmup sequence
-        _startWarmup();
+        // Start in Setup phase
+        _isSetupPhase = true;
+        _isWarmingUp = false;
+        _isWorkoutActive = false;
       });
     });
+  }
+
+  void _handleVoiceCommand(WorkoutCommand command) {
+    if (!mounted) {
+      return;
+    }
+    
+    debugPrint('Voice command received in UI: $command');
+    
+    switch (command) {
+      case WorkoutCommand.start:
+      case WorkoutCommand.resume:
+        if (_isWarmingUp) {
+          _endWarmup();
+        } else if (!_isWorkoutActive) {
+          setState(() {
+            _isWorkoutActive = true;
+            _feedbackMessage = AppLocalizations.of(context)?.resuming ?? 'Resuming...';
+          });
+        }
+        break;
+      case WorkoutCommand.pause:
+        if (_isWorkoutActive) {
+          setState(() {
+            _isWorkoutActive = false;
+            _feedbackMessage = AppLocalizations.of(context)?.paused ?? 'Paused';
+          });
+        }
+        break;
+      case WorkoutCommand.stop:
+        if (_isWorkoutActive || _isWarmingUp) {
+          _completeWorkout();
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   void _startWarmup() {
     setState(() {
       _isWarmingUp = true;
+      _isSetupPhase = false;
       _isWorkoutActive = false;
       _feedbackMessage = AppLocalizations.of(context)?.getReady ?? 'Get ready...';
       _feedbackColor = const Color(0xFFFFD700); // Gold
@@ -155,7 +213,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     }
 
     setState(() {
-      _feedbackMessage = 'GO!';
+      _feedbackMessage = AppLocalizations.of(context)?.go ?? 'GO!';
       _feedbackColor = const Color(0xFF00FF88);
     });
 
@@ -184,18 +242,44 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     _counterController.dispose();
     _restTimer?.cancel();
     _warmupTimer?.cancel();
+    VoiceCommandService().stopListening();
     super.dispose();
   }
 
   // --- Initialization & Logic ---
 
   Future<void> _initializeCamera() async {
+    final l10n = AppLocalizations.of(context);
     try {
       _availableCameras = await availableCameras();
+      if (_availableCameras.isEmpty) {
+        _handleError(l10n?.noCamerasFound ?? 'No cameras found on this device.');
+        return;
+      }
       await _startCamera(_currentCameraFacing);
     } catch (e) {
+      _handleError(l10n?.cameraPermissionError ?? 'Failed to access cameras. Please check permissions.');
       debugPrint('Camera initialization error: $e');
     }
+  }
+
+  void _handleError(String message) {
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _errorMessage = message;
+      _isWorkoutActive = false;
+    });
+  }
+
+  void _retryInitialization() {
+    setState(() {
+      _errorMessage = null;
+      _mlKitErrorCount = 0;
+    });
+    _initializeCamera();
+    _initializePoseDetector();
   }
 
   Future<void> _startCamera(CameraLensDirection direction) async {
@@ -376,7 +460,11 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     }
 
     _cameraController!.startImageStream((CameraImage image) async {
-      if (_isDetecting || !_isWorkoutActive) {
+      if (_isDetecting || _errorMessage != null) {
+        return;
+      }
+
+      if (!_isWorkoutActive && !_isSetupPhase) {
         return;
       }
 
@@ -384,8 +472,13 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
 
       try {
         await _processImage(image);
+        _mlKitErrorCount = 0; // Reset on success
       } catch (e) {
         debugPrint('Image processing error: $e');
+        _mlKitErrorCount++;
+        if (_mlKitErrorCount >= _maxMlKitErrors) {
+          _handleError('AI engine failure. Please restart the workout.');
+        }
       } finally {
         _isDetecting = false;
       }
@@ -397,7 +490,21 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       return;
     }
 
-    final inputImage = _convertCameraImage(image);
+    // Track image size for painter scaling
+    if (_imageSize == null) {
+      setState(() {
+        _imageSize = Size(image.width.toDouble(), image.height.toDouble());
+      });
+    }
+
+    InputImage? inputImage;
+    try {
+       inputImage = _convertCameraImage(image);
+    } catch (e) {
+       debugPrint('Critical: Image conversion failed: $e');
+       return;
+    }
+
     if (inputImage == null) {
       return;
     }
@@ -471,7 +578,11 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
 
       // Provide voice feedback for the rep
       unawaited(VoiceFeedbackService().announceRepCount(_repCount, _targetReps));
-      unawaited(VoiceFeedbackService().provideFormFeedback(_accuracy, formFeedback.issues));
+      unawaited(VoiceFeedbackService().provideFormFeedback(
+        _accuracy, 
+        formFeedback.issues,
+        perfectionTip: formFeedback.perfectionTip,
+      ));
     }
 
     final envStatus = EnvironmentValidator.validate(image, poseLandmarks);
@@ -484,20 +595,14 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
         _environmentMessage = envStatus.message;
         _isEnvironmentValid = envStatus.isValid;
 
-        if (newRepCompleted) {
-          _feedbackMessage = formFeedback.issues.isNotEmpty
-              ? formFeedback.issues.first
-              : _repMachine!.tempoFeedback;
-          _feedbackColor = formFeedback.issues.isNotEmpty
-              ? const Color(0xFFFF6B35) // Neon Orange / Error
-              : const Color(0xFF00FF88); // Neon Green
-        } else if (!envStatus.isValid) {
+        if (_isSetupPhase) {
+          _feedbackMessage = envStatus.message;
+          _feedbackColor = envStatus.isValid ? const Color(0xFF00FF88) : const Color(0xFFFF6B35);
           _feedbackMessage = envStatus.message;
           _feedbackColor = const Color(0xFFFF6B35);
         } else {
-          // Normal state
           _feedbackMessage = _repMachine!.getStatusMessage();
-          _feedbackColor = const Color(0xFF00D9FF); // Neon Blue
+          _feedbackColor = const Color(0xFF00D9FF);
         }
       });
     }
@@ -564,6 +669,58 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     }
   }
 
+  Widget _buildErrorOverlay() {
+    return Container(
+      color: Colors.black.withValues(alpha: 0.85),
+      width: double.infinity,
+      height: double.infinity,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error_outline, color: Color(0xFFFF6B35), size: 64),
+              const SizedBox(height: 24),
+              Text(
+                'Oops! Something went wrong',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                _errorMessage ?? 'An unexpected error occurred.',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white70, fontSize: 16),
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton.icon(
+                onPressed: _retryInitialization,
+                icon: const Icon(Icons.refresh),
+                label: const Text('RETRY'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF00FF88),
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Go Back', style: TextStyle(color: Colors.white54)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   // --- UI Construction ---
 
   @override
@@ -577,6 +734,9 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
 
           // Environment Indicator
           _buildEnvironmentStatus(),
+
+          // Error Overlay
+          if (_errorMessage != null) _buildErrorOverlay(),
 
           // Pose detection overlay
           _buildPoseOverlay(),
@@ -622,11 +782,16 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
   }
 
   Widget _buildPoseOverlay() {
+    if (_currentPose == null || _imageSize == null) {
+      return const SizedBox.shrink();
+    }
+
     return CustomPaint(
       size: Size.infinite,
       painter: PoseOverlayPainter(
         pose: _currentPose,
         accuracy: _accuracy,
+        imageSize: _imageSize!,
         isFrontCamera: _currentCameraFacing == CameraLensDirection.front,
       ),
     );
@@ -883,7 +1048,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       right: 0,
       child: Center(
         child: AnimatedOpacity(
-          opacity: _isWorkoutActive ? 1.0 : 0.0, // Hide when paused
+          opacity: (_isWorkoutActive || _isSetupPhase) ? 1.0 : 0.0, 
           duration: const Duration(milliseconds: 300),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(24),
@@ -943,12 +1108,20 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
             '${(_repCount * (Exercises.getById(widget.exerciseType)?.caloriesPerRep ?? 0.5)).toInt()}',
             Icons.local_fire_department,
           ),
+          const SizedBox(height: 16),
+          _buildStatBadge(
+            'PB (Ghost)',
+            '${ref.watch(gamificationProvider).valueOrNull?.longestStreak ?? 0}',
+            Icons.auto_awesome,
+            color: const Color(0xFFB0B0B0), // Ghostly grey
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildStatBadge(String label, String value, IconData icon) {
+  Widget _buildStatBadge(String label, String value, IconData icon, {Color? color}) {
+    final themeColor = color ?? const Color(0xFF00D9FF);
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
@@ -963,7 +1136,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
           ),
       child: Column(
         children: [
-            Icon(icon, color: const Color(0xFF00D9FF), size: 20),
+            Icon(icon, color: themeColor, size: 20),
             const SizedBox(height: 6),
             Text(
               value,
@@ -1013,15 +1186,30 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildControlButton(
-                _isResting
-                    ? Icons.skip_next
-                    : (_isWorkoutActive ? Icons.pause : Icons.play_arrow),
-                _isResting
-                    ? 'Skip Rest'
-                    : (_isWorkoutActive
-                        ? AppLocalizations.of(context)?.pause ?? 'Pause'
-                        : AppLocalizations.of(context)?.resume ?? 'Resume'),
+                _isSetupPhase
+                    ? Icons.play_arrow
+                    : (_isResting
+                        ? Icons.skip_next
+                        : (_isWorkoutActive ? Icons.pause : Icons.play_arrow)),
+                _isSetupPhase
+                    ? 'Start'
+                    : (_isResting
+                        ? 'Skip Rest'
+                        : (_isWorkoutActive
+                            ? AppLocalizations.of(context)?.pause ?? 'Pause'
+                            : AppLocalizations.of(context)?.resume ?? 'Resume')),
                 () async {
+                  if (_isSetupPhase) {
+                    if (_isEnvironmentValid) {
+                      await HapticFeedback.heavyImpact();
+                      _startWarmup();
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(_environmentMessage)),
+                      );
+                    }
+                    return;
+                  }
                   if (_isResting) {
                     await HapticFeedback.heavyImpact();
                     _skipRest();
@@ -1130,11 +1318,13 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
 class PoseOverlayPainter extends CustomPainter {
   final PoseLandmarks? pose;
   final double accuracy;
+  final Size imageSize;
   final bool isFrontCamera;
 
   PoseOverlayPainter({
     required this.pose,
     required this.accuracy,
+    required this.imageSize,
     required this.isFrontCamera,
   });
 
@@ -1144,33 +1334,29 @@ class PoseOverlayPainter extends CustomPainter {
       return;
     }
 
+    // Modern color palette for feedback
+    final Color strokeColor = accuracy >= 95 
+        ? const Color(0xFF00FF88) // Perfect Green
+        : accuracy >= 80 
+            ? const Color(0xFF00D9FF) // Good Blue
+            : const Color(0xFFFF6B35); // Warning Orange
+
     final paint = Paint()
-      ..color = Color.lerp(
-        const Color(0xFFFF6B35),
-        const Color(0xFF00FF88),
-        accuracy / 100,
-      )!
-          .withValues(alpha: 0.8)
+      ..color = strokeColor.withValues(alpha: 0.8)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 4
+      ..strokeWidth = 5
       ..strokeCap = StrokeCap.round;
 
     final landmarkPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
 
-    // Helper to scale landmarks to screen size
-    // ML Kit landmarks are in the coordinate space of the InputImage
-    // We need to map them to the Canvas space.
-    // Note: This assumes the aspect ratio of the camera preview matches the canvas
-    // For production, you should use a proper coordinate transformation.
-    
     Offset scale(PoseLandmark p) {
-      // Simple scaling
-      double x = p.x * size.width / 480;
-      double y = p.y * size.height / 640;
+      // Accurate scaling using image dimensions vs view dimensions
+      // Note: Camera image might be rotated
+      double x = p.x * size.width / imageSize.width;
+      double y = p.y * size.height / imageSize.height;
       
-      // Mirror if using front camera
       if (isFrontCamera) {
         x = size.width - x;
       }

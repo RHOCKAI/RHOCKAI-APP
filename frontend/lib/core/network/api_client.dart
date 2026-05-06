@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../constants/api_constants.dart';
+import 'api_exception.dart';
 
 class ApiClient {
   static String get baseUrl => ApiConstants.baseUrl;
@@ -41,24 +42,11 @@ class ApiClient {
               '✅ API Response: [${response.statusCode}] ${response.requestOptions.path}');
           handler.next(response);
         },
-        onError: (DioException error, handler) async {
-          // Enhanced error logging for connectivity issues
-          final path = error.requestOptions.path;
-          final method = error.requestOptions.method;
-
-          if (error.type == DioExceptionType.connectionTimeout ||
-              error.type == DioExceptionType.receiveTimeout) {
-            debugPrint(
-                '❌ API Timeout: [$method] $path - Check backend responsiveness.');
-          } else if (error.type == DioExceptionType.connectionError) {
-            debugPrint(
-                '❌ API Connection Error: [$method] $path - Host unreachable. Current URL: $baseUrl');
-          } else {
-            debugPrint(
-                '❌ API Error: [${error.response?.statusCode}] [$method] $path - ${error.message}');
-          }
-
-          handler.next(error);
+        onError: (DioException error, handler) {
+          // We pass the original error, but we'll wrap it in our logic in the call sites 
+          // or we can wrap it in a DioException that contains our ApiException.
+          debugPrint('❌ API Error: [${error.response?.statusCode}] ${error.message}');
+          handler.next(error); 
         },
       ),
     );
@@ -70,18 +58,34 @@ class ApiClient {
 
   Future<Response> get(String path,
       {Map<String, dynamic>? queryParameters}) async {
-    return await _dio.get(path, queryParameters: queryParameters);
+    try {
+      return await _dio.get(path, queryParameters: queryParameters);
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
   }
 
   Future<Response> post(String path, {dynamic data, Options? options}) async {
-    return await _dio.post(path, data: data, options: options);
+    try {
+      return await _dio.post(path, data: data, options: options);
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
   }
 
   Future<Response> patch(String path, {dynamic data, Options? options}) async {
-    return await _dio.patch(path, data: data, options: options);
+    try {
+      return await _dio.patch(path, data: data, options: options);
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
   }
 
   Future<Response> delete(String path) async {
-    return await _dio.delete(path);
+    try {
+      return await _dio.delete(path);
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
   }
 }

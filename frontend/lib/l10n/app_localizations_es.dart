@@ -435,5 +435,82 @@ class AppLocalizationsEs extends AppLocalizations {
   String get intermediate => 'Intermediate';
 
   @override
-  String get advanced => 'Advanced';
+  String get advanced => 'Avanzado';
+
+  @override
+  String get activeSession => 'SESIÓN ACTIVA';
+
+  @override
+  String get aiCircuit => 'CIRCUITO IA';
+
+  @override
+  String get uploadVideo => 'SUBIR VIDEO';
+
+  @override
+  String get intelligenceInsight => 'INTELIGENCIA IA';
+
+  @override
+  String get dailyChallenges => 'DESAFÍOS DIARIOS';
+
+  @override
+  String get leaderboard => 'TABLA DE CLASIFICACIÓN';
+
+  @override
+  String get squadGoals => 'OBJETIVOS DE ESCUADRÓN';
+
+  @override
+  String get calendar => 'CALENDARIO DE ENTRENAMIENTO';
+
+  @override
+  String get muscleHeatmap => 'RECUPERACIÓN MUSCULAR';
+
+  @override
+  String postureScoreHigher(Object percent) {
+    return 'Tu puntaje de postura IA es un $percent% más alto esta semana. Mantén la forma perfecta.';
+  }
+
+  @override
+  String helloUser(Object name) {
+    return 'HOLA, $name';
+  }
+
+  @override
+  String get go => '¡YA!';
+
+  @override
+  String get paused => 'En pausa';
+
+  @override
+  String get resuming => 'Reanudando...';
+
+  @override
+  String get noCamerasFound => 'No se encontraron cámaras en este dispositivo.';
+
+  @override
+  String get cameraPermissionError =>
+      'Error al acceder a las cámaras. Por favor, revisa los permisos.';
+
+  @override
+  String get rest => 'DESCANSO';
+
+  @override
+  String get nextSet => 'SIGUIENTE SERIE';
+
+  @override
+  String get completeWorkout => 'TERMINAR ENTRENAMIENTO';
+
+  @override
+  String get set => 'Serie';
+
+  @override
+  String get reps => 'Reps';
+
+  @override
+  String get perfect => 'PERFECTO';
+
+  @override
+  String get good => 'BIEN';
+
+  @override
+  String get adjust => 'AJUSTAR';
 }

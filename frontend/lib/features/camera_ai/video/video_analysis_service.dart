@@ -10,6 +10,7 @@ import 'video_analysis_config.dart';
 import 'session_report.dart';
 import 'analysis_progress.dart';
 import 'video_analysis_exception.dart';
+import '../../../core/constants/exercises.dart';
 
 /// Core service for analyzing workout videos
 ///

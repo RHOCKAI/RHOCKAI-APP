@@ -428,5 +428,81 @@ class AppLocalizationsJa extends AppLocalizations {
   String get intermediate => 'Intermediate';
 
   @override
-  String get advanced => 'Advanced';
+  String get advanced => '上級者';
+
+  @override
+  String get activeSession => 'アクティブセッション';
+
+  @override
+  String get aiCircuit => 'AIサーキット';
+
+  @override
+  String get uploadVideo => '動画をアップロード';
+
+  @override
+  String get intelligenceInsight => 'AIインテリジェンス';
+
+  @override
+  String get dailyChallenges => 'デイリーチャレンジ';
+
+  @override
+  String get leaderboard => 'リーダーボード';
+
+  @override
+  String get squadGoals => 'スクワッドゴール';
+
+  @override
+  String get calendar => 'トレーニングカレンダー';
+
+  @override
+  String get muscleHeatmap => '筋肉の回復';
+
+  @override
+  String postureScoreHigher(Object percent) {
+    return '今週のAI姿勢スコアは$percent%向上しました。その調子です！';
+  }
+
+  @override
+  String helloUser(Object name) {
+    return 'こんにちは、$name';
+  }
+
+  @override
+  String get go => 'スタート！';
+
+  @override
+  String get paused => '一時停止中';
+
+  @override
+  String get resuming => '再開中...';
+
+  @override
+  String get noCamerasFound => 'カメラが見つかりません。';
+
+  @override
+  String get cameraPermissionError => 'カメラへのアクセスに失敗しました。';
+
+  @override
+  String get rest => '休憩';
+
+  @override
+  String get nextSet => '次のセット';
+
+  @override
+  String get completeWorkout => 'ワークアウト完了';
+
+  @override
+  String get set => 'セット';
+
+  @override
+  String get reps => 'レップ';
+
+  @override
+  String get perfect => '完璧';
+
+  @override
+  String get good => '良好';
+
+  @override
+  String get adjust => '調整';
 }

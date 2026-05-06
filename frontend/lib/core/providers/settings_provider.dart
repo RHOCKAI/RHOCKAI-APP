@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+enum VoicePersonality {
+  natural,
+  sergeant,
+  zen,
+  hype,
+}
+
 final settingsProvider =
     StateNotifierProvider<SettingsNotifier, SettingsState>((ref) {
   return SettingsNotifier();
@@ -12,12 +19,16 @@ class SettingsState {
   final bool notificationsEnabled;
   final String unitSystem; // 'metric' or 'imperial'
   final bool voiceEnabled;
+  final VoicePersonality voicePersonality;
+  final Color energyColor;
 
   SettingsState({
     this.themeMode = ThemeMode.system,
     this.notificationsEnabled = true,
     this.unitSystem = 'metric',
     this.voiceEnabled = true,
+    this.voicePersonality = VoicePersonality.natural,
+    this.energyColor = const Color(0xFF00D9FF), // Default Neon Blue
   });
 
   SettingsState copyWith({
@@ -25,12 +36,16 @@ class SettingsState {
     bool? notificationsEnabled,
     String? unitSystem,
     bool? voiceEnabled,
+    VoicePersonality? voicePersonality,
+    Color? energyColor,
   }) {
     return SettingsState(
       themeMode: themeMode ?? this.themeMode,
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
       unitSystem: unitSystem ?? this.unitSystem,
       voiceEnabled: voiceEnabled ?? this.voiceEnabled,
+      voicePersonality: voicePersonality ?? this.voicePersonality,
+      energyColor: energyColor ?? this.energyColor,
     );
   }
 }
@@ -44,6 +59,8 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   static const _notifKey = 'notifications_enabled';
   static const _unitKey = 'unit_system';
   static const _voiceKey = 'voice_enabled';
+  static const _personalityKey = 'voice_personality';
+  static const _energyColorKey = 'energy_color';
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
@@ -58,6 +75,8 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
       notificationsEnabled: notificationsEnabled,
       unitSystem: unitSystem,
       voiceEnabled: voiceEnabled,
+      voicePersonality: VoicePersonality.values[prefs.getInt(_personalityKey) ?? VoicePersonality.natural.index],
+      energyColor: Color(prefs.getInt(_energyColorKey) ?? 0xFF00D9FF),
     );
   }
 
@@ -83,5 +102,17 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     state = state.copyWith(voiceEnabled: enabled);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_voiceKey, enabled);
+  }
+
+  Future<void> setVoicePersonality(VoicePersonality personality) async {
+    state = state.copyWith(voicePersonality: personality);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_personalityKey, personality.index);
+  }
+
+  Future<void> setEnergyColor(Color color) async {
+    state = state.copyWith(energyColor: color);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_energyColorKey, color.toARGB32());
   }
 }

@@ -433,4 +433,80 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get advanced => 'Advanced';
+
+  @override
+  String get activeSession => 'الجلسة النشطة';
+
+  @override
+  String get aiCircuit => 'دائرة الذكاء الاصطناعي';
+
+  @override
+  String get uploadVideo => 'رفع فيديو';
+
+  @override
+  String get intelligenceInsight => 'ذكاء الـ AI';
+
+  @override
+  String get dailyChallenges => 'التحديات اليومية';
+
+  @override
+  String get leaderboard => 'لوحة المتصدرين';
+
+  @override
+  String get squadGoals => 'أهداف الفريق';
+
+  @override
+  String get calendar => 'تقويم التمرين';
+
+  @override
+  String get muscleHeatmap => 'استشفاء العضلات';
+
+  @override
+  String postureScoreHigher(Object percent) {
+    return 'نقاط وضعيتك أعلى بنسبة $percent% هذا الأسبوع. استمر!';
+  }
+
+  @override
+  String helloUser(Object name) {
+    return 'مرحباً، $name';
+  }
+
+  @override
+  String get go => 'انطلق!';
+
+  @override
+  String get paused => 'مؤقت';
+
+  @override
+  String get resuming => 'استئناف...';
+
+  @override
+  String get noCamerasFound => 'لم يتم العثور على كاميرات.';
+
+  @override
+  String get cameraPermissionError => 'فشل الوصول للكاميرا.';
+
+  @override
+  String get rest => 'راحة';
+
+  @override
+  String get nextSet => 'الجولة التالية';
+
+  @override
+  String get completeWorkout => 'إنهاء التمرين';
+
+  @override
+  String get set => 'جولة';
+
+  @override
+  String get reps => 'عدات';
+
+  @override
+  String get perfect => 'مثالي';
+
+  @override
+  String get good => 'جيد';
+
+  @override
+  String get adjust => 'تعديل';
 }

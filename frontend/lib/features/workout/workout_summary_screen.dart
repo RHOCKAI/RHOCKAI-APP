@@ -11,6 +11,8 @@ import '../../core/services/health_service.dart';
 import '../workout/share/results_share_screen.dart';
 import 'package:confetti/confetti.dart';
 import 'dart:math';
+import '../analytics/widgets/muscle_heatmap.dart';
+import '../analytics/providers/fatigue_provider.dart';
 
 class WorkoutSummaryScreen extends ConsumerStatefulWidget {
   final WorkoutSession session;
@@ -196,6 +198,10 @@ class _WorkoutSummaryScreenState extends ConsumerState<WorkoutSummaryScreen> {
 
                   // ── Level Progress ───────────────────────────────
                   _buildLevelProgress(),
+                  const SizedBox(height: 24),
+
+                  // ── Muscle Fatigue Analysis ──────────────────────
+                  _buildMuscleAnalysis(),
                   const SizedBox(height: 24),
 
                   // ── Share Button ─────────────────────────────────
@@ -680,6 +686,73 @@ class _WorkoutSummaryScreenState extends ConsumerState<WorkoutSummaryScreen> {
                 style: const TextStyle(color: Colors.white38, fontSize: 11),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── Muscle Fatigue Section ───────────────────────────────────────────────
+  Widget _buildMuscleAnalysis() {
+    final fatigue = ref.watch(fatigueProvider);
+    
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: const Color(0xFF141B38),
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.fitness_center_rounded, color: Color(0xFF00D9FF), size: 20),
+              SizedBox(width: 8),
+              Text(
+                'MUSCLE FATIGUE ANALYSIS',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  fontFamily: 'Rajdhani',
+                  letterSpacing: 2,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Column(
+                children: [
+                  SizedBox(
+                    height: 220,
+                    child: MuscleHeatmap(fatigueLevels: fatigue, showBack: false),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text('FRONT', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              Column(
+                children: [
+                  SizedBox(
+                    height: 220,
+                    child: MuscleHeatmap(fatigueLevels: fatigue, showBack: true),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text('BACK', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'RED zones indicate high fatigue from your recent activity. Allow these areas to recover for 24-48 hours.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.white38, fontSize: 11, height: 1.4),
           ),
         ],
       ),

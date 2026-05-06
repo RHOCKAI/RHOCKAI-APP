@@ -94,6 +94,7 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final currentUser = ref.watch(currentUserProvider);
     final theme = Theme.of(context);
     final screenWidth = MediaQuery.of(context).size.width;
@@ -128,7 +129,7 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // WELCOME HERO SECTION
-                        _buildHeroSection(currentUser?['full_name'] ?? 'Champ', isMobile),
+                        _buildHeroSection(currentUser?['full_name'] ?? 'Champ', isMobile, l10n),
                         
                         const SizedBox(height: 32),
 
@@ -185,7 +186,11 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
     );
   }
 
-  Widget _buildHeroSection(String name, bool isMobile) {
+  Widget _buildHeroSection(String name, bool isMobile, AppLocalizations? l10n) {
+    if (l10n == null) {
+      return const SizedBox.shrink();
+    }
+    
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(isMobile ? 24 : 40),
@@ -209,9 +214,9 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
               color: AppTheme.neonBlue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(100),
             ),
-            child: const Text(
-              'ACTIVE SESSION',
-              style: TextStyle(
+            child: Text(
+              l10n.activeSession,
+              style: const TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w900,
                 color: AppTheme.neonBlue,
@@ -221,7 +226,7 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
           ),
           const SizedBox(height: 16),
           Text(
-            'HELLO, ${name.toUpperCase()}',
+            l10n.helloUser(name.toUpperCase()),
             style: const TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,
@@ -232,7 +237,7 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Your AI Posture Score is 12% higher this week. Keep up the perfect form.',
+            l10n.postureScoreHigher(12),
             style: TextStyle(
               fontSize: 14,
               color: Colors.white.withValues(alpha: 0.6),
@@ -245,14 +250,14 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
             children: [
               _heroActionButton(
                 onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ExercisesListScreen())),
-                label: 'START WORKOUT',
+                label: l10n.startWorkout.toUpperCase(),
                 icon: Icons.bolt_rounded,
                 isPrimary: true,
               ),
               const SizedBox(width: 12),
               _heroActionButton(
                 onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const DailyCircuitScreen())),
-                label: 'AI CIRCUIT',
+                label: l10n.aiCircuit,
                 icon: Icons.auto_awesome,
                 isPrimary: false,
               ),

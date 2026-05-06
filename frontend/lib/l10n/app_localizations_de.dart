@@ -431,5 +431,82 @@ class AppLocalizationsDe extends AppLocalizations {
   String get intermediate => 'Intermediate';
 
   @override
-  String get advanced => 'Advanced';
+  String get advanced => 'Fortgeschritten';
+
+  @override
+  String get activeSession => 'AKTIVE SITZUNG';
+
+  @override
+  String get aiCircuit => 'KI-ZIRKEL';
+
+  @override
+  String get uploadVideo => 'VIDEO HOCHLADEN';
+
+  @override
+  String get intelligenceInsight => 'KI-INTELLIGENZ';
+
+  @override
+  String get dailyChallenges => 'TÄGLICHE HERAUSFORDERUNGEN';
+
+  @override
+  String get leaderboard => 'RANGLISTE';
+
+  @override
+  String get squadGoals => 'TEAMZIELE';
+
+  @override
+  String get calendar => 'TRAININGSKALENDER';
+
+  @override
+  String get muscleHeatmap => 'MUSKELREGENERATION';
+
+  @override
+  String postureScoreHigher(Object percent) {
+    return 'Ihr KI-Haltungswert ist diese Woche um $percent% höher. Behalten Sie die perfekte Form bei.';
+  }
+
+  @override
+  String helloUser(Object name) {
+    return 'HALLO, $name';
+  }
+
+  @override
+  String get go => 'LOS!';
+
+  @override
+  String get paused => 'Pausiert';
+
+  @override
+  String get resuming => 'Fortsetzen...';
+
+  @override
+  String get noCamerasFound => 'Keine Kameras auf diesem Gerät gefunden.';
+
+  @override
+  String get cameraPermissionError =>
+      'Kamerazugriff fehlgeschlagen. Bitte Berechtigungen prüfen.';
+
+  @override
+  String get rest => 'PAUSE';
+
+  @override
+  String get nextSet => 'NÄCHSTER SATZ';
+
+  @override
+  String get completeWorkout => 'TRAINING BEENDEN';
+
+  @override
+  String get set => 'Satz';
+
+  @override
+  String get reps => 'Wdh.';
+
+  @override
+  String get perfect => 'PERFEKT';
+
+  @override
+  String get good => 'GUT';
+
+  @override
+  String get adjust => 'ANPASSEN';
 }

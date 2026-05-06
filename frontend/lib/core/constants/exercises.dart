@@ -1,3 +1,26 @@
+enum ExerciseType {
+  pushup,
+  squat,
+  plank,
+  gluteBridge,
+  inchworm,
+  highKnees,
+  lunge,
+  tricepDip,
+  mountainClimber,
+  sidePlank,
+  reverseLunge,
+  pikePushup,
+  sumoSquat,
+  pistolSquat,
+  diamondPushup,
+  archerPushup,
+  jumpSquat,
+  burpee,
+  singleLegDeadlift,
+  spidermanPushup,
+}
+
 /// Exercise angle thresholds for AI pose detection
 class ExerciseThresholds {
   // Push-up thresholds (elbow angle)
