@@ -1,75 +1,108 @@
+import 'dart:math' as math;
 import '../data/models/user_stats.dart';
 import '../../../core/constants/exercises.dart';
 
 /// 🧠 Adaptive Intelligence Logic
 ///
-/// Scales workout intensity based on historical and real-time performance data.
+/// Scales workout intensity based on historical performance and user feedback.
 class AdaptiveIntelligence {
-  /// Calculate appropriate rep goal for next session
+  /// Calculate adaptive rep goal for next session based on level + feedback history
   static int calculateNextRepGoal(UserStats stats, ExerciseData exercise) {
-    if (stats.totalWorkouts < 3) {
-      return exercise.defaultReps;
-    }
-
-    // Scale factor based on level (higher level = higher default)
-    double intensityMultiplier = 1.0 + (stats.level * 0.1);
-
-    // Adjustment based on recent performance
-    // If user's average reps are high, increase goal
-    if (stats.totalReps / max(1, stats.totalWorkouts) >
-        exercise.defaultReps * 1.5) {
-      intensityMultiplier += 0.2;
-    }
-
-    return (exercise.baseIntensity * intensityMultiplier).round();
+    final baseReps = exercise.defaultReps;
+    final modifier = stats.getDifficultyModifier(exercise.id);
+    final levelBonus = 1.0 + ((stats.level - 1) * 0.05).clamp(0.0, 0.5);
+    final adaptedReps = (baseReps * modifier * levelBonus).round();
+    // Clamp to sensible bounds: never less than 3, never more than 50
+    return adaptedReps.clamp(3, 50);
   }
 
-  /// Rules for Level Promotion
-  ///
-  /// Beginner → Intermediate → Advanced
+  /// Calculate adaptive set goal
+  static int calculateNextSetGoal(UserStats stats, ExerciseData exercise) {
+    final base = exercise.defaultSets;
+    final modifier = stats.getDifficultyModifier(exercise.id);
+    if (modifier >= 1.4) return base + 1;
+    return base;
+  }
+
+  /// Update difficulty modifier based on user's "Struggled / Perfect / Easy" feedback.
+  /// Returns the updated modifier value (clamped 0.5 – 2.0).
+  static double updateDifficultyModifier(
+    UserStats stats,
+    String exerciseId,
+    DifficultyFeedback feedback,
+  ) {
+    final current = stats.getDifficultyModifier(exerciseId);
+    double updated;
+
+    switch (feedback) {
+      case DifficultyFeedback.tooEasy:
+        updated = current + 0.10; // +10% reps next time
+        break;
+      case DifficultyFeedback.tooHard:
+        updated = current - 0.10; // -10% reps next time
+        break;
+      case DifficultyFeedback.perfect:
+        // Small nudge upward for consistency reward
+        updated = current + 0.03;
+        break;
+    }
+
+    return updated.clamp(0.5, 2.0);
+  }
+
+  /// Determine the recommended difficulty tier for the next session
+  static String recommendedDifficulty(UserStats stats) {
+    if (stats.level >= 10) return 'advanced';
+    if (stats.level >= 4) return 'intermediate';
+    return 'beginner';
+  }
+
+  /// Whether the user should be promoted to the next level
   static bool shouldPromoteLevel(UserStats stats) {
-    // Basic requirement: XP threshold met
-    if (stats.xp < stats.xpToNextLevel) {
-      return false;
-    }
-
-    // Quality requirement: At least 3 full workouts in current level
-    if (stats.totalWorkouts < stats.level * 5) {
-      return false;
-    }
-
-    return true;
+    return stats.xp >= stats.xpToNextLevel &&
+        stats.totalWorkouts >= stats.level * 3;
   }
 
-  /// XP Award Calculation
-  ///
-  /// Awards XP based on:
-  /// - Base completion (50 XP)
-  /// - Accuracy Bonus (Up to 30 XP)
-  /// - Tempo Bonus (Up to 20 XP)
-  static int calculateXPGained(int reps, double avgAccuracy, double avgTempo) {
+  /// XP calculation — rewards reps, accuracy, tempo, streaks, and feedback
+  static int calculateXPGained({
+    required int reps,
+    required double avgAccuracy,
+    required double avgTempo,
+    required int currentStreak,
+    DifficultyFeedback? feedback,
+  }) {
     int xp = 0;
 
-    // Base completion
-    xp += (reps * 2);
+    // Base: 2 XP per rep
+    xp += reps * 2;
 
-    // Accuracy Bonus
-    if (avgAccuracy > 90) {
+    // Accuracy bonus
+    if (avgAccuracy >= 90) {
       xp += 30;
-    } else if (avgAccuracy > 70) {
+    } else if (avgAccuracy >= 75) {
       xp += 15;
+    } else if (avgAccuracy >= 60) {
+      xp += 5;
     }
 
-    // Tempo Precision Bonus
-    if (avgTempo > 85) {
+    // Tempo bonus
+    if (avgTempo >= 85) {
       xp += 20;
-    } else if (avgTempo > 60) {
+    } else if (avgTempo >= 60) {
       xp += 10;
+    }
+
+    // Streak multiplier bonus (caps at 5x streak)
+    final streakBonus = math.min(currentStreak, 5) * 5;
+    xp += streakBonus;
+
+    // Feedback bonus — if user found it hard but pushed through
+    if (feedback == DifficultyFeedback.tooHard) {
+      xp += 10; // courage bonus
+    } else if (feedback == DifficultyFeedback.perfect) {
+      xp += 5; // consistency bonus
     }
 
     return xp;
   }
 }
-
-// Simple max helper since standard dart math max is specific to types
-T max<T extends num>(T a, T b) => a > b ? a : b;
