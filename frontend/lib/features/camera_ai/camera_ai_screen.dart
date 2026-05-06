@@ -22,6 +22,7 @@ import '../analytics/providers/analytics_provider.dart';
 import '../workout/workout_summary_screen.dart';
 import 'services/voice_feedback_service.dart';
 import 'services/voice_command_service.dart';
+import '../../core/services/health_service.dart';
 
 /// 📸 Enhanced Camera AI Screen - Futuristic Workout Overlay
 class CameraAIScreen extends ConsumerStatefulWidget {
@@ -78,6 +79,10 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
   String _environmentMessage = 'Analyzing environment...';
   bool _isEnvironmentValid = false;
   
+  // Wearables
+  double? _currentHeartRate;
+  Timer? _heartRateTimer;
+  
   // Error Handling
   String? _errorMessage;
   int _mlKitErrorCount = 0;
@@ -96,6 +101,9 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     _initializeRepMachine();
     _initializeExerciseTarget();
 
+    // Start heart rate polling
+    _startHeartRatePolling();
+    
     // Counter animation
     _counterController = AnimationController(
       vsync: this,
@@ -204,6 +212,9 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
 
     // Start countdown voice
     VoiceFeedbackService().countdown();
+    
+    // Start wearable sync
+    _startHeartRatePolling();
   }
 
   void _endWarmup() {
@@ -238,10 +249,10 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
   void dispose() {
     _cameraController?.dispose();
     _poseDetector?.close();
-    // _pulseController.dispose();
     _counterController.dispose();
     _restTimer?.cancel();
     _warmupTimer?.cancel();
+    _heartRateTimer?.cancel();
     VoiceCommandService().stopListening();
     super.dispose();
   }
@@ -797,6 +808,63 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     );
   }
 
+  void _startHeartRatePolling() {
+    _heartRateTimer?.cancel();
+    _heartRateTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
+      if (!mounted || !_isWorkoutActive) {
+        return;
+      }
+      
+      final heartRate = await HealthService().getLatestHeartRate();
+      if (heartRate != null && mounted) {
+        setState(() {
+          _currentHeartRate = heartRate;
+        });
+      }
+    });
+  }
+
+  Widget _buildHeartRateDisplay() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          const PulseAnimation(
+            begin: 1.0,
+            end: 1.2,
+            active: true,
+            child: Icon(Icons.favorite, color: Colors.redAccent, size: 18),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '${_currentHeartRate?.toInt() ?? "--"}',
+            style: const TextStyle(
+              fontFamily: 'Rajdhani',
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            'BPM',
+            style: TextStyle(
+              fontFamily: 'Rajdhani',
+              fontSize: 10,
+              color: Colors.white.withValues(alpha: 0.6),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildTopBar() {
     return SafeArea(
       child: Padding(
@@ -885,6 +953,10 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
                         ),
                 ),
               ),
+            const SizedBox(width: 8),
+            // Heart Rate
+            if (_currentHeartRate != null)
+              _buildHeartRateDisplay(),
             const SizedBox(width: 8),
             // Timer / Set counter
             _buildTimerButton(),

@@ -10,6 +10,12 @@ class HealthService {
   bool _isConfigured = false;
   Health? _health;
 
+  final List<HealthDataType> _types = [
+    HealthDataType.ACTIVE_ENERGY_BURNED,
+    HealthDataType.WORKOUT,
+    HealthDataType.HEART_RATE,
+  ];
+
   Future<void> initialize() async {
     if (_isConfigured || kIsWeb) {
       return;
@@ -26,24 +32,56 @@ class HealthService {
 
   Future<bool> requestPermissions() async {
     if (!_isConfigured || _health == null) {
-      return false;
+      await initialize();
+      if (!_isConfigured) {
+        return false;
+      }
     }
 
     try {
-      final types = [
-        HealthDataType.ACTIVE_ENERGY_BURNED,
-        HealthDataType.WORKOUT,
-      ];
-      
       // Request access
-      bool hasPermissions = await _health!.hasPermissions(types) ?? false;
+      bool hasPermissions = await _health!.hasPermissions(_types) ?? false;
       if (!hasPermissions) {
-        hasPermissions = await _health!.requestAuthorization(types);
+        hasPermissions = await _health!.requestAuthorization(_types);
       }
       return hasPermissions;
     } catch (e) {
       debugPrint('Failed to request health permissions: $e');
       return false;
+    }
+  }
+
+  /// Fetches the latest heart rate from the wearable/health hub
+  Future<double?> getLatestHeartRate() async {
+    if (!_isConfigured || _health == null) {
+      return null;
+    }
+
+    try {
+      final now = DateTime.now();
+      final fiveMinutesAgo = now.subtract(const Duration(minutes: 5));
+
+      final data = await _health!.getHealthDataFromTypes(
+        startTime: fiveMinutesAgo,
+        endTime: now,
+        types: [HealthDataType.HEART_RATE],
+      );
+
+      if (data.isEmpty) {
+        return null;
+      }
+
+      // Get the most recent value
+      data.sort((a, b) => b.dateTo.compareTo(a.dateTo));
+      final latestValue = data.first.value;
+      
+      if (latestValue is NumericHealthValue) {
+        return latestValue.numericValue.toDouble();
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Error fetching heart rate: $e');
+      return null;
     }
   }
 
