@@ -18,6 +18,7 @@ import '../../core/constants/exercises.dart';
 import '../../../shared/widgets/pulse_animation.dart';
 import '../analytics/providers/analytics_provider.dart';
 import '../workout/workout_summary_screen.dart';
+import 'services/voice_feedback_service.dart';
 
 /// 📸 Enhanced Camera AI Screen - Futuristic Workout Overlay
 class CameraAIScreen extends ConsumerStatefulWidget {
@@ -94,6 +95,9 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       ref.read(sessionProvider.notifier).startSession(widget.exerciseType);
 
+      // Initialize Voice Feedback
+      await VoiceFeedbackService().initialize();
+
       final analytics = ref.read(analyticsServiceProvider);
       await analytics.trackFeature(
         'workout',
@@ -135,6 +139,9 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
         _endWarmup();
       }
     });
+
+    // Start countdown voice
+    VoiceFeedbackService().countdown();
   }
 
   void _endWarmup() {
@@ -454,8 +461,13 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
         if (mounted) {
           _feedbackMessage = AppLocalizations.of(context)?.workoutComplete ?? 'Workout complete!';
           _feedbackColor = const Color(0xFF00FF88);
+          VoiceFeedbackService().announceWorkoutComplete(_repCount, _accuracy);
         }
       }
+
+      // Provide voice feedback for the rep
+      VoiceFeedbackService().announceRepCount(_repCount, _targetReps);
+      VoiceFeedbackService().provideFormFeedback(_accuracy, formFeedback.issues);
     }
 
     final envStatus = EnvironmentValidator.validate(image, poseLandmarks);
@@ -611,6 +623,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       painter: PoseOverlayPainter(
         pose: _currentPose,
         accuracy: _accuracy,
+        isFrontCamera: _currentCameraFacing == CameraLensDirection.front,
       ),
     );
   }
@@ -1113,10 +1126,12 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
 class PoseOverlayPainter extends CustomPainter {
   final PoseLandmarks? pose;
   final double accuracy;
+  final bool isFrontCamera;
 
   PoseOverlayPainter({
     required this.pose,
     required this.accuracy,
+    required this.isFrontCamera,
   });
 
   @override
@@ -1125,28 +1140,85 @@ class PoseOverlayPainter extends CustomPainter {
       return;
     }
 
-/*
     final paint = Paint()
       ..color = Color.lerp(
         const Color(0xFFFF6B35),
         const Color(0xFF00FF88),
         accuracy / 100,
       )!
-          .withValues(alpha: 0.6)
+          .withValues(alpha: 0.8)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3;
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.round;
 
     final landmarkPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
-*/
 
-    // This is a simplified drawing.
-    // In a real app, you would iterate over pose landmarks and draw connections.
-    // Assuming PoseLandmarks has a list of points (it depends on implementation in pose_landmark_model.dart)
+    // Helper to scale landmarks to screen size
+    // ML Kit landmarks are in the coordinate space of the InputImage
+    // We need to map them to the Canvas space.
+    // Note: This assumes the aspect ratio of the camera preview matches the canvas
+    // For production, you should use a proper coordinate transformation.
+    
+    Offset scale(PoseLandmark p) {
+      // Simple scaling
+      double x = p.x * size.width / 480;
+      double y = p.y * size.height / 640;
+      
+      // Mirror if using front camera
+      if (isFrontCamera) {
+        x = size.width - x;
+      }
+      
+      return Offset(x, y);
+    }
 
-    // Example: Drawing dots for now to avoid crashes if connections aren't defined
-    // You should adapt this to draw the skeleton lines based on your model
+    void drawLine(PoseLandmark p1, PoseLandmark p2) {
+      if (p1.likelihood > 0.5 && p2.likelihood > 0.5) {
+        canvas.drawLine(scale(p1), scale(p2), paint);
+      }
+    }
+
+    void drawPoint(PoseLandmark p) {
+      if (p.likelihood > 0.5) {
+        canvas.drawCircle(scale(p), 4, landmarkPaint);
+      }
+    }
+
+    // Draw Skeleton Lines
+    // Upper Body
+    drawLine(pose!.leftShoulder, pose!.rightShoulder);
+    drawLine(pose!.leftShoulder, pose!.leftElbow);
+    drawLine(pose!.leftElbow, pose!.leftWrist);
+    drawLine(pose!.rightShoulder, pose!.rightElbow);
+    drawLine(pose!.rightElbow, pose!.rightWrist);
+
+    // Torso
+    drawLine(pose!.leftShoulder, pose!.leftHip);
+    drawLine(pose!.rightShoulder, pose!.rightHip);
+    drawLine(pose!.leftHip, pose!.rightHip);
+
+    // Lower Body
+    drawLine(pose!.leftHip, pose!.leftKnee);
+    drawLine(pose!.leftKnee, pose!.leftAnkle);
+    drawLine(pose!.rightHip, pose!.rightKnee);
+    drawLine(pose!.rightKnee, pose!.rightAnkle);
+
+    // Draw Landmark Points
+    drawPoint(pose!.leftShoulder);
+    drawPoint(pose!.rightShoulder);
+    drawPoint(pose!.leftElbow);
+    drawPoint(pose!.rightElbow);
+    drawPoint(pose!.leftWrist);
+    drawPoint(pose!.rightWrist);
+    drawPoint(pose!.leftHip);
+    drawPoint(pose!.rightHip);
+    drawPoint(pose!.leftKnee);
+    drawPoint(pose!.rightKnee);
+    drawPoint(pose!.leftAnkle);
+    drawPoint(pose!.rightAnkle);
+    drawPoint(pose!.nose);
   }
 
   @override
