@@ -16,6 +16,7 @@ import 'session/session_model.dart';
 import 'session/session_provider.dart';
 import '../../core/constants/exercises.dart';
 import '../../../shared/widgets/pulse_animation.dart';
+import '../../core/providers/settings_provider.dart';
 import '../analytics/providers/analytics_provider.dart';
 import '../workout/workout_summary_screen.dart';
 import 'services/voice_feedback_service.dart';
@@ -96,7 +97,10 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       ref.read(sessionProvider.notifier).startSession(widget.exerciseType);
 
       // Initialize Voice Feedback
-      await VoiceFeedbackService().initialize();
+      final voiceEnabled = ref.read(settingsProvider).voiceEnabled;
+      final voiceService = VoiceFeedbackService();
+      await voiceService.initialize();
+      voiceService.setEnabled(voiceEnabled);
 
       final analytics = ref.read(analyticsServiceProvider);
       await analytics.trackFeature(

@@ -79,6 +79,16 @@ class SettingsScreen extends ConsumerWidget {
             onChanged: (value) =>
                 settingsNotifier.setNotificationsEnabled(value),
           ),
+          const Divider(),
+
+          // Voice Agent toggle
+          SwitchListTile(
+            title: const Text('Voice Agent'),
+            subtitle: const Text('AI coaching and form feedback'),
+            secondary: const Icon(Icons.record_voice_over_outlined),
+            value: settings.voiceEnabled,
+            onChanged: (value) => settingsNotifier.setVoiceEnabled(value),
+          ),
 
           const Divider(),
 

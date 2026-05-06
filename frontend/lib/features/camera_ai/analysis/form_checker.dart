@@ -206,17 +206,148 @@ class FormChecker {
       angles: angles,
     );
   }
-  
+
+  /// Check Pike Push-up form (V-shape)
+  static FormFeedback checkPikePushupForm(PoseLandmarks pose) {
+    final List<String> issues = [];
+    int correctPoints = 0;
+    const int totalPoints = 3;
+    final Map<String, double> angles = {};
+
+    // 1. Hip angle (should be around 90-110° for a V-shape)
+    final hipAngle = AngleCalculator.getHipAngle(pose);
+    angles['hip'] = hipAngle;
+    if (hipAngle < 80 || hipAngle > 120) {
+      issues.add('Maintain a V-shape with your hips!');
+    } else {
+      correctPoints++;
+    }
+
+    // 2. Elbow tracking
+    final elbowAngle = AngleCalculator.getAverageElbowAngle(pose);
+    angles['elbow'] = elbowAngle;
+    correctPoints++; // Just tracking for now
+
+    // 3. Depth (head towards floor)
+    final noseY = pose.nose.y;
+    final wristY = (pose.leftWrist.y + pose.rightWrist.y) / 2;
+    if (noseY > wristY - 0.1) {
+      issues.add('Go lower!');
+    } else {
+      correctPoints++;
+    }
+
+    final accuracy = (correctPoints / totalPoints) * 100;
+    return FormFeedback(
+      isCorrect: issues.isEmpty,
+      issues: issues,
+      accuracy: accuracy,
+      angles: angles,
+    );
+  }
+
+  /// Check Diamond Push-up form (Hands close)
+  static FormFeedback checkDiamondPushupForm(PoseLandmarks pose) {
+    final feedback = checkPushupForm(pose);
+    final List<String> issues = List.from(feedback.issues);
+    
+    // Additional Diamond check: Hand proximity
+    final handDist = AngleCalculator.calculateDistance(pose.leftWrist, pose.rightWrist);
+    if (handDist > 0.2) {
+      issues.add('Keep your hands close together!');
+    }
+    
+    return FormFeedback(
+      isCorrect: issues.isEmpty,
+      issues: issues,
+      accuracy: feedback.accuracy,
+      angles: feedback.angles,
+    );
+  }
+
+  /// Check Archer Push-up form (One arm straight)
+  static FormFeedback checkArcherPushupForm(PoseLandmarks pose) {
+    final List<String> issues = [];
+    final leftElbow = AngleCalculator.getElbowAngle(pose, leftSide: true);
+    final rightElbow = AngleCalculator.getElbowAngle(pose, leftSide: false);
+    
+    // In Archer, one should be bent, one should be relatively straight (> 150°)
+    if (leftElbow < 140 && rightElbow < 140) {
+      issues.add('Keep one arm straight!');
+    }
+    
+    return FormFeedback(
+      isCorrect: issues.isEmpty,
+      issues: issues,
+      accuracy: 85.0, // Base accuracy for detection
+      angles: {'leftElbow': leftElbow, 'rightElbow': rightElbow},
+    );
+  }
+
+  /// Check Pistol Squat form (Single leg)
+  static FormFeedback checkPistolSquatForm(PoseLandmarks pose) {
+    final List<String> issues = [];
+    final leftKnee = AngleCalculator.getKneeAngle(pose, leftSide: true);
+    final rightKnee = AngleCalculator.getKneeAngle(pose, leftSide: false);
+    
+    // One leg should be very bent, other should be extended
+    if (leftKnee > 120 && rightKnee > 120) {
+      issues.add('Sit deeper on one leg!');
+    }
+    
+    return FormFeedback(
+      isCorrect: issues.isEmpty,
+      issues: issues,
+      accuracy: 80.0,
+      angles: {'leftKnee': leftKnee, 'rightKnee': rightKnee},
+    );
+  }
+
+  /// Check Lunge form
+  static FormFeedback checkLungeForm(PoseLandmarks pose) {
+    final List<String> issues = [];
+    final frontKnee = AngleCalculator.getKneeAngle(pose, leftSide: true); // Simplified
+    
+    if (frontKnee > 110) {
+      issues.add('Step further and drop your back knee!');
+    }
+    
+    return FormFeedback(
+      isCorrect: issues.isEmpty,
+      issues: issues,
+      accuracy: 90.0,
+      angles: {'knee': frontKnee},
+    );
+  }
+
   /// Get form checker based on exercise type
   static FormFeedback checkForm(String exerciseType, PoseLandmarks pose) {
     switch (exerciseType.toLowerCase()) {
       case 'pushup':
       case 'push-up':
         return checkPushupForm(pose);
+      case 'diamond_pushup':
+      case 'diamond push-up':
+        return checkDiamondPushupForm(pose);
+      case 'pike_pushup':
+      case 'pike push-up':
+        return checkPikePushupForm(pose);
+      case 'archer_pushup':
+      case 'archer push-up':
+        return checkArcherPushupForm(pose);
       case 'squat':
         return checkSquatForm(pose);
+      case 'pistol_squat':
+      case 'pistol squat':
+        return checkPistolSquatForm(pose);
+      case 'lunge':
+      case 'reverse_lunge':
+        return checkLungeForm(pose);
       case 'plank':
         return checkPlankForm(pose);
+      default:
+        return FormFeedback.perfect();
+    }
       default:
         return FormFeedback.perfect();
     }
