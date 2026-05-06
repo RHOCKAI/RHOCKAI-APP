@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'data/providers/progress_provider.dart';
 import 'data/models/progress_models.dart';
+import '../../core/config/app_theme.dart';
 import 'package:rhockai/l10n/app_localizations.dart';
 
 class ProgressScreen extends ConsumerStatefulWidget {
@@ -20,97 +21,150 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
   Widget build(BuildContext context) {
     final statsAsync = ref.watch(statsProvider(_selectedDays));
     final chartAsync = ref.watch(progressChartProvider(_selectedDays));
-    final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context) ?? AppLocalizationsEn();
 
     return Scaffold(
+      backgroundColor: AppTheme.darkBackground,
       appBar: AppBar(
-        title: Text(l10n.progress),
+        title: Text(
+          l10n.progress.toUpperCase(),
+          style: const TextStyle(
+            fontFamily: 'Rajdhani',
+            fontWeight: FontWeight.w900,
+            letterSpacing: 2,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
-          PopupMenuButton<int>(
-            initialValue: _selectedDays,
-            onSelected: (value) => setState(() => _selectedDays = value),
-            itemBuilder: (context) => [
-              const PopupMenuItem(value: 7, child: Text('Last 7 Days')),
-              const PopupMenuItem(value: 30, child: Text('Last 30 Days')),
-              const PopupMenuItem(value: 90, child: Text('Last 90 Days')),
-            ],
-            icon: const Icon(Icons.calendar_today_outlined),
+          Container(
+            margin: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: AppTheme.neonBlue.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppTheme.neonBlue.withValues(alpha: 0.3)),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<int>(
+                value: _selectedDays,
+                dropdownColor: const Color(0xFF141B38),
+                icon: const Icon(Icons.keyboard_arrow_down, color: AppTheme.neonBlue),
+                style: const TextStyle(
+                  color: AppTheme.neonBlue,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Rajdhani',
+                  letterSpacing: 1,
+                ),
+                onChanged: (value) {
+                  if (value != null) setState(() => _selectedDays = value);
+                },
+                items: const [
+                  DropdownMenuItem(value: 7, child: Text('7 DAYS')),
+                  DropdownMenuItem(value: 30, child: Text('30 DAYS')),
+                  DropdownMenuItem(value: 90, child: Text('90 DAYS')),
+                ],
+              ),
+            ),
           ),
         ],
       ),
       body: statsAsync.when(
         data: (stats) => SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildStatsGrid(stats, l10n, theme),
-              const SizedBox(height: 24),
-              Text(
-                'Activity Trend',
-                style: theme.textTheme.titleLarge
-                    ?.copyWith(fontWeight: FontWeight.bold),
+              _buildStatsGrid(stats, l10n),
+              const SizedBox(height: 32),
+              const Text(
+                'ACTIVITY TREND',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'Rajdhani',
+                  fontWeight: FontWeight.w900,
+                  fontSize: 18,
+                  letterSpacing: 2,
+                ),
               ),
               const SizedBox(height: 16),
-              _buildChartContainer(chartAsync, theme),
-              const SizedBox(height: 24),
-              _buildAccuracyTrend(chartAsync, theme),
+              _buildChartContainer(chartAsync),
+              const SizedBox(height: 32),
+              const Text(
+                'ACCURACY PERFORMANCE',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'Rajdhani',
+                  fontWeight: FontWeight.w900,
+                  fontSize: 18,
+                  letterSpacing: 2,
+                ),
+              ),
+              const SizedBox(height: 16),
+              _buildAccuracyTrend(chartAsync),
             ],
           ),
         ),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+        loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.neonBlue)),
+        error: (err, stack) => Center(child: Text('Error: $err', style: const TextStyle(color: AppTheme.neonOrange))),
       ),
     );
   }
 
-  Widget _buildStatsGrid(
-      SessionStats stats, AppLocalizations l10n, ThemeData theme) {
+  Widget _buildStatsGrid(SessionStats stats, AppLocalizations l10n) {
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 2,
       mainAxisSpacing: 16,
       crossAxisSpacing: 16,
-      childAspectRatio: 1.5,
+      childAspectRatio: 1.2,
       children: [
-        _buildStatCard('Sessions', stats.totalSessions.toString(),
-            Icons.fitness_center, theme),
-        _buildStatCard(
-            'Total Reps', stats.totalReps.toString(), Icons.repeat, theme),
-        _buildStatCard('Calories', stats.totalCalories.toString(),
-            Icons.local_fire_department, theme),
-        _buildStatCard('Accuracy', '${stats.averageAccuracy}%',
-            Icons.check_circle_outline, theme),
+        _buildStatCard('SESSIONS', stats.totalSessions.toString(), Icons.fitness_center, AppTheme.neonBlue),
+        _buildStatCard('TOTAL REPS', stats.totalReps.toString(), Icons.repeat, AppTheme.neonGreen),
+        _buildStatCard('CALORIES', stats.totalCalories.toString(), Icons.local_fire_department, AppTheme.neonOrange),
+        _buildStatCard('ACCURACY', '${stats.averageAccuracy}%', Icons.check_circle_outline, AppTheme.neonPurple),
       ],
     );
   }
 
-  Widget _buildStatCard(
-      String title, String value, IconData icon, ThemeData theme) {
+  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
+        color: const Color(0xFF141B38),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(icon, color: theme.colorScheme.primary, size: 24),
+          Icon(icon, color: color, size: 28),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(value,
-                  style: theme.textTheme.headlineSmall
-                      ?.copyWith(fontWeight: FontWeight.bold)),
-              Text(title,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                      color:
-                          theme.colorScheme.onSurface.withValues(alpha: 0.6))),
+              Text(
+                value,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Rajdhani',
+                ),
+              ),
+              Text(
+                title,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.4),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.2,
+                  fontFamily: 'Rajdhani',
+                ),
+              ),
             ],
           ),
         ],
@@ -118,29 +172,36 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
     );
   }
 
-  Widget _buildChartContainer(
-      AsyncValue<List<ProgressData>> chartData, ThemeData theme) {
+  Widget _buildChartContainer(AsyncValue<List<ProgressData>> chartData) {
     return Container(
-      height: 250,
-      padding: const EdgeInsets.fromLTRB(16, 32, 16, 8),
+      height: 280,
+      padding: const EdgeInsets.fromLTRB(20, 32, 20, 16),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
+        color: const Color(0xFF141B38),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: chartData.when(
         data: (data) => data.isEmpty
-            ? const Center(child: Text('No data for this period'))
-            : LineChart(_buildMainChart(data, theme)),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => const Center(child: Text('Error loading chart')),
+            ? const Center(child: Text('NO DATA FOR THIS PERIOD', style: TextStyle(color: Colors.white54, fontFamily: 'Rajdhani', letterSpacing: 2)))
+            : LineChart(_buildMainChart(data)),
+        loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.neonBlue)),
+        error: (err, stack) => const Center(child: Text('Error loading chart', style: TextStyle(color: AppTheme.neonOrange))),
       ),
     );
   }
 
-  LineChartData _buildMainChart(List<ProgressData> data, ThemeData theme) {
+  LineChartData _buildMainChart(List<ProgressData> data) {
     return LineChartData(
-      gridData: const FlGridData(show: false),
+      gridData: FlGridData(
+        show: true,
+        drawVerticalLine: false,
+        horizontalInterval: 20,
+        getDrawingHorizontalLine: (value) => FlLine(
+          color: Colors.white.withValues(alpha: 0.05),
+          strokeWidth: 1,
+        ),
+      ),
       titlesData: FlTitlesData(
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
@@ -151,9 +212,11 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
               }
               final date = DateTime.parse(data[value.toInt()].date);
               return Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(DateFormat('MM/dd').format(date),
-                    style: const TextStyle(fontSize: 10)),
+                padding: const EdgeInsets.only(top: 12.0),
+                child: Text(
+                  DateFormat('MM/dd').format(date),
+                  style: const TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold),
+                ),
               );
             },
             interval: (data.length / 5).clamp(1, data.length).toDouble(),
@@ -161,8 +224,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
         ),
         leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        rightTitles:
-            const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
       ),
       borderData: FlBorderData(show: false),
       lineBarsData: [
@@ -173,66 +235,68 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
               .map((e) => FlSpot(e.key.toDouble(), e.value.reps.toDouble()))
               .toList(),
           isCurved: true,
-          color: theme.colorScheme.primary,
+          color: AppTheme.neonBlue,
           barWidth: 4,
           isStrokeCapRound: true,
           dotData: const FlDotData(show: false),
           belowBarData: BarAreaData(
             show: true,
-            color: theme.colorScheme.primary.withValues(alpha: 0.1),
+            gradient: LinearGradient(
+              colors: [
+                AppTheme.neonBlue.withValues(alpha: 0.3),
+                AppTheme.neonBlue.withValues(alpha: 0.0),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildAccuracyTrend(
-      AsyncValue<List<ProgressData>> chartData, ThemeData theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Accuracy Performance',
-          style: theme.textTheme.titleMedium
-              ?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          height: 150,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: theme.colorScheme.outlineVariant),
-          ),
-          child: chartData.when(
-            data: (data) => BarChart(
-              BarChartData(
-                barGroups: data
-                    .asMap()
-                    .entries
-                    .map((e) => BarChartGroupData(
-                          x: e.key,
-                          barRods: [
-                            BarChartRodData(
-                              toY: e.value.accuracy,
-                              color: theme.colorScheme.secondary,
-                              width: 12,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ],
-                        ))
-                    .toList(),
-                titlesData: const FlTitlesData(show: false),
-                borderData: FlBorderData(show: false),
-                gridData: const FlGridData(show: false),
+  Widget _buildAccuracyTrend(AsyncValue<List<ProgressData>> chartData) {
+    return Container(
+      height: 200,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF141B38),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+      ),
+      child: chartData.when(
+        data: (data) => data.isEmpty
+            ? const Center(child: Text('NO DATA FOR THIS PERIOD', style: TextStyle(color: Colors.white54, fontFamily: 'Rajdhani', letterSpacing: 2)))
+            : BarChart(
+                BarChartData(
+                  barGroups: data
+                      .asMap()
+                      .entries
+                      .map((e) => BarChartGroupData(
+                            x: e.key,
+                            barRods: [
+                              BarChartRodData(
+                                toY: e.value.accuracy,
+                                color: AppTheme.neonGreen,
+                                width: 12,
+                                borderRadius: BorderRadius.circular(4),
+                                backDrawRodData: BackgroundBarChartRodData(
+                                  show: true,
+                                  toY: 100,
+                                  color: Colors.white.withValues(alpha: 0.05),
+                                ),
+                              ),
+                            ],
+                          ))
+                      .toList(),
+                  titlesData: const FlTitlesData(show: false),
+                  borderData: FlBorderData(show: false),
+                  gridData: const FlGridData(show: false),
+                ),
               ),
-            ),
-            loading: () => const SizedBox(),
-            error: (err, stack) => const SizedBox(),
-          ),
-        ),
-      ],
+        loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.neonGreen)),
+        error: (err, stack) => const Center(child: Text('Error loading chart', style: TextStyle(color: AppTheme.neonOrange))),
+      ),
     );
   }
 }
