@@ -194,6 +194,7 @@ class AuthRepository {
     int? height,
     int? weight,
     String? fitnessLevel,
+    bool? isOnboarded,
   }) async {
     try {
       final token = await _storage.read(key: 'auth_token');
@@ -210,6 +211,7 @@ class AuthRepository {
           if (height != null) 'height': height,
           if (weight != null) 'weight': weight,
           if (fitnessLevel != null) 'fitness_level': fitnessLevel,
+          if (isOnboarded != null) 'is_onboarded': isOnboarded,
         },
         options: Options(
           headers: {'Authorization': 'Bearer $token'},

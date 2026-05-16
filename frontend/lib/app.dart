@@ -4,24 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:rhockai/l10n/app_localizations.dart';
-import 'core/config/app_theme.dart';
-import 'core/providers/locale_provider.dart';
-import 'features/auth/presentation/screens/login_screen.dart';
-import 'features/dashboard/adaptive_dashboard.dart';
-import 'features/dashboard/workout_history.dart';
-import 'features/progress/progress_screen.dart';
-import 'features/settings/settings_screen.dart';
-import 'features/camera_ai/camera_ai_screen.dart';
-import 'features/analytics/providers/analytics_provider.dart';
-import 'features/analytics/providers/analytics_observer.dart';
-import 'features/auth/data/repositories/auth_repository.dart';
-import 'core/providers/settings_provider.dart';
-import 'features/payments/premium_upgrade_screen.dart';
-import 'features/payments/payment_service.dart';
-import 'features/onboarding/onboarding_screen.dart';
-import 'core/services/update_service.dart';
-import 'core/services/sync_service.dart';
-import 'shared/widgets/error_screen.dart';
+import 'package:rhockai/core/config/app_theme.dart';
+import 'package:rhockai/core/providers/locale_provider.dart';
+import 'package:rhockai/features/auth/presentation/screens/login_screen.dart';
+import 'package:rhockai/features/dashboard/adaptive_dashboard.dart';
+import 'package:rhockai/features/dashboard/workout_history.dart';
+import 'package:rhockai/features/progress/progress_screen.dart';
+import 'package:rhockai/features/settings/settings_screen.dart';
+import 'package:rhockai/features/camera_ai/camera_ai_screen.dart';
+import 'package:rhockai/features/analytics/providers/analytics_provider.dart';
+import 'package:rhockai/features/analytics/providers/analytics_observer.dart';
+import 'package:rhockai/features/auth/data/repositories/auth_repository.dart';
+import 'package:rhockai/features/auth/presentation/providers/auth_provider.dart';
+import 'package:rhockai/core/providers/settings_provider.dart';
+import 'package:rhockai/features/payments/premium_upgrade_screen.dart';
+import 'package:rhockai/features/payments/payment_service.dart';
+import 'package:rhockai/features/onboarding/onboarding_screen.dart';
+import 'package:rhockai/core/services/update_service.dart';
+import 'package:rhockai/core/services/sync_service.dart';
+import 'package:rhockai/shared/widgets/error_screen.dart';
 
 class AIWorkoutTrackerApp extends ConsumerStatefulWidget {
   const AIWorkoutTrackerApp({super.key});
@@ -178,7 +179,11 @@ class _AIWorkoutTrackerAppState extends ConsumerState<AIWorkoutTrackerApp> {
       },
       home: _isLoading 
         ? _buildLoadingScreen() 
-        : (_isLoggedIn ? const AdaptiveDashboard() : const LoginScreen()),
+        : (_isLoggedIn 
+            ? ((ref.watch(currentUserProvider)?['is_onboarded'] == true) 
+                ? const AdaptiveDashboard() 
+                : const OnboardingScreen()) 
+            : const LoginScreen()),
       onGenerateRoute: (settings) {
         // Handle named routes safely
         if (settings.name == '/home') {

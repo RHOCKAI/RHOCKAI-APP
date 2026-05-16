@@ -93,7 +93,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
 
     try {
       // Save profile data to backend
-      await _authRepo.updateProfile(fitnessLevel: fitnessLevel);
+      await _authRepo.updateProfile(
+        fitnessLevel: fitnessLevel,
+        isOnboarded: true,
+      );
       // Refresh current user in provider
       final user = await _authRepo.getCurrentUser();
       if (mounted) {

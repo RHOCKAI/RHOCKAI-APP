@@ -17,15 +17,16 @@ import 'analysis/pose_quality_checker.dart';
 import 'analysis/pose_config.dart';
 import 'session/session_model.dart';
 import 'session/session_provider.dart';
-import '../../core/constants/exercises.dart';
-import '../../../shared/widgets/pulse_animation.dart';
+import 'package:rhockai/core/constants/exercises.dart';
+import 'package:rhockai/shared/widgets/pulse_animation.dart';
 import 'package:rhockai/features/gamification/providers/gamification_provider.dart';
-import '../../core/providers/settings_provider.dart';
-import '../analytics/providers/analytics_provider.dart';
-import '../workout/workout_summary_screen.dart';
+import 'package:rhockai/core/providers/settings_provider.dart';
+import 'package:rhockai/features/analytics/providers/analytics_provider.dart';
+import 'package:rhockai/features/workout/workout_summary_screen.dart';
 import 'services/voice_feedback_service.dart';
 import 'services/voice_command_service.dart';
-import '../../core/services/health_service.dart';
+import 'package:rhockai/core/services/health_service.dart';
+import 'widgets/ai_coach_mic_button.dart';
 
 /// 📸 Enhanced Camera AI Screen - Futuristic Workout Overlay
 class CameraAIScreen extends ConsumerStatefulWidget {
@@ -800,6 +801,32 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
 
           // Rep counter (center)
           _buildRepCounter(),
+
+          // Voice Interactive Coach Mic Button
+          Positioned(
+            right: 24,
+            bottom: 150,
+            child: AICoachMicButton(
+              plannedExerciseId: 1,
+              onCommandProcessed: (response) {
+                if (!mounted) {
+                  return;
+                }
+                
+                setState(() {
+                  _feedbackMessage = response['message'];
+                  _feedbackColor = const Color(0xFFFF9900);
+                  
+                  if (response['action'] == 'update_reps') {
+                    _targetReps = response['data']['new_reps'];
+                  } else if (response['action'] == 'swap_exercise') {
+                    _feedbackMessage = 'Swapping to ${response['data']['new_exercise_name']}...';
+                    _feedbackColor = const Color(0xFF00D9FF);
+                  }
+                });
+              },
+            ),
+          ),
 
           // Feedback message
           _buildFeedbackMessage(),

@@ -21,7 +21,6 @@ import 'package:rhockai/features/gamification/widgets/leaderboard_view.dart';
 import 'package:rhockai/features/gamification/widgets/fitness_rating_view.dart';
 import 'package:rhockai/features/gamification/data/models/daily_challenge.dart';
 import 'package:rhockai/features/gamification/providers/gamification_provider.dart';
-import 'package:rhockai/features/workout/screens/daily_circuit_screen.dart';
 import 'package:rhockai/features/workout/screens/ai_workout_plan_screen.dart';
 
 import 'dart:io';
