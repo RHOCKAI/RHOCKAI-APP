@@ -435,78 +435,79 @@ class AppLocalizationsAr extends AppLocalizations {
   String get advanced => 'Advanced';
 
   @override
-  String get activeSession => 'الجلسة النشطة';
+  String get activeSession => 'ACTIVE SESSION';
 
   @override
-  String get aiCircuit => 'دائرة الذكاء الاصطناعي';
+  String get aiCircuit => 'AI CIRCUIT';
 
   @override
-  String get uploadVideo => 'رفع فيديو';
+  String get uploadVideo => 'UPLOAD VIDEO';
 
   @override
-  String get intelligenceInsight => 'ذكاء الـ AI';
+  String get intelligenceInsight => 'AI INTELLIGENCE';
 
   @override
-  String get dailyChallenges => 'التحديات اليومية';
+  String get dailyChallenges => 'DAILY CHALLENGES';
 
   @override
-  String get leaderboard => 'لوحة المتصدرين';
+  String get leaderboard => 'LEADERBOARD';
 
   @override
-  String get squadGoals => 'أهداف الفريق';
+  String get squadGoals => 'SQUAD GOALS';
 
   @override
-  String get calendar => 'تقويم التمرين';
+  String get calendar => 'WORKOUT CALENDAR';
 
   @override
-  String get muscleHeatmap => 'استشفاء العضلات';
+  String get muscleHeatmap => 'MUSCLE RECOVERY';
 
   @override
   String postureScoreHigher(Object percent) {
-    return 'نقاط وضعيتك أعلى بنسبة $percent% هذا الأسبوع. استمر!';
+    return 'Your AI Posture Score is $percent% higher this week. Keep up the perfect form.';
   }
 
   @override
   String helloUser(Object name) {
-    return 'مرحباً، $name';
+    return 'HELLO, $name';
   }
 
   @override
-  String get go => 'انطلق!';
+  String get go => 'GO!';
 
   @override
-  String get paused => 'مؤقت';
+  String get paused => 'Paused';
 
   @override
-  String get resuming => 'استئناف...';
+  String get resuming => 'Resuming...';
 
   @override
-  String get noCamerasFound => 'لم يتم العثور على كاميرات.';
+  String get noCamerasFound => 'No cameras found on this device.';
 
   @override
-  String get cameraPermissionError => 'فشل الوصول للكاميرا.';
+  String get cameraPermissionError =>
+      'Failed to access cameras. Please check permissions.';
 
   @override
-  String get rest => 'راحة';
+  String get rest => 'REST';
 
   @override
-  String get nextSet => 'الجولة التالية';
+  String get nextSet => 'NEXT SET';
 
   @override
-  String get completeWorkout => 'إنهاء التمرين';
+  String get completeWorkout => 'COMPLETE WORKOUT';
 
   @override
-  String get set => 'جولة';
+  String get set => 'Set';
 
   @override
-  String get reps => 'عدات';
+  String get reps => 'Reps';
 
   @override
-  String get perfect => 'مثالي';
+  String get perfect => 'PERFECT';
 
   @override
-  String get good => 'جيد';
+  String get good => 'GOOD';
 
   @override
-  String get adjust => 'تعديل';
+  String get adjust => 'ADJUST';
 }

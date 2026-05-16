@@ -98,6 +98,7 @@ class User(Base):
     
     # Relationships
     sessions = relationship("WorkoutSession", back_populates="user")
+    workout_plans = relationship("WorkoutPlan", back_populates="user")
     subscription = relationship("Subscription", back_populates="user", uselist=False)
     app_sessions = relationship("AppSession", back_populates="user")
     screen_views = relationship("ScreenView", back_populates="user")

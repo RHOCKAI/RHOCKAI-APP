@@ -431,82 +431,82 @@ class AppLocalizationsDe extends AppLocalizations {
   String get intermediate => 'Intermediate';
 
   @override
-  String get advanced => 'Fortgeschritten';
+  String get advanced => 'Advanced';
 
   @override
-  String get activeSession => 'AKTIVE SITZUNG';
+  String get activeSession => 'ACTIVE SESSION';
 
   @override
-  String get aiCircuit => 'KI-ZIRKEL';
+  String get aiCircuit => 'AI CIRCUIT';
 
   @override
-  String get uploadVideo => 'VIDEO HOCHLADEN';
+  String get uploadVideo => 'UPLOAD VIDEO';
 
   @override
-  String get intelligenceInsight => 'KI-INTELLIGENZ';
+  String get intelligenceInsight => 'AI INTELLIGENCE';
 
   @override
-  String get dailyChallenges => 'TÄGLICHE HERAUSFORDERUNGEN';
+  String get dailyChallenges => 'DAILY CHALLENGES';
 
   @override
-  String get leaderboard => 'RANGLISTE';
+  String get leaderboard => 'LEADERBOARD';
 
   @override
-  String get squadGoals => 'TEAMZIELE';
+  String get squadGoals => 'SQUAD GOALS';
 
   @override
-  String get calendar => 'TRAININGSKALENDER';
+  String get calendar => 'WORKOUT CALENDAR';
 
   @override
-  String get muscleHeatmap => 'MUSKELREGENERATION';
+  String get muscleHeatmap => 'MUSCLE RECOVERY';
 
   @override
   String postureScoreHigher(Object percent) {
-    return 'Ihr KI-Haltungswert ist diese Woche um $percent% höher. Behalten Sie die perfekte Form bei.';
+    return 'Your AI Posture Score is $percent% higher this week. Keep up the perfect form.';
   }
 
   @override
   String helloUser(Object name) {
-    return 'HALLO, $name';
+    return 'HELLO, $name';
   }
 
   @override
-  String get go => 'LOS!';
+  String get go => 'GO!';
 
   @override
-  String get paused => 'Pausiert';
+  String get paused => 'Paused';
 
   @override
-  String get resuming => 'Fortsetzen...';
+  String get resuming => 'Resuming...';
 
   @override
-  String get noCamerasFound => 'Keine Kameras auf diesem Gerät gefunden.';
+  String get noCamerasFound => 'No cameras found on this device.';
 
   @override
   String get cameraPermissionError =>
-      'Kamerazugriff fehlgeschlagen. Bitte Berechtigungen prüfen.';
+      'Failed to access cameras. Please check permissions.';
 
   @override
-  String get rest => 'PAUSE';
+  String get rest => 'REST';
 
   @override
-  String get nextSet => 'NÄCHSTER SATZ';
+  String get nextSet => 'NEXT SET';
 
   @override
-  String get completeWorkout => 'TRAINING BEENDEN';
+  String get completeWorkout => 'COMPLETE WORKOUT';
 
   @override
-  String get set => 'Satz';
+  String get set => 'Set';
 
   @override
-  String get reps => 'Wdh.';
+  String get reps => 'Reps';
 
   @override
-  String get perfect => 'PERFEKT';
+  String get perfect => 'PERFECT';
 
   @override
-  String get good => 'GUT';
+  String get good => 'GOOD';
 
   @override
-  String get adjust => 'ANPASSEN';
+  String get adjust => 'ADJUST';
 }

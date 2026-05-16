@@ -30,12 +30,15 @@ def fix_database():
             # List of columns to add if they are missing
             # Format: (column_name, column_type, default_value_sql)
             columns_to_add = [
+                ('full_name', 'VARCHAR', 'NULL'),
                 ('gender', 'VARCHAR', 'NULL'),
                 ('age', 'INTEGER', 'NULL'),
                 ('height', 'INTEGER', 'NULL'),
                 ('weight', 'INTEGER', 'NULL'),
                 ('fitness_level', 'VARCHAR', "'beginner'"),
                 ('ai_fitness_rating', 'INTEGER', '0'),
+                ('profile_picture', 'VARCHAR', 'NULL'),
+                ('profile_emoji', 'VARCHAR', 'NULL'),
                 ('language', 'VARCHAR', "'en'"),
                 ('theme', 'VARCHAR', "'light'"),
                 ('voice_feedback', 'BOOLEAN', 'TRUE'),
@@ -48,6 +51,7 @@ def fix_database():
                 ('is_active', 'BOOLEAN', 'TRUE'),
                 ('is_verified', 'BOOLEAN', 'FALSE'),
                 ('is_admin', 'BOOLEAN', 'FALSE'),
+                ('created_at', 'TIMESTAMP WITH TIME ZONE', 'NOW()'),
                 ('updated_at', 'TIMESTAMP WITH TIME ZONE', 'NULL'),
             ]
             

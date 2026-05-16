@@ -22,6 +22,7 @@ import 'package:rhockai/features/gamification/widgets/fitness_rating_view.dart';
 import 'package:rhockai/features/gamification/data/models/daily_challenge.dart';
 import 'package:rhockai/features/gamification/providers/gamification_provider.dart';
 import 'package:rhockai/features/workout/screens/daily_circuit_screen.dart';
+import 'package:rhockai/features/workout/screens/ai_workout_plan_screen.dart';
 
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
@@ -256,7 +257,7 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
               ),
               const SizedBox(width: 12),
               _heroActionButton(
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const DailyCircuitScreen())),
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AIWorkoutPlanScreen())),
                 label: l10n.aiCircuit,
                 icon: Icons.auto_awesome,
                 isPrimary: false,
@@ -759,12 +760,8 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
                 _buildSidebarItem(Icons.fitness_center_rounded, 'EXERCISES', false, onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const ExercisesListScreen()));
                 }),
-                _buildSidebarItem(Icons.analytics_outlined, 'INSIGHTS', false, onTap: () {
-                  if (user != null && user['is_premium'] == true) {
-                    Navigator.pushNamed(context, '/progress');
-                  } else {
-                    Navigator.pushNamed(context, '/premium');
-                  }
+                _buildSidebarItem(Icons.auto_graph_rounded, 'USER ANALYTICS', false, onTap: () {
+                  Navigator.pushNamed(context, '/progress');
                 }),
                 _buildSidebarItem(Icons.settings_outlined, 'SETTINGS', false, onTap: () {
                   Navigator.pushNamed(context, '/settings');

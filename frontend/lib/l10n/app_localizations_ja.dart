@@ -428,81 +428,82 @@ class AppLocalizationsJa extends AppLocalizations {
   String get intermediate => 'Intermediate';
 
   @override
-  String get advanced => '上級者';
+  String get advanced => 'Advanced';
 
   @override
-  String get activeSession => 'アクティブセッション';
+  String get activeSession => 'ACTIVE SESSION';
 
   @override
-  String get aiCircuit => 'AIサーキット';
+  String get aiCircuit => 'AI CIRCUIT';
 
   @override
-  String get uploadVideo => '動画をアップロード';
+  String get uploadVideo => 'UPLOAD VIDEO';
 
   @override
-  String get intelligenceInsight => 'AIインテリジェンス';
+  String get intelligenceInsight => 'AI INTELLIGENCE';
 
   @override
-  String get dailyChallenges => 'デイリーチャレンジ';
+  String get dailyChallenges => 'DAILY CHALLENGES';
 
   @override
-  String get leaderboard => 'リーダーボード';
+  String get leaderboard => 'LEADERBOARD';
 
   @override
-  String get squadGoals => 'スクワッドゴール';
+  String get squadGoals => 'SQUAD GOALS';
 
   @override
-  String get calendar => 'トレーニングカレンダー';
+  String get calendar => 'WORKOUT CALENDAR';
 
   @override
-  String get muscleHeatmap => '筋肉の回復';
+  String get muscleHeatmap => 'MUSCLE RECOVERY';
 
   @override
   String postureScoreHigher(Object percent) {
-    return '今週のAI姿勢スコアは$percent%向上しました。その調子です！';
+    return 'Your AI Posture Score is $percent% higher this week. Keep up the perfect form.';
   }
 
   @override
   String helloUser(Object name) {
-    return 'こんにちは、$name';
+    return 'HELLO, $name';
   }
 
   @override
-  String get go => 'スタート！';
+  String get go => 'GO!';
 
   @override
-  String get paused => '一時停止中';
+  String get paused => 'Paused';
 
   @override
-  String get resuming => '再開中...';
+  String get resuming => 'Resuming...';
 
   @override
-  String get noCamerasFound => 'カメラが見つかりません。';
+  String get noCamerasFound => 'No cameras found on this device.';
 
   @override
-  String get cameraPermissionError => 'カメラへのアクセスに失敗しました。';
+  String get cameraPermissionError =>
+      'Failed to access cameras. Please check permissions.';
 
   @override
-  String get rest => '休憩';
+  String get rest => 'REST';
 
   @override
-  String get nextSet => '次のセット';
+  String get nextSet => 'NEXT SET';
 
   @override
-  String get completeWorkout => 'ワークアウト完了';
+  String get completeWorkout => 'COMPLETE WORKOUT';
 
   @override
-  String get set => 'セット';
+  String get set => 'Set';
 
   @override
-  String get reps => 'レップ';
+  String get reps => 'Reps';
 
   @override
-  String get perfect => '完璧';
+  String get perfect => 'PERFECT';
 
   @override
-  String get good => '良好';
+  String get good => 'GOOD';
 
   @override
-  String get adjust => '調整';
+  String get adjust => 'ADJUST';
 }

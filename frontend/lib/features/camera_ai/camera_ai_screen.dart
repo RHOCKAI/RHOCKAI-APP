@@ -12,6 +12,9 @@ import 'pose/pose_landmark_model.dart';
 import 'analysis/rep_state_machine.dart';
 import 'analysis/form_checker.dart';
 import 'analysis/environment_validator.dart';
+import 'analysis/landmark_smoother.dart';
+import 'analysis/pose_quality_checker.dart';
+import 'analysis/pose_config.dart';
 import 'session/session_model.dart';
 import 'session/session_provider.dart';
 import '../../core/constants/exercises.dart';
@@ -53,6 +56,11 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
   bool _isSwitchingCamera = false;
   bool _isWorkoutActive = false;
   bool _isSetupPhase = true; // New phase for pre-flight check
+
+  // ML Pipeline Improvements
+  late LandmarkSmoother _smoother;
+  PoseQualityChecker? _qualityChecker;
+  DateTime _lastFrameTime = DateTime.now();
 
   // Data
   int _repCount = 0; // Total session reps
@@ -253,6 +261,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     _restTimer?.cancel();
     _warmupTimer?.cancel();
     _heartRateTimer?.cancel();
+    _smoother.dispose();
+    _qualityChecker?.dispose();
     VoiceCommandService().stopListening();
     super.dispose();
   }
@@ -382,6 +392,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
   }
 
   void _initializeRepMachine() {
+    _smoother = LandmarkSmoother(alpha: widget.exerciseType.toLowerCase() == 'plank' ? 0.4 : 0.6);
     final typeMap = {
       'pushup': ExerciseType.pushup,
       'push-up': ExerciseType.pushup,
@@ -501,11 +512,18 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       return;
     }
 
+    final now = DateTime.now();
+    if (now.difference(_lastFrameTime).inMilliseconds < (1000 / PoseConfig.maxProcessFps)) {
+      return; 
+    }
+    _lastFrameTime = now;
+
     // Track image size for painter scaling
     if (_imageSize == null) {
       setState(() {
         _imageSize = Size(image.width.toDouble(), image.height.toDouble());
       });
+      _qualityChecker = PoseQualityChecker(imageHeight: image.height.toDouble());
     }
 
     InputImage? inputImage;
@@ -527,6 +545,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     }
 
     if (poses.isEmpty) {
+      _smoother.reset();
       if (mounted) {
         setState(() {
           _feedbackMessage = AppLocalizations.of(context)?.standInFrame ?? 'Stand in frame';
@@ -538,10 +557,31 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     }
 
     final pose = poses.first;
-    final poseLandmarks = PoseLandmarks.fromMLKit(pose);
 
+    // 1. Quality Check
+    if (_qualityChecker != null) {
+      final quality = _qualityChecker!.check(pose);
+      if (quality.quality != PoseQuality.good) {
+        if (mounted) {
+          setState(() {
+            _feedbackMessage = quality.message ?? 'Position yourself correctly';
+            _feedbackColor = const Color(0xFFFF6B35);
+            _currentPose = null;
+          });
+        }
+        return;
+      }
+    }
+
+    // 2. EMA Smoothing to eliminate jitter
+    final smoothedLandmarksMap = _smoother.smooth(pose.landmarks);
+    final smoothedPose = Pose(landmarks: smoothedLandmarksMap);
+
+    final poseLandmarks = PoseLandmarks.fromMLKit(smoothedPose);
+
+    // Ensure our new PoseConfig threshold is respected natively
     if (!poseLandmarks
-        .hasGoodConfidence(ExerciseThresholds.minLandmarkConfidence)) {
+        .hasGoodConfidence(PoseConfig.minPoseConfidence)) {
       if (mounted) {
         setState(() {
           _feedbackMessage = AppLocalizations.of(context)?.comeCloser ?? 'Come closer';

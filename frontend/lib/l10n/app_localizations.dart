@@ -943,75 +943,147 @@ abstract class AppLocalizations {
   String get advanced;
 
   /// No description provided for @activeSession.
+  ///
+  /// In en, this message translates to:
+  /// **'ACTIVE SESSION'**
   String get activeSession;
 
   /// No description provided for @aiCircuit.
+  ///
+  /// In en, this message translates to:
+  /// **'AI CIRCUIT'**
   String get aiCircuit;
 
   /// No description provided for @uploadVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'UPLOAD VIDEO'**
   String get uploadVideo;
 
   /// No description provided for @intelligenceInsight.
+  ///
+  /// In en, this message translates to:
+  /// **'AI INTELLIGENCE'**
   String get intelligenceInsight;
 
   /// No description provided for @dailyChallenges.
+  ///
+  /// In en, this message translates to:
+  /// **'DAILY CHALLENGES'**
   String get dailyChallenges;
 
   /// No description provided for @leaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'LEADERBOARD'**
   String get leaderboard;
 
   /// No description provided for @squadGoals.
+  ///
+  /// In en, this message translates to:
+  /// **'SQUAD GOALS'**
   String get squadGoals;
 
   /// No description provided for @calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'WORKOUT CALENDAR'**
   String get calendar;
 
   /// No description provided for @muscleHeatmap.
+  ///
+  /// In en, this message translates to:
+  /// **'MUSCLE RECOVERY'**
   String get muscleHeatmap;
 
   /// No description provided for @postureScoreHigher.
+  ///
+  /// In en, this message translates to:
+  /// **'Your AI Posture Score is {percent}% higher this week. Keep up the perfect form.'**
   String postureScoreHigher(Object percent);
 
   /// No description provided for @helloUser.
+  ///
+  /// In en, this message translates to:
+  /// **'HELLO, {name}'**
   String helloUser(Object name);
 
   /// No description provided for @go.
+  ///
+  /// In en, this message translates to:
+  /// **'GO!'**
   String get go;
 
   /// No description provided for @paused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
   String get paused;
 
   /// No description provided for @resuming.
+  ///
+  /// In en, this message translates to:
+  /// **'Resuming...'**
   String get resuming;
 
   /// No description provided for @noCamerasFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No cameras found on this device.'**
   String get noCamerasFound;
 
   /// No description provided for @cameraPermissionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to access cameras. Please check permissions.'**
   String get cameraPermissionError;
 
   /// No description provided for @rest.
+  ///
+  /// In en, this message translates to:
+  /// **'REST'**
   String get rest;
 
   /// No description provided for @nextSet.
+  ///
+  /// In en, this message translates to:
+  /// **'NEXT SET'**
   String get nextSet;
 
   /// No description provided for @completeWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'COMPLETE WORKOUT'**
   String get completeWorkout;
 
   /// No description provided for @set.
+  ///
+  /// In en, this message translates to:
+  /// **'Set'**
   String get set;
 
   /// No description provided for @reps.
+  ///
+  /// In en, this message translates to:
+  /// **'Reps'**
   String get reps;
 
   /// No description provided for @perfect.
+  ///
+  /// In en, this message translates to:
+  /// **'PERFECT'**
   String get perfect;
 
   /// No description provided for @good.
+  ///
+  /// In en, this message translates to:
+  /// **'GOOD'**
   String get good;
 
   /// No description provided for @adjust.
+  ///
+  /// In en, this message translates to:
+  /// **'ADJUST'**
   String get adjust;
 }
 
