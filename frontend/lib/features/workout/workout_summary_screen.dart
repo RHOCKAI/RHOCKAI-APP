@@ -200,6 +200,16 @@ class _WorkoutSummaryScreenState extends ConsumerState<WorkoutSummaryScreen> {
                   _buildLevelProgress(),
                   const SizedBox(height: 24),
 
+                  // ── AI Biomechanics & Form Coaching Report ──────
+                  _buildAIBiomechanicsReport(),
+                  const SizedBox(height: 24),
+
+                  // ── Rep-by-Rep Form Timeline ─────────────────────
+                  if (widget.session.reps.isNotEmpty) ...[
+                    _buildRepTimeline(),
+                    const SizedBox(height: 24),
+                  ],
+
                   // ── Muscle Fatigue Analysis ──────────────────────
                   _buildMuscleAnalysis(),
                   const SizedBox(height: 24),
@@ -753,6 +763,199 @@ class _WorkoutSummaryScreenState extends ConsumerState<WorkoutSummaryScreen> {
             'RED zones indicate high fatigue from your recent activity. Allow these areas to recover for 24-48 hours.',
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.white38, fontSize: 11, height: 1.4),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── AI Biomechanics Report Widget ─────────────────────────────────────────
+  Widget _buildAIBiomechanicsReport() {
+    final accuracy = widget.session.averageAccuracy;
+    final tempo = widget.session.averageTempoScore;
+    
+    String feedbackTitle;
+    String feedbackBody;
+    IconData feedbackIcon;
+    Color accentColor;
+
+    if (accuracy >= 85 && tempo >= 80) {
+      feedbackTitle = 'ELITE BIOMECHANICAL EFFICIENCY';
+      feedbackBody = 'Exceptional joint symmetry and eccentric tempo control throughout all repetitions. Kinetic chain stability remained intact from rep 1 to ${widget.session.totalReps}. Ready for progressive overload!';
+      feedbackIcon = Icons.military_tech_rounded;
+      accentColor = AppTheme.neonGreen;
+    } else if (accuracy >= 70) {
+      feedbackTitle = 'SOLID EXECUTION · MINOR LEAKAGE';
+      feedbackBody = 'Good movement cadence. Core stabilization dipped during fatigue phases in the later reps. Concentrate on maintaining a neutral spine and bracing intra-abdominal pressure throughout the entire range.';
+      feedbackIcon = Icons.auto_awesome;
+      accentColor = AppTheme.neonBlue;
+    } else {
+      feedbackTitle = 'FORM CALIBRATION REQUIRED';
+      feedbackBody = 'Significant joint deflection detected during peak concentric extension. Recommend reducing cadence and prioritizing full depth before increasing rep count.';
+      feedbackIcon = Icons.warning_amber_rounded;
+      accentColor = AppTheme.neonOrange;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: const Color(0xFF141B38),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: accentColor.withValues(alpha: 0.25)),
+        boxShadow: [
+          BoxShadow(
+            color: accentColor.withValues(alpha: 0.08),
+            blurRadius: 20,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: accentColor.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(feedbackIcon, color: accentColor, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'AI COACH REPORT',
+                      style: TextStyle(
+                        color: accentColor,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 10,
+                        fontFamily: 'Rajdhani',
+                        letterSpacing: 2,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      feedbackTitle,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        fontFamily: 'Rajdhani',
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            feedbackBody,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.8),
+              fontSize: 12,
+              height: 1.5,
+              fontFamily: 'Outfit',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── Rep-by-Rep Form Timeline Widget ─────────────────────────────────────────
+  Widget _buildRepTimeline() {
+    final reps = widget.session.reps;
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: const Color(0xFF141B38),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.show_chart_rounded, color: AppTheme.neonBlue, size: 20),
+              SizedBox(width: 10),
+              Text(
+                'REP QUALITY TIMELINE',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 14,
+                  fontFamily: 'Rajdhani',
+                  letterSpacing: 1.5,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          SizedBox(
+            height: 110,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: reps.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 10),
+              itemBuilder: (context, index) {
+                final rep = reps[index];
+                final score = rep.accuracy;
+                final isGood = score >= 80;
+                final isFair = score >= 60 && score < 80;
+                final repColor = isGood 
+                    ? AppTheme.neonGreen 
+                    : (isFair ? AppTheme.neonBlue : AppTheme.neonOrange);
+
+                return Container(
+                  width: 58,
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.03),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: repColor.withValues(alpha: 0.3)),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'R${rep.repNumber}',
+                        style: const TextStyle(
+                          color: Colors.white54,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Rajdhani',
+                        ),
+                      ),
+                      Text(
+                        '${score.toInt()}%',
+                        style: TextStyle(
+                          color: repColor,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                          fontFamily: 'Rajdhani',
+                        ),
+                      ),
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: repColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),

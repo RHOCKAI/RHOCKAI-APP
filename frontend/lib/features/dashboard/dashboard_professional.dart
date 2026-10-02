@@ -22,6 +22,7 @@ import 'package:rhockai/features/gamification/widgets/fitness_rating_view.dart';
 import 'package:rhockai/features/gamification/data/models/daily_challenge.dart';
 import 'package:rhockai/features/gamification/providers/gamification_provider.dart';
 import 'package:rhockai/features/workout/screens/ai_workout_plan_screen.dart';
+import 'package:rhockai/features/dashboard/coach_dashboard_screen.dart';
 
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
@@ -758,6 +759,12 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
                 _buildSidebarItem(Icons.grid_view_rounded, 'DASHBOARD', true),
                 _buildSidebarItem(Icons.fitness_center_rounded, 'EXERCISES', false, onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const ExercisesListScreen()));
+                }),
+                _buildSidebarItem(Icons.auto_awesome, 'AI WORKOUT PLAN', false, onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const AIWorkoutPlanScreen()));
+                }),
+                _buildSidebarItem(Icons.psychology_rounded, 'COACH COMMAND', false, onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CoachDashboardScreen()));
                 }),
                 _buildSidebarItem(Icons.auto_graph_rounded, 'USER ANALYTICS', false, onTap: () {
                   Navigator.pushNamed(context, '/progress');

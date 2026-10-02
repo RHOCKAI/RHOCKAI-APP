@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     API_V1_PREFIX: str = "/api/v1"
 
     # Database
-    DATABASE_URL: str
+    DATABASE_URL: str = "sqlite:///./test.db"
 
     # Security
     SECRET_KEY: str = "rhockai_default_secret_key_change_me_in_production"
