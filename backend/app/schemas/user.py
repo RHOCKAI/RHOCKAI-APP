@@ -34,6 +34,7 @@ class UserUpdate(BaseModel):
     voice_feedback: Optional[bool] = Field(None, description="Enable voice feedback")
     profile_picture: Optional[str] = Field(None, description="URL of the profile picture")
     profile_emoji: Optional[str] = Field(None, description="Emoji representing the user profile")
+    is_onboarded: Optional[bool] = Field(None, description="True if the user has completed onboarding")
 
 class UserResponse(UserBase):
     id: int = Field(..., description="User ID")
@@ -45,6 +46,7 @@ class UserResponse(UserBase):
     voice_feedback: bool = Field(default=True, description="Voice feedback enabled")
     profile_picture: Optional[str] = Field(None, description="URL of the profile picture")
     profile_emoji: Optional[str] = Field(None, description="Emoji representing the user profile")
+    is_onboarded: bool = Field(default=False, description="True if user has completed onboarding")
     created_at: datetime = Field(..., description="Account creation timestamp")
     updated_at: Optional[datetime] = Field(None, description="Last update timestamp")
     

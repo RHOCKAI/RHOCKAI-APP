@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io' show Platform;
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -80,6 +81,9 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
   bool _isWarmingUp = true;
   int _warmupSecondsRemaining = 10;
   Timer? _warmupTimer;
+
+  // Calibration Progress for Holographic Lock-On
+  double _calibrationProgress = 0.0;
 
   double _accuracy = 100.0;
   String _feedbackMessage = 'Get ready...';
@@ -649,9 +653,20 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
 
         if (_isSetupPhase) {
           _feedbackMessage = envStatus.message;
-          _feedbackColor = envStatus.isValid ? const Color(0xFF00FF88) : const Color(0xFFFF6B35);
-          _feedbackMessage = envStatus.message;
-          _feedbackColor = const Color(0xFFFF6B35);
+          if (envStatus.isValid) {
+            _feedbackColor = const Color(0xFF00FF88); // Neon green
+            _calibrationProgress = (_calibrationProgress + 0.035).clamp(0.0, 1.0);
+            
+            // If perfectly locked, transition immediately!
+            if (_calibrationProgress >= 1.0 && !_isWarmingUp && !_isWorkoutActive) {
+              _isSetupPhase = false;
+              HapticFeedback.heavyImpact();
+              _startWarmup();
+            }
+          } else {
+            _feedbackColor = const Color(0xFFFF6B35); // Warning Orange
+            _calibrationProgress = (_calibrationProgress - 0.07).clamp(0.0, 1.0);
+          }
         } else {
           _feedbackMessage = _repMachine!.getStatusMessage();
           _feedbackColor = const Color(0xFF00D9FF);
@@ -860,7 +875,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
   }
 
   Widget _buildPoseOverlay() {
-    if (_currentPose == null || _imageSize == null) {
+    if (_imageSize == null) {
       return const SizedBox.shrink();
     }
 
@@ -871,6 +886,10 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
         accuracy: _accuracy,
         imageSize: _imageSize!,
         isFrontCamera: _currentCameraFacing == CameraLensDirection.front,
+        exerciseType: widget.exerciseType,
+        isSetupPhase: _isSetupPhase,
+        isWorkoutActive: _isWorkoutActive,
+        calibrationProgress: _calibrationProgress,
       ),
     );
   }
@@ -1061,19 +1080,20 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
   }
 
   Widget _buildEnvironmentStatus() {
-    return Positioned(
-      top: 100,
-      left: 20,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.6),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: _isEnvironmentValid
-                ? const Color(0xFF00FF88)
-                : const Color(0xFFFF6B35),
-            width: 1.5,
+    if (!_isSetupPhase) {
+      return Positioned(
+        top: 100,
+        left: 20,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: _isEnvironmentValid
+                  ? const Color(0xFF00FF88)
+                  : const Color(0xFFFF6B35),
+              width: 1.5,
           ),
         ),
         child: Row(
@@ -1101,8 +1121,148 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
               ),
             ),
           ],
+          ),
+        ),
+      );
+    }
+
+    // Gorgeous Translucent Futuristic CyberHUD Telemetry Card during Setup!
+    return Positioned(
+      top: 110,
+      left: 20,
+      child: Container(
+        width: 230,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.65),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: _isEnvironmentValid
+                ? const Color(0xFF00FF88).withValues(alpha: 0.5)
+                : const Color(0xFFFF6B35).withValues(alpha: 0.5),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: (_isEnvironmentValid ? const Color(0xFF00FF88) : const Color(0xFFFF6B35)).withValues(alpha: 0.15),
+              blurRadius: 10,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'RHOCK_AI // CAMERA HUD',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontFamily: 'Rajdhani',
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _isEnvironmentValid ? const Color(0xFF00FF88) : const Color(0xFFFF6B35),
+                  ),
+                ),
+              ],
+            ),
+            const Divider(color: Colors.white12, height: 12, thickness: 1),
+            _buildTelemetryLine('SYS.LUM', _isEnvironmentValid ? '92% [GOOD]' : '45% [LOW]', _isEnvironmentValid ? const Color(0xFF00FF88) : const Color(0xFFFF6B35)),
+            const SizedBox(height: 6),
+            _buildTelemetryLine('SYS.DIST', _isEnvironmentValid ? '2.4M [STABLE]' : 'ADJUST POSITION', _isEnvironmentValid ? Colors.white : const Color(0xFFFF6B35)),
+            const SizedBox(height: 6),
+            _buildTelemetryLine(
+              'SYS.POSE', 
+              _currentPose != null ? 'LOCKED' : 'SCANNING', 
+              _currentPose != null ? const Color(0xFF00FF88) : Colors.white24
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'HOLOGRAM ALIGNMENT LOCK',
+              style: TextStyle(
+                color: Colors.white38,
+                fontFamily: 'Outfit',
+                fontSize: 8,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(height: 6),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: _calibrationProgress,
+                minHeight: 6,
+                backgroundColor: Colors.white10,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  _isEnvironmentValid ? const Color(0xFF00FF88) : const Color(0xFFFF6B35),
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'LOCK-IN PROCESS',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.4),
+                    fontFamily: 'Rajdhani',
+                    fontSize: 9,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  '${(_calibrationProgress * 100).toInt()}%',
+                  style: TextStyle(
+                    color: _isEnvironmentValid ? const Color(0xFF00FF88) : const Color(0xFFFF6B35),
+                    fontFamily: 'Rajdhani',
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTelemetryLine(String label, String value, Color valueColor) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white30,
+            fontFamily: 'Rajdhani',
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            color: valueColor,
+            fontFamily: 'Rajdhani',
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 
@@ -1453,46 +1613,50 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
   }
 }
 
-/// 🎨 Pose Overlay Painter
+/// 🎨 Pose Overlay Painter - Breathtaking Sci-Fi Holographic HUD
 class PoseOverlayPainter extends CustomPainter {
   final PoseLandmarks? pose;
   final double accuracy;
   final Size imageSize;
   final bool isFrontCamera;
+  final String exerciseType;
+  final bool isSetupPhase;
+  final bool isWorkoutActive;
+  final double calibrationProgress;
 
   PoseOverlayPainter({
     required this.pose,
     required this.accuracy,
     required this.imageSize,
     required this.isFrontCamera,
+    required this.exerciseType,
+    required this.isSetupPhase,
+    required this.isWorkoutActive,
+    required this.calibrationProgress,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
+    // If no body detected in setup mode, draw a beautiful pulsing holographic wireframe outline
     if (pose == null) {
+      if (isSetupPhase) {
+        _drawHolographicSilhouette(canvas, size);
+      }
       return;
     }
 
-    // Modern color palette for feedback
-    final Color strokeColor = accuracy >= 95 
-        ? const Color(0xFF00FF88) // Perfect Green
+    // Modern color palette for sci-fi feedback
+    final Color hudColor = accuracy >= 95 
+        ? const Color(0xFF00FF88) // Hyper Neon Green (Perfect Form)
         : accuracy >= 80 
-            ? const Color(0xFF00D9FF) // Good Blue
-            : const Color(0xFFFF6B35); // Warning Orange
-
-    final paint = Paint()
-      ..color = strokeColor.withValues(alpha: 0.8)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 5
-      ..strokeCap = StrokeCap.round;
-
-    final landmarkPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
+            ? const Color(0xFF00D9FF) // Laser Cyan (Good Form)
+            : const Color(0xFFFF6B35); // Warning Cyber Orange
 
     Offset scale(PoseLandmark p) {
-      // Accurate scaling using image dimensions vs view dimensions
-      // Note: Camera image might be rotated
+      if (imageSize.width == 0 || imageSize.height == 0) {
+        return Offset.zero;
+      }
+      // Scaling using canvas vs camera coordinate maps
       double x = p.x * size.width / imageSize.width;
       double y = p.y * size.height / imageSize.height;
       
@@ -1503,55 +1667,498 @@ class PoseOverlayPainter extends CustomPainter {
       return Offset(x, y);
     }
 
-    void drawLine(PoseLandmark p1, PoseLandmark p2) {
-      if (p1.likelihood > 0.5 && p2.likelihood > 0.5) {
-        canvas.drawLine(scale(p1), scale(p2), paint);
+    // High fidelity laser/neon line painter
+    void drawNeonLine(PoseLandmark p1, PoseLandmark p2, Color baseColor) {
+      if (p1.likelihood < 0.5 || p2.likelihood < 0.5) {
+        return;
       }
+      
+      final o1 = scale(p1);
+      final o2 = scale(p2);
+      
+      // 1. Semi-transparent laser glow
+      final glowPaint = Paint()
+        ..shader = ui.Gradient.linear(
+          o1, o2, 
+          [baseColor.withValues(alpha: 0.05), baseColor.withValues(alpha: 0.35), baseColor.withValues(alpha: 0.05)]
+        )
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 14.0
+        ..strokeCap = StrokeCap.round;
+      canvas.drawLine(o1, o2, glowPaint);
+      
+      // 2. Focused Neon Filament
+      final corePaint = Paint()
+        ..shader = ui.Gradient.linear(
+          o1, o2, 
+          [baseColor.withValues(alpha: 0.4), baseColor, baseColor.withValues(alpha: 0.4)]
+        )
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 4.5
+        ..strokeCap = StrokeCap.round;
+      canvas.drawLine(o1, o2, corePaint);
+      
+      // 3. Ultra-bright white laser core
+      final laserPaint = Paint()
+        ..color = Colors.white.withValues(alpha: 0.9)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2
+        ..strokeCap = StrokeCap.round;
+      canvas.drawLine(o1, o2, laserPaint);
     }
 
-    void drawPoint(PoseLandmark p) {
-      if (p.likelihood > 0.5) {
-        canvas.drawCircle(scale(p), 4, landmarkPaint);
+    // Cybernetic joint rendering
+    void drawCyberJoint(PoseLandmark p, Color baseColor) {
+      if (p.likelihood < 0.5) {
+        return;
       }
+      final center = scale(p);
+      
+      // Pulsing outer halo
+      final pulse = 1.0 + 0.15 * math.sin(DateTime.now().millisecondsSinceEpoch / 250.0 + p.y * 100);
+      final haloPaint = Paint()
+        ..color = baseColor.withValues(alpha: 0.12)
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(center, 14.0 * pulse, haloPaint);
+      
+      // Concentric structural ring
+      final ringPaint = Paint()
+        ..color = baseColor.withValues(alpha: 0.55)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.0;
+      canvas.drawCircle(center, 8, ringPaint);
+      
+      // Crosshair ticks
+      final tickPaint = Paint()
+        ..color = baseColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2;
+      const double r = 10.0;
+      canvas.drawLine(Offset(center.dx - r, center.dy), Offset(center.dx - r + 3, center.dy), tickPaint);
+      canvas.drawLine(Offset(center.dx + r - 3, center.dy), Offset(center.dx + r, center.dy), tickPaint);
+      canvas.drawLine(Offset(center.dx, center.dy - r), Offset(center.dx, center.dy - r + 3), tickPaint);
+      canvas.drawLine(Offset(center.dx, center.dy + r - 3), Offset(center.dx, center.dy + r), tickPaint);
+      
+      // Ultra bright solid inner core
+      final corePaint = Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(center, 3.5, corePaint);
     }
 
-    // Draw Skeleton Lines
+    // Dynamic interactive HUD angle meter
+    void drawAngleHud(PoseLandmark joint, PoseLandmark p1, PoseLandmark p2, String label, Color baseColor) {
+      if (joint.likelihood < 0.5 || p1.likelihood < 0.5 || p2.likelihood < 0.5) {
+        return;
+      }
+      
+      final jCenter = scale(joint);
+      final o1 = scale(p1);
+      final o2 = scale(p2);
+      
+      final v1 = o1 - jCenter;
+      final v2 = o2 - jCenter;
+      
+      final a1 = math.atan2(v1.dy, v1.dx);
+      final a2 = math.atan2(v2.dy, v2.dx);
+      
+      final angleRad = (a1 - a2).abs();
+      double angleDeg = angleRad * 180 / math.pi;
+      if (angleDeg > 180) {
+        angleDeg = 360 - angleDeg;
+      }
+      
+      // Draw dynamic glowing HUD arc gauge
+      final arcRect = Rect.fromCircle(center: jCenter, radius: 42);
+      final startAngle = math.min(a1, a2);
+      final sweepAngle = angleRad > math.pi ? 2 * math.pi - angleRad : angleRad;
+      
+      // Glowing background arc
+      canvas.drawArc(
+        arcRect, 
+        startAngle, 
+        sweepAngle, 
+        false, 
+        Paint()
+          ..color = baseColor.withValues(alpha: 0.15)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 6.0
+      );
+      
+      // Neon pointer arc
+      canvas.drawArc(
+        arcRect, 
+        startAngle, 
+        sweepAngle, 
+        false, 
+        Paint()
+          ..color = baseColor
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.8
+      );
+      
+      // Bisect angle to position label neatly
+      final avgAngle = (a1 + a2) / 2 + (angleRad > math.pi ? math.pi : 0);
+      final textOffset = jCenter + Offset(math.cos(avgAngle), math.sin(avgAngle)) * 64;
+      
+      final textPainter = TextPainter(
+        text: TextSpan(
+          text: '$label: ${angleDeg.round()}°',
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: 'Rajdhani',
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
+            shadows: [
+              Shadow(
+                color: baseColor.withValues(alpha: 0.8),
+                blurRadius: 6,
+              ),
+            ],
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      textPainter.layout();
+      
+      // Background glassmorphic chip for text
+      final capPaint = Paint()
+        ..color = Colors.black.withValues(alpha: 0.65)
+        ..style = PaintingStyle.fill;
+      final capRect = RRect.fromRectAndRadius(
+        Rect.fromLTWH(
+          textOffset.dx - textPainter.width / 2 - 8,
+          textOffset.dy - textPainter.height / 2 - 5,
+          textPainter.width + 16,
+          textPainter.height + 10,
+        ),
+        const Radius.circular(8),
+      );
+      canvas.drawRRect(capRect, capPaint);
+      
+      // Glass border
+      canvas.drawRRect(
+        capRect, 
+        Paint()
+          ..color = baseColor.withValues(alpha: 0.4)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.0
+      );
+      
+      textPainter.paint(
+        canvas, 
+        Offset(textOffset.dx - textPainter.width / 2, textOffset.dy - textPainter.height / 2)
+      );
+    }
+
+    // Rotating bracket nose scanner
+    void drawNoseLock(PoseLandmark nosePoint, Color baseColor) {
+      if (nosePoint.likelihood < 0.5) {
+        return;
+      }
+      final center = scale(nosePoint);
+      final angle = (DateTime.now().millisecondsSinceEpoch / 900.0) % (2 * math.pi);
+      
+      canvas.save();
+      canvas.translate(center.dx, center.dy);
+      canvas.rotate(angle);
+      
+      final paint = Paint()
+        ..color = baseColor.withValues(alpha: 0.75)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5;
+      
+      const double size = 18.0;
+      const double g = 6.0;
+      
+      // 4 brackets [ ]
+      canvas.drawLine(const Offset(-size, -size), const Offset(-size + g, -size), paint);
+      canvas.drawLine(const Offset(-size, -size), const Offset(-size, -size + g), paint);
+      
+      canvas.drawLine(const Offset(size, -size), const Offset(size - g, -size), paint);
+      canvas.drawLine(const Offset(size, -size), const Offset(size, -size + g), paint);
+      
+      canvas.drawLine(const Offset(-size, size), const Offset(-size + g, size), paint);
+      canvas.drawLine(const Offset(-size, size), const Offset(-size, size - g), paint);
+      
+      canvas.drawLine(const Offset(size, size), const Offset(size - g, size), paint);
+      canvas.drawLine(const Offset(size, size), const Offset(size, size - g), paint);
+      
+      // Small core reticle dot
+      canvas.drawCircle(Offset.zero, 3.0, Paint()..color = baseColor..style = PaintingStyle.fill);
+      canvas.restore();
+    }
+
+    // Torso balance leveler HUD
+    void drawTorsoHoop(Color baseColor) {
+      if (pose!.leftShoulder.likelihood < 0.5 || pose!.rightShoulder.likelihood < 0.5 ||
+          pose!.leftHip.likelihood < 0.5 || pose!.rightHip.likelihood < 0.5) {
+        return;
+      }
+      
+      final ls = scale(pose!.leftShoulder);
+      final rs = scale(pose!.rightShoulder);
+      final lh = scale(pose!.leftHip);
+      final rh = scale(pose!.rightHip);
+      
+      final coreCenter = Offset(
+        (ls.dx + rs.dx + lh.dx + rh.dx) / 4,
+        (ls.dy + rs.dy + lh.dy + rh.dy) / 4,
+      );
+      
+      // Outer radar scanning bounds
+      canvas.drawCircle(coreCenter, 20.0, Paint()..color = baseColor.withValues(alpha: 0.18)..style = PaintingStyle.fill);
+      canvas.drawCircle(
+        coreCenter, 20.0, 
+        Paint()..color = baseColor.withValues(alpha: 0.5)..style = PaintingStyle.stroke..strokeWidth = 1.0
+      );
+      canvas.drawCircle(
+        coreCenter, 26.0, 
+        Paint()..color = baseColor.withValues(alpha: 0.15)..style = PaintingStyle.stroke..strokeWidth = 1.0
+      );
+      
+      // Core crosshairs
+      final crossPaint = Paint()
+        ..color = baseColor.withValues(alpha: 0.4)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.0;
+      canvas.drawLine(Offset(coreCenter.dx - 30, coreCenter.dy), Offset(coreCenter.dx - 22, coreCenter.dy), crossPaint);
+      canvas.drawLine(Offset(coreCenter.dx + 22, coreCenter.dy), Offset(coreCenter.dx + 30, coreCenter.dy), crossPaint);
+      canvas.drawLine(Offset(coreCenter.dx, coreCenter.dy - 30), Offset(coreCenter.dx, coreCenter.dy - 22), crossPaint);
+      canvas.drawLine(Offset(coreCenter.dx, coreCenter.dy + 22), Offset(coreCenter.dx, coreCenter.dy + 30), crossPaint);
+    }
+
+    // 1. Draw BONES (Lines) with glowing laser neon shaders
     // Upper Body
-    drawLine(pose!.leftShoulder, pose!.rightShoulder);
-    drawLine(pose!.leftShoulder, pose!.leftElbow);
-    drawLine(pose!.leftElbow, pose!.leftWrist);
-    drawLine(pose!.rightShoulder, pose!.rightElbow);
-    drawLine(pose!.rightElbow, pose!.rightWrist);
+    drawNeonLine(pose!.leftShoulder, pose!.rightShoulder, hudColor);
+    drawNeonLine(pose!.leftShoulder, pose!.leftElbow, hudColor);
+    drawNeonLine(pose!.leftElbow, pose!.leftWrist, hudColor);
+    drawNeonLine(pose!.rightShoulder, pose!.rightElbow, hudColor);
+    drawNeonLine(pose!.rightElbow, pose!.rightWrist, hudColor);
 
     // Torso
-    drawLine(pose!.leftShoulder, pose!.leftHip);
-    drawLine(pose!.rightShoulder, pose!.rightHip);
-    drawLine(pose!.leftHip, pose!.rightHip);
+    drawNeonLine(pose!.leftShoulder, pose!.leftHip, hudColor);
+    drawNeonLine(pose!.rightShoulder, pose!.rightHip, hudColor);
+    drawNeonLine(pose!.leftHip, pose!.rightHip, hudColor);
 
     // Lower Body
-    drawLine(pose!.leftHip, pose!.leftKnee);
-    drawLine(pose!.leftKnee, pose!.leftAnkle);
-    drawLine(pose!.rightHip, pose!.rightKnee);
-    drawLine(pose!.rightKnee, pose!.rightAnkle);
+    drawNeonLine(pose!.leftHip, pose!.leftKnee, hudColor);
+    drawNeonLine(pose!.leftKnee, pose!.leftAnkle, hudColor);
+    drawNeonLine(pose!.rightHip, pose!.rightKnee, hudColor);
+    drawNeonLine(pose!.rightKnee, pose!.rightAnkle, hudColor);
 
-    // Draw Landmark Points
-    drawPoint(pose!.leftShoulder);
-    drawPoint(pose!.rightShoulder);
-    drawPoint(pose!.leftElbow);
-    drawPoint(pose!.rightElbow);
-    drawPoint(pose!.leftWrist);
-    drawPoint(pose!.rightWrist);
-    drawPoint(pose!.leftHip);
-    drawPoint(pose!.rightHip);
-    drawPoint(pose!.leftKnee);
-    drawPoint(pose!.rightKnee);
-    drawPoint(pose!.leftAnkle);
-    drawPoint(pose!.rightAnkle);
-    drawPoint(pose!.nose);
+    // 2. Draw NODES (Joint points) with crosshairs and pulsing halos
+    drawCyberJoint(pose!.leftShoulder, hudColor);
+    drawCyberJoint(pose!.rightShoulder, hudColor);
+    drawCyberJoint(pose!.leftElbow, hudColor);
+    drawCyberJoint(pose!.rightElbow, hudColor);
+    drawCyberJoint(pose!.leftWrist, hudColor);
+    drawCyberJoint(pose!.rightWrist, hudColor);
+    drawCyberJoint(pose!.leftHip, hudColor);
+    drawCyberJoint(pose!.rightHip, hudColor);
+    drawCyberJoint(pose!.leftKnee, hudColor);
+    drawCyberJoint(pose!.rightKnee, hudColor);
+    drawCyberJoint(pose!.leftAnkle, hudColor);
+    drawCyberJoint(pose!.rightAnkle, hudColor);
+
+    // 3. Draw Cyber Reticles (Nose / Core)
+    drawNoseLock(pose!.nose, hudColor);
+    drawTorsoHoop(hudColor);
+
+    // 4. Draw real-time Interactive Angle Gauges
+    switch (exerciseType.toLowerCase()) {
+      case 'squat':
+      case 'sumo_squat':
+        drawAngleHud(pose!.leftKnee, pose!.leftHip, pose!.leftAnkle, 'KNEE_L', hudColor);
+        drawAngleHud(pose!.rightKnee, pose!.rightHip, pose!.rightAnkle, 'KNEE_R', hudColor);
+        break;
+      case 'pushup':
+      case 'push-up':
+      case 'diamond_pushup':
+        drawAngleHud(pose!.leftElbow, pose!.leftShoulder, pose!.leftWrist, 'ELBOW_L', hudColor);
+        drawAngleHud(pose!.rightElbow, pose!.rightShoulder, pose!.rightWrist, 'ELBOW_R', hudColor);
+        break;
+      case 'plank':
+        drawAngleHud(pose!.leftHip, pose!.leftShoulder, pose!.leftKnee, 'CORE_L', hudColor);
+        drawAngleHud(pose!.rightHip, pose!.rightShoulder, pose!.rightKnee, 'CORE_R', hudColor);
+        break;
+      default:
+        break;
+    }
+
+    // 5. Build Immersive Positioning Setup Overlay if in pre-flight calibration
+    if (isSetupPhase) {
+      _drawHolographicSilhouette(canvas, size);
+
+      final cx = size.width / 2;
+      final targets = {
+        'NOSE': Offset(cx, size.height * 0.22),
+        'SHOULDER_L': Offset(cx - size.width * 0.12, size.height * 0.32),
+        'SHOULDER_R': Offset(cx + size.width * 0.12, size.height * 0.32),
+        'HIP_L': Offset(cx - size.width * 0.10, size.height * 0.55),
+        'HIP_R': Offset(cx + size.width * 0.10, size.height * 0.55),
+        'ANKLE_L': Offset(cx - size.width * 0.10, size.height * 0.88),
+        'ANKLE_R': Offset(cx + size.width * 0.10, size.height * 0.88),
+      };
+      
+      final joints = {
+        'NOSE': pose!.nose,
+        'SHOULDER_L': pose!.leftShoulder,
+        'SHOULDER_R': pose!.rightShoulder,
+        'HIP_L': pose!.leftHip,
+        'HIP_R': pose!.rightHip,
+        'ANKLE_L': pose!.leftAnkle,
+        'ANKLE_R': pose!.rightAnkle,
+      };
+
+      targets.forEach((key, targetOffset) {
+        final joint = joints[key];
+        if (joint == null || joint.likelihood < 0.5) {
+          return;
+        }
+        final jointOffset = scale(joint);
+        
+        final distance = (jointOffset - targetOffset).distance;
+        final isLocked = distance < size.width * 0.08;
+        final lockColor = isLocked ? const Color(0xFF00FF88) : const Color(0xFFFF9900);
+        
+        // Target lock radar hoop
+        canvas.drawCircle(targetOffset, 20, Paint()..color = lockColor.withValues(alpha: 0.1)..style = PaintingStyle.fill);
+        canvas.drawCircle(
+          targetOffset, 20, 
+          Paint()..color = lockColor.withValues(alpha: 0.35)..style = PaintingStyle.stroke..strokeWidth = 1.0
+        );
+        
+        // Draw locked tracking visual lines
+        if (distance < size.width * 0.22) {
+          canvas.drawLine(
+            jointOffset, targetOffset, 
+            Paint()..color = lockColor.withValues(alpha: 0.3)..style = PaintingStyle.stroke..strokeWidth = 1.0..strokeCap = StrokeCap.round
+          );
+        }
+        
+        if (isLocked) {
+          final pulse = 1.0 + 0.1 * math.sin(DateTime.now().millisecondsSinceEpoch / 150.0);
+          final r = 24.0 * pulse;
+          final bracketPaint = Paint()
+            ..color = const Color(0xFF00FF88)
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.5;
+            
+          canvas.drawArc(Rect.fromCircle(center: targetOffset, radius: r), -0.4, 0.8, false, bracketPaint);
+          canvas.drawArc(Rect.fromCircle(center: targetOffset, radius: r), math.pi - 0.4, 0.8, false, bracketPaint);
+          
+          final textPainter = TextPainter(
+            text: const TextSpan(
+              text: 'LOCKED',
+              style: TextStyle(
+                color: Color(0xFF00FF88),
+                fontFamily: 'Rajdhani',
+                fontSize: 8,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+            ),
+            textDirection: TextDirection.ltr,
+          );
+          textPainter.layout();
+          textPainter.paint(canvas, Offset(targetOffset.dx - textPainter.width / 2, targetOffset.dy + 25));
+        }
+      });
+      
+      // Lateral positioning indicator chevrons
+      final avgHipX = (scale(pose!.leftHip).dx + scale(pose!.rightHip).dx) / 2;
+      final normalizedX = avgHipX / size.width;
+      
+      if (normalizedX < 0.4) {
+        _drawChevronChevrons(canvas, size, pointingRight: true);
+      } else if (normalizedX > 0.6) {
+        _drawChevronChevrons(canvas, size, pointingRight: false);
+      }
+    }
+  }
+
+  // Draw neutral human body silhouette template wireframe
+  void _drawHolographicSilhouette(Canvas canvas, Size size) {
+    final pulse = 0.65 + 0.35 * math.sin(DateTime.now().millisecondsSinceEpoch / 400.0);
+    final paint = Paint()
+      ..color = const Color(0xFF00D9FF).withValues(alpha: 0.15 * pulse)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.5
+      ..strokeCap = StrokeCap.round;
+    
+    final cx = size.width / 2;
+    final head = Offset(cx, size.height * 0.22);
+    final lShoulder = Offset(cx - size.width * 0.12, size.height * 0.32);
+    final rShoulder = Offset(cx + size.width * 0.12, size.height * 0.32);
+    final lHip = Offset(cx - size.width * 0.10, size.height * 0.55);
+    final rHip = Offset(cx + size.width * 0.10, size.height * 0.55);
+    final lKnee = Offset(cx - size.width * 0.10, size.height * 0.72);
+    final rKnee = Offset(cx + size.width * 0.10, size.height * 0.72);
+    final lAnkle = Offset(cx - size.width * 0.10, size.height * 0.88);
+    final rAnkle = Offset(cx + size.width * 0.10, size.height * 0.88);
+
+    canvas.drawCircle(head, 28, paint);
+    canvas.drawArc(Rect.fromCircle(center: head, radius: 36), -0.5, 1.0, false, paint);
+    canvas.drawArc(Rect.fromCircle(center: head, radius: 36), math.pi - 0.5, 1.0, false, paint);
+
+    // Spine and Torso
+    canvas.drawLine(lShoulder, rShoulder, paint);
+    canvas.drawLine(lShoulder, lHip, paint);
+    canvas.drawLine(rShoulder, rHip, paint);
+    canvas.drawLine(lHip, rHip, paint);
+
+    // Limbs
+    canvas.drawLine(lHip, lKnee, paint);
+    canvas.drawLine(lKnee, lAnkle, paint);
+    canvas.drawLine(rHip, rKnee, paint);
+    canvas.drawLine(rKnee, rAnkle, paint);
+    
+    // Arm lines
+    final lElbow = Offset(cx - size.width * 0.20, size.height * 0.42);
+    final rElbow = Offset(cx + size.width * 0.20, size.height * 0.42);
+    final lWrist = Offset(cx - size.width * 0.22, size.height * 0.52);
+    final rWrist = Offset(cx + size.width * 0.22, size.height * 0.52);
+    
+    canvas.drawLine(lShoulder, lElbow, paint);
+    canvas.drawLine(lElbow, lWrist, paint);
+    canvas.drawLine(rShoulder, rElbow, paint);
+    canvas.drawLine(rElbow, rWrist, paint);
+  }
+
+  // Draw animated chevrons showing lateral guidance vectors
+  void _drawChevronChevrons(Canvas canvas, Size size, {required bool pointingRight}) {
+    final animFrame = (DateTime.now().millisecondsSinceEpoch / 250) % 3;
+    final paint = Paint()
+      ..color = const Color(0xFFFF9900)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3.0
+      ..strokeCap = StrokeCap.round;
+    
+    final y = size.height * 0.5;
+    final startX = pointingRight ? 40.0 : size.width - 40.0;
+    const double spacing = 14.0;
+    final double dir = pointingRight ? 1.0 : -1.0;
+    
+    for (int i = 0; i < 3; i++) {
+      final double alpha = (i == animFrame.toInt()) ? 1.0 : 0.25;
+      paint.color = const Color(0xFFFF9900).withValues(alpha: alpha);
+      
+      final cx = startX + i * spacing * dir;
+      final path = Path()
+        ..moveTo(cx - 5 * dir, y - 12)
+        ..lineTo(cx + 5 * dir, y)
+        ..lineTo(cx - 5 * dir, y + 12);
+      canvas.drawPath(path, paint);
+    }
   }
 
   @override
   bool shouldRepaint(PoseOverlayPainter oldDelegate) {
-    return pose != oldDelegate.pose || accuracy != oldDelegate.accuracy;
+    return pose != oldDelegate.pose || 
+           accuracy != oldDelegate.accuracy || 
+           isSetupPhase != oldDelegate.isSetupPhase ||
+           calibrationProgress != oldDelegate.calibrationProgress;
   }
 }

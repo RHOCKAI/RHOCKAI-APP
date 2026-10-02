@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Dict, Any
 import random
@@ -11,7 +11,8 @@ from app.models import (
     WorkoutPlan, 
     ScheduledWorkout, 
     PlannedExercise,
-    FitnessLevel
+    FitnessLevel,
+    DailyHealthMetric
 )
 
 class AIWorkoutGenerator:
@@ -70,6 +71,20 @@ class AIWorkoutGenerator:
             elif accuracy < 60.0:
                 # User struggled, reduce reps to focus on form
                 target_reps = max(1, int(target_reps * 0.90))
+
+        # Wearable Readiness Score Integration
+        # Check today's health metrics from Apple Health / Google Fit
+        today = datetime.now(timezone.utc).date()
+        today_metric = self.db.query(DailyHealthMetric).filter(
+            DailyHealthMetric.user_id == user_id,
+            func.date(DailyHealthMetric.date) == today
+        ).first()
+
+        if today_metric and today_metric.readiness_score < 50:
+            # Poor sleep or low HRV detected. Automatically auto-regulate the intensity down by 20%
+            target_reps = max(1, int(target_reps * 0.80))
+            if target_sets > 1:
+                target_sets -= 1
                 
         return target_reps, target_sets, None
 

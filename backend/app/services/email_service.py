@@ -1,6 +1,9 @@
-import os
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+try:
+    from sendgrid import SendGridAPIClient
+    from sendgrid.helpers.mail import Mail
+except ImportError:
+    SendGridAPIClient = None
+    Mail = None
 from app.core.config import settings
 
 class EmailService:

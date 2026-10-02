@@ -3,7 +3,7 @@ Main API router - combines all endpoint routers
 """
 
 from fastapi import APIRouter
-from app.api.v1.endpoints import auth, sessions, analytics, tracking, admin_analytics, ai, workouts, gamification, payments, notifications, system
+from app.api.v1.endpoints import auth, sessions, analytics, tracking, admin_analytics, ai, workouts, gamification, payments, notifications, system, coach, coach_dashboard
 
 # Create main API router
 api_router = APIRouter()
@@ -73,4 +73,16 @@ api_router.include_router(
     system.router,
     prefix="/system",
     tags=["System"],
+)
+
+api_router.include_router(
+    coach.router,
+    prefix="/coach",
+    tags=["AI Coach"],
+)
+
+api_router.include_router(
+    coach_dashboard.router,
+    prefix="/coach-dashboard",
+    tags=["Human Coaching Dashboard"],
 )

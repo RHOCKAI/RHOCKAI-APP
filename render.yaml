@@ -6,7 +6,7 @@ services:
     plan: free
     dockerContext: .
     dockerfilePath: Dockerfile
-    preDeployCommand: alembic -c backend/alembic/alembic.ini upgrade head
+    preDeployCommand: alembic -c alembic/alembic.ini upgrade head
     envVars:
       - key: DATABASE_URL
         sync: false # User will provide Supabase URL manually
