@@ -72,7 +72,12 @@ class User(Base):
         if self.trial_ends_at is None:
             return False
         now = datetime.now(timezone.utc)
-        return now <= self.trial_ends_at
+        trial_ends_at = self.trial_ends_at
+        if trial_ends_at.tzinfo is None:
+            trial_ends_at = trial_ends_at.replace(tzinfo=timezone.utc)
+        else:
+            trial_ends_at = trial_ends_at.astimezone(timezone.utc)
+        return now <= trial_ends_at
 
     @property
     def has_premium_access(self) -> bool:

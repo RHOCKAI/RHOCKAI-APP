@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from typing import Dict, Any, Optional
 import re
 
-from app.models.workout_plan import PlannedExercise, ScheduledWorkout
+from app.models.workout_plan import PlannedExercise, ScheduledWorkout, WorkoutPlan
 from app.services.ai_workout_generator import AIWorkoutGenerator
 
 class AICoachService:
@@ -22,6 +22,19 @@ class AICoachService:
         For now, we use a heuristic intent matcher.
         """
         transcript = transcript.lower().strip()
+
+        owned_exercise = (
+            self.db.query(PlannedExercise.id)
+            .join(ScheduledWorkout)
+            .join(WorkoutPlan)
+            .filter(
+                PlannedExercise.id == planned_exercise_id,
+                WorkoutPlan.user_id == user_id,
+            )
+            .first()
+        )
+        if not owned_exercise:
+            return {"action": "error", "message": "Exercise not found."}
         
         # 1. Intent: Reduce Difficulty / Weight
         if any(phrase in transcript for phrase in ["too heavy", "can't do", "too hard", "reduce weight", "lighter"]):
@@ -29,7 +42,7 @@ class AICoachService:
             
         # 2. Intent: Pain / Injury / Swap Exercise
         elif any(phrase in transcript for phrase in ["hurts", "pain", "swap", "different exercise", "adapt"]):
-            return self._handle_swap_exercise(planned_exercise_id)
+            return self._handle_swap_exercise(planned_exercise_id, user_id)
             
         # 3. Intent: Increase Difficulty
         elif any(phrase in transcript for phrase in ["too easy", "too light", "more weight", "heavier"]):
@@ -69,9 +82,12 @@ class AICoachService:
                 "data": {"new_reps": new_reps}
             }
 
-    def _handle_swap_exercise(self, planned_exercise_id: int) -> Dict[str, Any]:
+    def _handle_swap_exercise(self, planned_exercise_id: int, user_id: int) -> Dict[str, Any]:
         try:
-            new_ex = self.workout_generator.adapt_exercise_for_equipment(planned_exercise_id)
+            new_ex = self.workout_generator.adapt_exercise_for_equipment(
+                planned_exercise_id,
+                user_id=user_id,
+            )
             return {
                 "action": "swap_exercise",
                 "message": f"Got it. Let's switch to {new_ex.exercise.name} to target the same muscles without the discomfort.",

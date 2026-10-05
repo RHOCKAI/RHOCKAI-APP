@@ -139,11 +139,24 @@ class AIWorkoutGenerator:
         self.db.commit()
         return workout
 
-    def adapt_exercise_for_equipment(self, planned_exercise_id: int) -> PlannedExercise:
+    def adapt_exercise_for_equipment(
+        self,
+        planned_exercise_id: int,
+        user_id: int,
+    ) -> PlannedExercise:
         """
         Equipment Adaptation Feature: Swaps an exercise out while keeping the same muscle focus.
         """
-        planned_ex = self.db.query(PlannedExercise).filter(PlannedExercise.id == planned_exercise_id).first()
+        planned_ex = (
+            self.db.query(PlannedExercise)
+            .join(ScheduledWorkout)
+            .join(WorkoutPlan)
+            .filter(
+                PlannedExercise.id == planned_exercise_id,
+                WorkoutPlan.user_id == user_id,
+            )
+            .first()
+        )
         if not planned_ex:
             raise ValueError("Planned exercise not found")
             

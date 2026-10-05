@@ -12,7 +12,7 @@ import logging
 import time
 
 from app.core.config import settings
-from app.core.database import Base, engine
+from app.core.database import Base, engine, ensure_database_schema
 from app.api.v1.router import api_router
 
 # Configure logging
@@ -80,6 +80,7 @@ async def startup_event():
     logger.info(f"Starting {settings.PROJECT_NAME} v{settings.VERSION}")
     try:
         Base.metadata.create_all(bind=engine)
+        ensure_database_schema()
         logger.info("Database tables created successfully")
     except Exception as e:
         logger.error(f"Failed to create database tables: {e}")

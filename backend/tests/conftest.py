@@ -4,13 +4,16 @@ Test fixtures — shared across all backend test modules.
 Uses an in-memory SQLite database so no real PostgreSQL instance is needed.
 """
 
+import os
+
+os.environ.setdefault("ENVIRONMENT", "test")
+os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 from app.main import app
-from app.core.database import Base, get_db
+from app.core.database import Base, SessionLocal, get_db
 from app.core.security import create_access_token, get_password_hash
 from app.models.user import User, FitnessLevel
 
@@ -18,25 +21,19 @@ from app.models.user import User, FitnessLevel
 # In-memory SQLite test database
 # ---------------------------------------------------------------------------
 
-SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///:memory:"
-
-test_engine = create_engine(
-    SQLALCHEMY_TEST_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+TEST_DB_ENGINE = SessionLocal.kw["bind"]
 
 
 @pytest.fixture(scope="function")
 def db():
     """Create a fresh DB for each test, then tear it down."""
-    Base.metadata.create_all(bind=test_engine)
-    session = TestingSessionLocal()
+    Base.metadata.create_all(bind=TEST_DB_ENGINE)
+    session = SessionLocal()
     try:
         yield session
     finally:
         session.close()
-        Base.metadata.drop_all(bind=test_engine)
+        Base.metadata.drop_all(bind=TEST_DB_ENGINE)
 
 
 @pytest.fixture(scope="function")
