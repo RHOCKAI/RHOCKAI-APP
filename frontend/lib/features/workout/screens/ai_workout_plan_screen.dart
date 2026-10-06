@@ -29,7 +29,9 @@ class _AIWorkoutPlanScreenState extends ConsumerState<AIWorkoutPlanScreen> {
         );
       }
     } finally {
-      if (mounted) setState(() => _adaptingExerciseId = null);
+      if (mounted) {
+        setState(() => _adaptingExerciseId = null);
+      }
     }
   }
 
@@ -47,7 +49,9 @@ class _AIWorkoutPlanScreenState extends ConsumerState<AIWorkoutPlanScreen> {
         ),
       ),
     );
-    if (mounted) ref.invalidate(aiWorkoutPlanProvider);
+    if (mounted) {
+      ref.invalidate(aiWorkoutPlanProvider);
+    }
   }
 
   @override

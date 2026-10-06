@@ -61,16 +61,18 @@ def ensure_database_schema() -> None:
                     continue
                 if 'postgresql' in str(engine.url).lower():
                     conn.execute(
-                        text(f'ALTER TABLE users ADD COLUMN {column_name} {column_def}')
+                        text(
+                            f"ALTER TABLE users ADD COLUMN IF NOT EXISTS {column_name} {column_def}"
+                        )
                     )
                 else:
                     conn.execute(
-                        text(f'ALTER TABLE users ADD COLUMN {column_name} {column_def}')
+                        text(f'ALTER TABLE users ADD COLUMN IF NOT EXISTS {column_name} {column_def}')
                     )
-    except Exception:
+    except Exception as exc:
         # Schema repair is best-effort; startup should continue if the DB is not
         # yet initialized or the table is in a nonstandard state.
-        pass
+        print(f"Schema repair warning: {exc}")
 
 
 def get_db():

@@ -79,7 +79,9 @@ class AIWorkoutPlan {
 
   PlannedExercise? get nextExercise {
     for (final exercise in exercises) {
-      if (!exercise.isCompleted) return exercise;
+      if (!exercise.isCompleted) {
+        return exercise;
+      }
     }
     return null;
   }

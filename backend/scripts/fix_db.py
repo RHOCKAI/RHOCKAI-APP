@@ -17,16 +17,27 @@ except ImportError as e:
 
 def fix_database():
     print(f"Connecting to database: {settings.DATABASE_URL}")
-    
+
     # Use a direct connection to run ALTER TABLE commands
     with engine.connect() as conn:
         inspector = inspect(engine)
-        
+
         # Check users table
         if 'users' in inspector.get_table_names():
             columns = [c['name'] for c in inspector.get_columns('users')]
             print(f"Current columns in 'users' table: {columns}")
-            
+
+            owner_row = conn.execute(
+                text("SELECT tableowner FROM pg_tables WHERE schemaname='public' AND tablename='users'")
+            ).fetchone()
+            if owner_row:
+                print(f"Current users table owner: {owner_row[0]}")
+                if owner_row[0] != 'workout_user':
+                    print("WARNING: The users table is owned by a different Postgres role. "
+                          "The app user may not be allowed to ALTER the table.")
+                    print("To repair this, connect as the postgres owner and run: ")
+                    print("ALTER TABLE public.users OWNER TO workout_user;")
+
             # List of columns to add if they are missing
             # Format: (column_name, column_type, default_value_sql)
             columns_to_add = [
@@ -54,7 +65,7 @@ def fix_database():
                 ('created_at', 'TIMESTAMP WITH TIME ZONE', 'NOW()'),
                 ('updated_at', 'TIMESTAMP WITH TIME ZONE', 'NULL'),
             ]
-            
+
             for col_name, col_type, default in columns_to_add:
                 if col_name not in columns:
                     print(f"Adding missing column: {col_name} ({col_type})")
@@ -68,14 +79,14 @@ def fix_database():
                         # SQLite syntax (simpler)
                         else:
                             conn.execute(text(f'ALTER TABLE users ADD COLUMN {col_name} {col_type} DEFAULT {default}'))
-                        
+
                         conn.commit()
                         print(f"Successfully added {col_name}")
                     except Exception as e:
                         print(f"Error adding {col_name}: {e}")
                 else:
                     print(f"Column {col_name} already exists.")
-            
+
             print("\nDatabase fix completed.")
         else:
             print("Error: 'users' table not found. Running Base.metadata.create_all() instead.")
