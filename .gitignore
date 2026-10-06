@@ -17,6 +17,7 @@ frontend/android/app/src/main/res/raw/auth_config.json
 frontend/.env
 
 # Python
+.env
 backend/venv/
 backend/.venv/
 backend/__pycache__/

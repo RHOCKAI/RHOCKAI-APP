@@ -100,6 +100,7 @@ class PlannedExercise(Base):
     
     # AI adaptation tracking
     is_substituted = Column(Boolean, default=False, nullable=False) # True if user swapped the exercise
+    is_completed = Column(Boolean, default=False, nullable=False)
     original_exercise_id = Column(Integer, ForeignKey("exercises.id", ondelete="SET NULL"), nullable=True) # If substituted, what was it originally?
     
     # Relationships

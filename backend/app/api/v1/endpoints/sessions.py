@@ -49,16 +49,10 @@ async def update_session(
     # Update fields
     data = session_data.dict(exclude_unset=True)
     
-    # Auto-calculate power_score if not provided but dependencies are present
-    if "power_score" not in data and "total_reps" in data and "average_accuracy" in data:
-        data["power_score"] = (data["total_reps"] * data["accuracy"] / 100) if "accuracy" in data else (data["total_reps"] * (session_data.average_accuracy or db_session.average_accuracy) / 100)
-    
-    # Wait, the field is average_accuracy in schema. Let's be precise.
     if "power_score" not in data:
         reps = data.get("total_reps", db_session.total_reps)
         accuracy = data.get("average_accuracy", db_session.average_accuracy)
-        if reps is not None and accuracy is not None:
-            data["power_score"] = (reps * accuracy) / 100
+        data["power_score"] = (reps * accuracy) / 100
 
     for field, value in data.items():
         setattr(db_session, field, value)
@@ -143,9 +137,8 @@ async def get_today_ai_plan(
 
         focus_pool = [
             ["chest", "triceps"],
-            ["back", "biceps"],
             ["quads", "hamstrings", "calves"],
-            ["shoulders", "abs"]
+            ["shoulders", "abs"],
         ]
         focus = focus_pool[completed_count % len(focus_pool)]
         today_workout = generator.schedule_daily_workout(
@@ -167,6 +160,7 @@ async def get_today_ai_plan(
             "id": pe.id,
             "exercise_id": pe.exercise_id,
             "name": ex_name,
+            "exercise_type": pe.exercise.slug if pe.exercise else "pushup",
             "sets": pe.target_sets,
             "reps": pe.target_reps,
             "target_weight": pe.target_weight_kg,
@@ -174,6 +168,7 @@ async def get_today_ai_plan(
             "is_substituted": pe.is_substituted,
             "original_exercise": orig_name,
             "rest_seconds": pe.target_rest_seconds,
+            "is_completed": pe.is_completed,
         })
 
     return {
@@ -223,3 +218,38 @@ async def adapt_plan_exercise(
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/plan/exercises/{planned_exercise_id}/complete")
+async def complete_ai_plan_exercise(
+    planned_exercise_id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    from app.models.workout_plan import PlannedExercise, ScheduledWorkout, WorkoutPlan
+
+    planned_exercise = (
+        db.query(PlannedExercise)
+        .join(ScheduledWorkout)
+        .join(WorkoutPlan)
+        .filter(
+            PlannedExercise.id == planned_exercise_id,
+            WorkoutPlan.user_id == current_user.id,
+        )
+        .first()
+    )
+    if planned_exercise is None:
+        raise HTTPException(status_code=404, detail="Planned exercise not found")
+
+    planned_exercise.is_completed = True
+    workout = planned_exercise.scheduled_workout
+    workout.is_completed = bool(workout.planned_exercises) and all(
+        exercise.is_completed for exercise in workout.planned_exercises
+    )
+    db.commit()
+    return {
+        "planned_exercise_id": planned_exercise.id,
+        "is_completed": planned_exercise.is_completed,
+        "scheduled_workout_id": workout.id,
+        "workout_completed": workout.is_completed,
+    }

@@ -2,149 +2,142 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rhockai/core/config/app_theme.dart';
 import 'package:rhockai/features/camera_ai/camera_ai_screen.dart';
+import '../data/repositories/ai_workout_plan_repository.dart';
 
 class AIWorkoutPlanScreen extends ConsumerStatefulWidget {
   const AIWorkoutPlanScreen({super.key});
 
   @override
-  ConsumerState<AIWorkoutPlanScreen> createState() => _AIWorkoutPlanScreenState();
+  ConsumerState<AIWorkoutPlanScreen> createState() =>
+      _AIWorkoutPlanScreenState();
 }
 
 class _AIWorkoutPlanScreenState extends ConsumerState<AIWorkoutPlanScreen> {
-  // Mock data for the demonstration of the AI Engine
-  final String planName = '12-Week Hypertrophy Protocol';
-  final int currentDay = 14;
-  final String focusArea = 'Chest & Triceps';
-  
-  final List<Map<String, dynamic>> plannedExercises = [
-    {
-      'name': 'Barbell Bench Press',
-      'sets': 4,
-      'reps': 8,
-      'target_weight': 85,
-      'ai_note': 'Increased from 80kg based on 94% form accuracy last week.',
-      'is_substituted': false,
-      'icon': Icons.fitness_center_rounded
-    },
-    {
-      'name': 'Push-Ups',
-      'sets': 3,
-      'reps': 18,
-      'target_weight': null,
-      'ai_note': 'Reps increased by 10%. Push hard!',
-      'is_substituted': false,
-      'icon': Icons.accessibility_new_rounded
-    },
-    {
-      'name': 'Dumbbell Flyes',
-      'sets': 3,
-      'reps': 12,
-      'target_weight': 15,
-      'ai_note': 'Focus on slow eccentric movement.',
-      'is_substituted': true,
-      'original_exercise': 'Cable Crossovers',
-      'icon': Icons.sports_gymnastics_rounded
-    }
-  ];
+  int? _adaptingExerciseId;
 
-  void _adaptExercise(int index) {
-    // In a real app, this would call the backend adapt_exercise_for_equipment
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text(
-          'AI Engine calculating optimal substitute for same muscle group...',
-          style: TextStyle(fontFamily: 'Rajdhani', fontWeight: FontWeight.bold),
+  Future<void> _adaptExercise(PlannedExercise exercise) async {
+    setState(() => _adaptingExerciseId = exercise.id);
+    try {
+      await ref
+          .read(aiWorkoutPlanRepositoryProvider)
+          .adaptExercise(exercise.id);
+      ref.invalidate(aiWorkoutPlanProvider);
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not adapt exercise: $error')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _adaptingExerciseId = null);
+    }
+  }
+
+  Future<void> _startExercise(PlannedExercise exercise) async {
+    await Navigator.push<void>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CameraAIScreen(
+          exerciseType: exercise.exerciseType,
+          targetReps: exercise.reps,
+          targetSets: exercise.sets,
+          onWorkoutCompleted: () => ref
+              .read(aiWorkoutPlanRepositoryProvider)
+              .completeExercise(exercise.id),
         ),
-        backgroundColor: AppTheme.neonBlue.withValues(alpha: 0.8),
-        duration: const Duration(seconds: 2),
       ),
     );
+    if (mounted) ref.invalidate(aiWorkoutPlanProvider);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+    final planAsync = ref.watch(aiWorkoutPlanProvider);
+    final plan =
+        planAsync.maybeWhen(data: (value) => value, orElse: () => null);
+    final nextExercise = plan?.nextExercise;
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('MY AI PLAN', style: TextStyle(fontFamily: 'Rajdhani', fontWeight: FontWeight.bold, letterSpacing: 2)),
+        title: const Text('MY AI PLAN',
+            style: TextStyle(
+                fontFamily: 'Rajdhani',
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildPlanHeader(),
-            const SizedBox(height: 32),
-            _buildAIInsightsCard(),
-            const SizedBox(height: 32),
-            const Text(
-              "TODAY'S WORKOUT",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Rajdhani',
-                letterSpacing: 2,
-              ),
+      body: planAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.cloud_off_outlined, size: 40),
+                const SizedBox(height: 12),
+                Text('Unable to load your plan. $error',
+                    textAlign: TextAlign.center),
+                const SizedBox(height: 12),
+                FilledButton(
+                  onPressed: () => ref.invalidate(aiWorkoutPlanProvider),
+                  child: const Text('Retry'),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            ...plannedExercises.asMap().entries.map((entry) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: _buildExerciseCard(entry.value, entry.key),
-              );
-            }),
-            const SizedBox(height: 100), // Space for FAB
-          ],
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Container(
-        width: MediaQuery.of(context).size.width * 0.85,
-        height: 64,
-        margin: const EdgeInsets.only(bottom: 16),
-        child: ElevatedButton(
-          onPressed: () {
-            // Start the first exercise in the Camera AI
-            Navigator.push(
-              context, 
-              MaterialPageRoute(builder: (context) => const CameraAIScreen(exerciseType: 'Push-Ups'))
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.neonBlue,
-            foregroundColor: Colors.black,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            elevation: 10,
-            shadowColor: AppTheme.neonBlue.withValues(alpha: 0.5),
           ),
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+        ),
+        data: (value) => RefreshIndicator(
+          onRefresh: () => ref.refresh(aiWorkoutPlanProvider.future),
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 120),
             children: [
-              Icon(Icons.play_arrow_rounded, size: 28),
-              SizedBox(width: 12),
+              _buildPlanHeader(value),
+              const SizedBox(height: 24),
               Text(
-                'START AI SESSION',
+                "TODAY'S WORKOUT",
                 style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
+                  color: theme.colorScheme.onSurface,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                   fontFamily: 'Rajdhani',
                   letterSpacing: 2,
                 ),
               ),
+              const SizedBox(height: 16),
+              if (value.exercises.isEmpty)
+                const Text('No exercises are available for this workout yet.'),
+              for (var index = 0; index < value.exercises.length; index++)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: _buildExerciseCard(value.exercises[index], index),
+                ),
+              if (nextExercise == null)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Center(child: Text('Workout complete')),
+                ),
             ],
           ),
         ),
       ),
+      floatingActionButton: nextExercise == null
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => _startExercise(nextExercise),
+              backgroundColor: AppTheme.neonBlue,
+              foregroundColor: Colors.black,
+              icon: const Icon(Icons.play_arrow_rounded),
+              label: const Text('START NEXT EXERCISE'),
+            ),
     );
   }
 
-  Widget _buildPlanHeader() {
+  Widget _buildPlanHeader(AIWorkoutPlan plan) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -153,10 +146,12 @@ class _AIWorkoutPlanScreenState extends ConsumerState<AIWorkoutPlanScreen> {
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         image: DecorationImage(
-          image: const NetworkImage('https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&q=80'),
+          image: const NetworkImage(
+              'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&q=80'),
           fit: BoxFit.cover,
           opacity: 0.2,
-          colorFilter: ColorFilter.mode(AppTheme.neonBlue.withValues(alpha: 0.3), BlendMode.color),
+          colorFilter: ColorFilter.mode(
+              AppTheme.neonBlue.withValues(alpha: 0.3), BlendMode.color),
         ),
       ),
       child: Column(
@@ -169,7 +164,7 @@ class _AIWorkoutPlanScreenState extends ConsumerState<AIWorkoutPlanScreen> {
               borderRadius: BorderRadius.circular(100),
             ),
             child: Text(
-              'DAY $currentDay • ${focusArea.toUpperCase()}',
+              'DAY ${plan.currentDay} • ${plan.focusArea.toUpperCase()}',
               style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w900,
@@ -181,7 +176,7 @@ class _AIWorkoutPlanScreenState extends ConsumerState<AIWorkoutPlanScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            planName.toUpperCase(),
+            plan.planName.toUpperCase(),
             style: const TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.bold,
@@ -204,74 +199,15 @@ class _AIWorkoutPlanScreenState extends ConsumerState<AIWorkoutPlanScreen> {
     );
   }
 
-  Widget _buildAIInsightsCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.neonOrange.withValues(alpha: 0.1),
-            Colors.transparent,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.neonOrange.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppTheme.neonOrange.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.auto_graph_rounded, color: AppTheme.neonOrange),
-          ),
-          const SizedBox(width: 16),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'AI ADJUSTMENT APPLIED',
-                  style: TextStyle(
-                    color: AppTheme.neonOrange,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 12,
-                    letterSpacing: 1.5,
-                    fontFamily: 'Rajdhani',
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  "Your average accuracy was 92% last week. We've increased the intensity for today's session.",
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 13,
-                    fontFamily: 'Outfit',
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildExerciseCard(Map<String, dynamic> exercise, int index) {
+  Widget _buildExerciseCard(PlannedExercise exercise, int index) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: exercise['is_substituted'] 
-            ? AppTheme.neonGreen.withValues(alpha: 0.3) 
-            : Colors.white.withValues(alpha: 0.05)
-        ),
+            color: exercise.isSubstituted
+                ? AppTheme.neonGreen.withValues(alpha: 0.3)
+                : Colors.white.withValues(alpha: 0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -306,7 +242,7 @@ class _AIWorkoutPlanScreenState extends ConsumerState<AIWorkoutPlanScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        exercise['name'].toUpperCase(),
+                        exercise.name.toUpperCase(),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -317,7 +253,7 @@ class _AIWorkoutPlanScreenState extends ConsumerState<AIWorkoutPlanScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "${exercise['sets']} SETS × ${exercise['reps']} REPS ${exercise['target_weight'] != null ? '• ${exercise['target_weight']} KG' : ''}",
+                        "${exercise.sets} SETS × ${exercise.reps} REPS ${exercise.targetWeightKg != null ? '• ${exercise.targetWeightKg} KG' : ''}",
                         style: const TextStyle(
                           color: AppTheme.neonBlue,
                           fontSize: 14,
@@ -329,39 +265,55 @@ class _AIWorkoutPlanScreenState extends ConsumerState<AIWorkoutPlanScreen> {
                   ),
                 ),
                 IconButton(
-                  onPressed: () => _adaptExercise(index),
-                  icon: const Icon(Icons.swap_horiz_rounded, color: Colors.white54),
+                  onPressed: exercise.isCompleted || _adaptingExerciseId != null
+                      ? null
+                      : () => _adaptExercise(exercise),
+                  icon: _adaptingExerciseId == exercise.id
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.swap_horiz_rounded,
+                          color: Colors.white54),
                   tooltip: 'Adapt Equipment',
                 ),
               ],
             ),
           ),
-          
+
           // AI Notes Section
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
-              color: exercise['is_substituted'] 
-                ? AppTheme.neonGreen.withValues(alpha: 0.05)
-                : Colors.black.withValues(alpha: 0.2),
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+              color: exercise.isSubstituted
+                  ? AppTheme.neonGreen.withValues(alpha: 0.05)
+                  : Colors.black.withValues(alpha: 0.2),
+              borderRadius:
+                  const BorderRadius.vertical(bottom: Radius.circular(20)),
             ),
             child: Row(
               children: [
                 Icon(
-                  exercise['is_substituted'] ? Icons.check_circle_outline_rounded : Icons.psychology_rounded,
-                  color: exercise['is_substituted'] ? AppTheme.neonGreen : Colors.white38,
+                  exercise.isSubstituted
+                      ? Icons.check_circle_outline_rounded
+                      : Icons.psychology_rounded,
+                  color: exercise.isSubstituted
+                      ? AppTheme.neonGreen
+                      : Colors.white38,
                   size: 16,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    exercise['is_substituted'] 
-                      ? "Adapted from ${exercise['original_exercise']}"
-                      : exercise['ai_note'],
+                    exercise.isSubstituted
+                        ? "Adapted from ${exercise.originalExercise ?? 'another exercise'}"
+                        : exercise.aiNote,
                     style: TextStyle(
-                      color: exercise['is_substituted'] ? AppTheme.neonGreen : Colors.white54,
+                      color: exercise.isSubstituted
+                          ? AppTheme.neonGreen
+                          : Colors.white54,
                       fontSize: 12,
                       fontFamily: 'Outfit',
                       fontStyle: FontStyle.italic,

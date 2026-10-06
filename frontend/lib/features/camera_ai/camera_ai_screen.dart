@@ -7,7 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:rhockai/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:camera/camera.dart';
-import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart' hide PoseLandmark;
+import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart'
+    hide PoseLandmark;
 
 import 'pose/pose_landmark_model.dart';
 import 'analysis/rep_state_machine.dart';
@@ -33,10 +34,16 @@ import 'widgets/ai_coach_mic_button.dart';
 class CameraAIScreen extends ConsumerStatefulWidget {
   final String exerciseType;
   final bool isDemo;
+  final int? targetReps;
+  final int? targetSets;
+  final Future<void> Function()? onWorkoutCompleted;
 
   const CameraAIScreen({
     required this.exerciseType,
     this.isDemo = false,
+    this.targetReps,
+    this.targetSets,
+    this.onWorkoutCompleted,
     super.key,
   });
 
@@ -91,16 +98,16 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
   PoseLandmarks? _currentPose;
   String _environmentMessage = 'Analyzing environment...';
   bool _isEnvironmentValid = false;
-  
+
   // Wearables
   double? _currentHeartRate;
   Timer? _heartRateTimer;
-  
+
   // Error Handling
   String? _errorMessage;
   int _mlKitErrorCount = 0;
   static const int _maxMlKitErrors = 5;
-  
+
   Size? _imageSize;
 
   // Animation Controllers
@@ -116,7 +123,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
 
     // Start heart rate polling
     _startHeartRatePolling();
-    
+
     // Counter animation
     _counterController = AnimationController(
       vsync: this,
@@ -161,9 +168,9 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     if (!mounted) {
       return;
     }
-    
+
     debugPrint('Voice command received in UI: $command');
-    
+
     switch (command) {
       case WorkoutCommand.start:
       case WorkoutCommand.resume:
@@ -172,7 +179,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
         } else if (!_isWorkoutActive) {
           setState(() {
             _isWorkoutActive = true;
-            _feedbackMessage = AppLocalizations.of(context)?.resuming ?? 'Resuming...';
+            _feedbackMessage =
+                AppLocalizations.of(context)?.resuming ?? 'Resuming...';
           });
         }
         break;
@@ -199,7 +207,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       _isWarmingUp = true;
       _isSetupPhase = false;
       _isWorkoutActive = false;
-      _feedbackMessage = AppLocalizations.of(context)?.getReady ?? 'Get ready...';
+      _feedbackMessage =
+          AppLocalizations.of(context)?.getReady ?? 'Get ready...';
       _feedbackColor = const Color(0xFFFFD700); // Gold
     });
 
@@ -225,7 +234,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
 
     // Start countdown voice
     VoiceFeedbackService().countdown();
-    
+
     // Start wearable sync
     _startHeartRatePolling();
   }
@@ -248,7 +257,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     Future.delayed(const Duration(seconds: 1), () {
       if (mounted && _isWorkoutActive) {
         setState(() {
-          _feedbackMessage = AppLocalizations.of(context)?.keepGoing ?? 'Keep going!';
+          _feedbackMessage =
+              AppLocalizations.of(context)?.keepGoing ?? 'Keep going!';
         });
       }
     });
@@ -279,12 +289,14 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     try {
       _availableCameras = await availableCameras();
       if (_availableCameras.isEmpty) {
-        _handleError(l10n?.noCamerasFound ?? 'No cameras found on this device.');
+        _handleError(
+            l10n?.noCamerasFound ?? 'No cameras found on this device.');
         return;
       }
       await _startCamera(_currentCameraFacing);
     } catch (e) {
-      _handleError(l10n?.cameraPermissionError ?? 'Failed to access cameras. Please check permissions.');
+      _handleError(l10n?.cameraPermissionError ??
+          'Failed to access cameras. Please check permissions.');
       debugPrint('Camera initialization error: $e');
     }
   }
@@ -376,7 +388,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
   }
 
   Future<String?> _stopRecording() async {
-    if (_cameraController == null || !_cameraController!.value.isRecordingVideo) {
+    if (_cameraController == null ||
+        !_cameraController!.value.isRecordingVideo) {
       return null;
     }
     try {
@@ -397,7 +410,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
   }
 
   void _initializeRepMachine() {
-    _smoother = LandmarkSmoother(alpha: widget.exerciseType.toLowerCase() == 'plank' ? 0.4 : 0.6);
+    _smoother = LandmarkSmoother(
+        alpha: widget.exerciseType.toLowerCase() == 'plank' ? 0.4 : 0.6);
     final typeMap = {
       'pushup': ExerciseType.pushup,
       'push-up': ExerciseType.pushup,
@@ -422,7 +436,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       'spiderman_pushup': ExerciseType.spidermanPushup,
     };
 
-    final type = typeMap[widget.exerciseType.toLowerCase()] ?? ExerciseType.pushup;
+    final type =
+        typeMap[widget.exerciseType.toLowerCase()] ?? ExerciseType.pushup;
     _repMachine = RepStateMachine(type);
   }
 
@@ -432,6 +447,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       _targetReps = exerciseData.defaultReps;
       _targetSets = exerciseData.defaultSets;
     }
+    _targetReps = widget.targetReps ?? _targetReps;
+    _targetSets = widget.targetSets ?? _targetSets;
   }
 
   void _startRest() {
@@ -473,7 +490,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       _currentSet++;
 
       // Keep feedback message transient or reset
-      _feedbackMessage = AppLocalizations.of(context)?.keepGoing ?? 'Keep going!';
+      _feedbackMessage =
+          AppLocalizations.of(context)?.keepGoing ?? 'Keep going!';
     });
   }
 
@@ -518,8 +536,9 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     }
 
     final now = DateTime.now();
-    if (now.difference(_lastFrameTime).inMilliseconds < (1000 / PoseConfig.maxProcessFps)) {
-      return; 
+    if (now.difference(_lastFrameTime).inMilliseconds <
+        (1000 / PoseConfig.maxProcessFps)) {
+      return;
     }
     _lastFrameTime = now;
 
@@ -528,15 +547,16 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       setState(() {
         _imageSize = Size(image.width.toDouble(), image.height.toDouble());
       });
-      _qualityChecker = PoseQualityChecker(imageHeight: image.height.toDouble());
+      _qualityChecker =
+          PoseQualityChecker(imageHeight: image.height.toDouble());
     }
 
     InputImage? inputImage;
     try {
-       inputImage = _convertCameraImage(image);
+      inputImage = _convertCameraImage(image);
     } catch (e) {
-       debugPrint('Critical: Image conversion failed: $e');
-       return;
+      debugPrint('Critical: Image conversion failed: $e');
+      return;
     }
 
     if (inputImage == null) {
@@ -553,7 +573,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       _smoother.reset();
       if (mounted) {
         setState(() {
-          _feedbackMessage = AppLocalizations.of(context)?.standInFrame ?? 'Stand in frame';
+          _feedbackMessage =
+              AppLocalizations.of(context)?.standInFrame ?? 'Stand in frame';
           _feedbackColor = const Color(0xFFFF6B35); // Neon Orange
           _currentPose = null;
         });
@@ -585,11 +606,11 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     final poseLandmarks = PoseLandmarks.fromMLKit(smoothedPose);
 
     // Ensure our new PoseConfig threshold is respected natively
-    if (!poseLandmarks
-        .hasGoodConfidence(PoseConfig.minPoseConfidence)) {
+    if (!poseLandmarks.hasGoodConfidence(PoseConfig.minPoseConfidence)) {
       if (mounted) {
         setState(() {
-          _feedbackMessage = AppLocalizations.of(context)?.comeCloser ?? 'Come closer';
+          _feedbackMessage =
+              AppLocalizations.of(context)?.comeCloser ?? 'Come closer';
           _feedbackColor = const Color(0xFFFF6B35);
           _currentPose = poseLandmarks;
         });
@@ -626,16 +647,19 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       } else if (_repsInSet >= _targetReps && _currentSet >= _targetSets) {
         // Workout Complete logic handled by user pressing stop or we auto-finish?
         if (mounted) {
-          _feedbackMessage = AppLocalizations.of(context)?.workoutComplete ?? 'Workout complete!';
+          _feedbackMessage = AppLocalizations.of(context)?.workoutComplete ??
+              'Workout complete!';
           _feedbackColor = const Color(0xFF00FF88);
-          unawaited(VoiceFeedbackService().announceWorkoutComplete(_repCount, _accuracy));
+          unawaited(VoiceFeedbackService()
+              .announceWorkoutComplete(_repCount, _accuracy));
         }
       }
 
       // Provide voice feedback for the rep
-      unawaited(VoiceFeedbackService().announceRepCount(_repCount, _targetReps));
+      unawaited(
+          VoiceFeedbackService().announceRepCount(_repCount, _targetReps));
       unawaited(VoiceFeedbackService().provideFormFeedback(
-        _accuracy, 
+        _accuracy,
         formFeedback.issues,
         perfectionTip: formFeedback.perfectionTip,
       ));
@@ -655,17 +679,21 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
           _feedbackMessage = envStatus.message;
           if (envStatus.isValid) {
             _feedbackColor = const Color(0xFF00FF88); // Neon green
-            _calibrationProgress = (_calibrationProgress + 0.035).clamp(0.0, 1.0);
-            
+            _calibrationProgress =
+                (_calibrationProgress + 0.035).clamp(0.0, 1.0);
+
             // If perfectly locked, transition immediately!
-            if (_calibrationProgress >= 1.0 && !_isWarmingUp && !_isWorkoutActive) {
+            if (_calibrationProgress >= 1.0 &&
+                !_isWarmingUp &&
+                !_isWorkoutActive) {
               _isSetupPhase = false;
               HapticFeedback.heavyImpact();
               _startWarmup();
             }
           } else {
             _feedbackColor = const Color(0xFFFF6B35); // Warning Orange
-            _calibrationProgress = (_calibrationProgress - 0.07).clamp(0.0, 1.0);
+            _calibrationProgress =
+                (_calibrationProgress - 0.07).clamp(0.0, 1.0);
           }
         } else {
           _feedbackMessage = _repMachine!.getStatusMessage();
@@ -747,7 +775,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.error_outline, color: Color(0xFFFF6B35), size: 64),
+              const Icon(Icons.error_outline,
+                  color: Color(0xFFFF6B35), size: 64),
               const SizedBox(height: 24),
               Text(
                 'Oops! Something went wrong',
@@ -770,7 +799,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00FF88),
                   foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -779,7 +809,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
               const SizedBox(height: 16),
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Go Back', style: TextStyle(color: Colors.white54)),
+                child: const Text('Go Back',
+                    style: TextStyle(color: Colors.white54)),
               ),
             ],
           ),
@@ -827,15 +858,16 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
                 if (!mounted) {
                   return;
                 }
-                
+
                 setState(() {
                   _feedbackMessage = response['message'];
                   _feedbackColor = const Color(0xFFFF9900);
-                  
+
                   if (response['action'] == 'update_reps') {
                     _targetReps = response['data']['new_reps'];
                   } else if (response['action'] == 'swap_exercise') {
-                    _feedbackMessage = 'Swapping to ${response['data']['new_exercise_name']}...';
+                    _feedbackMessage =
+                        'Swapping to ${response['data']['new_exercise_name']}...';
                     _feedbackColor = const Color(0xFF00D9FF);
                   }
                 });
@@ -900,7 +932,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       if (!mounted || !_isWorkoutActive) {
         return;
       }
-      
+
       final heartRate = await HealthService().getLatestHeartRate();
       if (heartRate != null && mounted) {
         setState(() {
@@ -965,7 +997,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                  border:
+                      Border.all(color: Colors.white.withValues(alpha: 0.2)),
                 ),
                 child: IconButton(
                   icon: const Icon(Icons.close, color: Colors.white),
@@ -979,7 +1012,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                  border:
+                      Border.all(color: Colors.white.withValues(alpha: 0.2)),
                 ),
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -1018,8 +1052,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.2)),
+                    border:
+                        Border.all(color: Colors.white.withValues(alpha: 0.2)),
                   ),
                   child: _isSwitchingCamera
                       ? const Center(
@@ -1041,8 +1075,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
               ),
             const SizedBox(width: 8),
             // Heart Rate
-            if (_currentHeartRate != null)
-              _buildHeartRateDisplay(),
+            if (_currentHeartRate != null) _buildHeartRateDisplay(),
             const SizedBox(width: 8),
             // Timer / Set counter
             _buildTimerButton(),
@@ -1094,33 +1127,33 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
                   ? const Color(0xFF00FF88)
                   : const Color(0xFFFF6B35),
               width: 1.5,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              _isEnvironmentValid
-                  ? Icons.check_circle
-                  : Icons.warning_amber_rounded,
-              color: _isEnvironmentValid
-                  ? const Color(0xFF00FF88)
-                  : const Color(0xFFFF6B35),
-              size: 16,
             ),
-            const SizedBox(width: 8),
-            Text(
-              _environmentMessage,
-              style: TextStyle(
-                fontFamily: 'Outfit',
-                fontSize: 12,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                _isEnvironmentValid
+                    ? Icons.check_circle
+                    : Icons.warning_amber_rounded,
                 color: _isEnvironmentValid
                     ? const Color(0xFF00FF88)
                     : const Color(0xFFFF6B35),
-                fontWeight: FontWeight.w600,
+                size: 16,
               ),
-            ),
-          ],
+              const SizedBox(width: 8),
+              Text(
+                _environmentMessage,
+                style: TextStyle(
+                  fontFamily: 'Outfit',
+                  fontSize: 12,
+                  color: _isEnvironmentValid
+                      ? const Color(0xFF00FF88)
+                      : const Color(0xFFFF6B35),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -1144,7 +1177,10 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
           ),
           boxShadow: [
             BoxShadow(
-              color: (_isEnvironmentValid ? const Color(0xFF00FF88) : const Color(0xFFFF6B35)).withValues(alpha: 0.15),
+              color: (_isEnvironmentValid
+                      ? const Color(0xFF00FF88)
+                      : const Color(0xFFFF6B35))
+                  .withValues(alpha: 0.15),
               blurRadius: 10,
               spreadRadius: 2,
             ),
@@ -1172,21 +1208,32 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
                   height: 8,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: _isEnvironmentValid ? const Color(0xFF00FF88) : const Color(0xFFFF6B35),
+                    color: _isEnvironmentValid
+                        ? const Color(0xFF00FF88)
+                        : const Color(0xFFFF6B35),
                   ),
                 ),
               ],
             ),
             const Divider(color: Colors.white12, height: 12, thickness: 1),
-            _buildTelemetryLine('SYS.LUM', _isEnvironmentValid ? '92% [GOOD]' : '45% [LOW]', _isEnvironmentValid ? const Color(0xFF00FF88) : const Color(0xFFFF6B35)),
-            const SizedBox(height: 6),
-            _buildTelemetryLine('SYS.DIST', _isEnvironmentValid ? '2.4M [STABLE]' : 'ADJUST POSITION', _isEnvironmentValid ? Colors.white : const Color(0xFFFF6B35)),
+            _buildTelemetryLine(
+                'SYS.LUM',
+                _isEnvironmentValid ? '92% [GOOD]' : '45% [LOW]',
+                _isEnvironmentValid
+                    ? const Color(0xFF00FF88)
+                    : const Color(0xFFFF6B35)),
             const SizedBox(height: 6),
             _buildTelemetryLine(
-              'SYS.POSE', 
-              _currentPose != null ? 'LOCKED' : 'SCANNING', 
-              _currentPose != null ? const Color(0xFF00FF88) : Colors.white24
-            ),
+                'SYS.DIST',
+                _isEnvironmentValid ? '2.4M [STABLE]' : 'ADJUST POSITION',
+                _isEnvironmentValid ? Colors.white : const Color(0xFFFF6B35)),
+            const SizedBox(height: 6),
+            _buildTelemetryLine(
+                'SYS.POSE',
+                _currentPose != null ? 'LOCKED' : 'SCANNING',
+                _currentPose != null
+                    ? const Color(0xFF00FF88)
+                    : Colors.white24),
             const SizedBox(height: 12),
             const Text(
               'HOLOGRAM ALIGNMENT LOCK',
@@ -1206,7 +1253,9 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
                 minHeight: 6,
                 backgroundColor: Colors.white10,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  _isEnvironmentValid ? const Color(0xFF00FF88) : const Color(0xFFFF6B35),
+                  _isEnvironmentValid
+                      ? const Color(0xFF00FF88)
+                      : const Color(0xFFFF6B35),
                 ),
               ),
             ),
@@ -1226,7 +1275,9 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
                 Text(
                   '${(_calibrationProgress * 100).toInt()}%',
                   style: TextStyle(
-                    color: _isEnvironmentValid ? const Color(0xFF00FF88) : const Color(0xFFFF6B35),
+                    color: _isEnvironmentValid
+                        ? const Color(0xFF00FF88)
+                        : const Color(0xFFFF6B35),
                     fontFamily: 'Rajdhani',
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
@@ -1347,38 +1398,39 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       right: 0,
       child: Center(
         child: AnimatedOpacity(
-          opacity: (_isWorkoutActive || _isSetupPhase) ? 1.0 : 0.0, 
+          opacity: (_isWorkoutActive || _isSetupPhase) ? 1.0 : 0.0,
           duration: const Duration(milliseconds: 300),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: BackdropFilter(
-            filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              decoration: BoxDecoration(
-                color: _feedbackColor.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                    color: _feedbackColor.withValues(alpha: 0.4), width: 1.5),
-              ),
-              child: Text(
-                _feedbackMessage,
-                style: TextStyle(
-                  fontFamily: 'Outfit',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: _feedbackColor,
-                  shadows: [
-                    Shadow(
-                      color: _feedbackColor.withValues(alpha: 0.5),
-                      blurRadius: 10,
-                    ),
-                  ],
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: BackdropFilter(
+              filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  color: _feedbackColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                      color: _feedbackColor.withValues(alpha: 0.4), width: 1.5),
+                ),
+                child: Text(
+                  _feedbackMessage,
+                  style: TextStyle(
+                    fontFamily: 'Outfit',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: _feedbackColor,
+                    shadows: [
+                      Shadow(
+                        color: _feedbackColor.withValues(alpha: 0.5),
+                        blurRadius: 10,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
         ),
       ),
     );
@@ -1419,7 +1471,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     );
   }
 
-  Widget _buildStatBadge(String label, String value, IconData icon, {Color? color}) {
+  Widget _buildStatBadge(String label, String value, IconData icon,
+      {Color? color}) {
     final themeColor = color ?? const Color(0xFF00D9FF);
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
@@ -1433,35 +1486,35 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
           ),
-      child: Column(
-        children: [
-            Icon(icon, color: themeColor, size: 20),
-            const SizedBox(height: 6),
-            Text(
-              value,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Rajdhani',
+          child: Column(
+            children: [
+              Icon(icon, color: themeColor, size: 20),
+              const SizedBox(height: 6),
+              Text(
+                value,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Rajdhani',
+                ),
               ),
-            ),
-            Text(
-              label.toUpperCase(),
-              style: const TextStyle(
-                color: Colors.white38,
-                fontSize: 8,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.5,
-                fontFamily: 'Outfit',
+              Text(
+                label.toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.white38,
+                  fontSize: 8,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                  fontFamily: 'Outfit',
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildBottomControls() {
     return Positioned(
@@ -1496,7 +1549,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
                         ? 'Skip Rest'
                         : (_isWorkoutActive
                             ? AppLocalizations.of(context)?.pause ?? 'Pause'
-                            : AppLocalizations.of(context)?.resume ?? 'Resume')),
+                            : AppLocalizations.of(context)?.resume ??
+                                'Resume')),
                 () async {
                   if (_isSetupPhase) {
                     if (_isEnvironmentValid) {
@@ -1595,6 +1649,13 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     }
 
     await ref.read(sessionProvider.notifier).completeSession();
+    if (_repCount >= _targetReps * _targetSets) {
+      try {
+        await widget.onWorkoutCompleted?.call();
+      } catch (error) {
+        debugPrint('Failed to sync planned exercise completion: $error');
+      }
+    }
     if (!mounted) {
       return;
     }
@@ -1604,7 +1665,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       await Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => WorkoutSummaryScreen(session: session, isDemo: widget.isDemo),
+          builder: (context) =>
+              WorkoutSummaryScreen(session: session, isDemo: widget.isDemo),
         ),
       );
     } else {
@@ -1646,9 +1708,9 @@ class PoseOverlayPainter extends CustomPainter {
     }
 
     // Modern color palette for sci-fi feedback
-    final Color hudColor = accuracy >= 95 
+    final Color hudColor = accuracy >= 95
         ? const Color(0xFF00FF88) // Hyper Neon Green (Perfect Form)
-        : accuracy >= 80 
+        : accuracy >= 80
             ? const Color(0xFF00D9FF) // Laser Cyan (Good Form)
             : const Color(0xFFFF6B35); // Warning Cyber Orange
 
@@ -1659,11 +1721,11 @@ class PoseOverlayPainter extends CustomPainter {
       // Scaling using canvas vs camera coordinate maps
       double x = p.x * size.width / imageSize.width;
       double y = p.y * size.height / imageSize.height;
-      
+
       if (isFrontCamera) {
         x = size.width - x;
       }
-      
+
       return Offset(x, y);
     }
 
@@ -1672,32 +1734,34 @@ class PoseOverlayPainter extends CustomPainter {
       if (p1.likelihood < 0.5 || p2.likelihood < 0.5) {
         return;
       }
-      
+
       final o1 = scale(p1);
       final o2 = scale(p2);
-      
+
       // 1. Semi-transparent laser glow
       final glowPaint = Paint()
-        ..shader = ui.Gradient.linear(
-          o1, o2, 
-          [baseColor.withValues(alpha: 0.05), baseColor.withValues(alpha: 0.35), baseColor.withValues(alpha: 0.05)]
-        )
+        ..shader = ui.Gradient.linear(o1, o2, [
+          baseColor.withValues(alpha: 0.05),
+          baseColor.withValues(alpha: 0.35),
+          baseColor.withValues(alpha: 0.05)
+        ])
         ..style = PaintingStyle.stroke
         ..strokeWidth = 14.0
         ..strokeCap = StrokeCap.round;
       canvas.drawLine(o1, o2, glowPaint);
-      
+
       // 2. Focused Neon Filament
       final corePaint = Paint()
-        ..shader = ui.Gradient.linear(
-          o1, o2, 
-          [baseColor.withValues(alpha: 0.4), baseColor, baseColor.withValues(alpha: 0.4)]
-        )
+        ..shader = ui.Gradient.linear(o1, o2, [
+          baseColor.withValues(alpha: 0.4),
+          baseColor,
+          baseColor.withValues(alpha: 0.4)
+        ])
         ..style = PaintingStyle.stroke
         ..strokeWidth = 4.5
         ..strokeCap = StrokeCap.round;
       canvas.drawLine(o1, o2, corePaint);
-      
+
       // 3. Ultra-bright white laser core
       final laserPaint = Paint()
         ..color = Colors.white.withValues(alpha: 0.9)
@@ -1713,32 +1777,39 @@ class PoseOverlayPainter extends CustomPainter {
         return;
       }
       final center = scale(p);
-      
+
       // Pulsing outer halo
-      final pulse = 1.0 + 0.15 * math.sin(DateTime.now().millisecondsSinceEpoch / 250.0 + p.y * 100);
+      final pulse = 1.0 +
+          0.15 *
+              math.sin(
+                  DateTime.now().millisecondsSinceEpoch / 250.0 + p.y * 100);
       final haloPaint = Paint()
         ..color = baseColor.withValues(alpha: 0.12)
         ..style = PaintingStyle.fill;
       canvas.drawCircle(center, 14.0 * pulse, haloPaint);
-      
+
       // Concentric structural ring
       final ringPaint = Paint()
         ..color = baseColor.withValues(alpha: 0.55)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.0;
       canvas.drawCircle(center, 8, ringPaint);
-      
+
       // Crosshair ticks
       final tickPaint = Paint()
         ..color = baseColor
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.2;
       const double r = 10.0;
-      canvas.drawLine(Offset(center.dx - r, center.dy), Offset(center.dx - r + 3, center.dy), tickPaint);
-      canvas.drawLine(Offset(center.dx + r - 3, center.dy), Offset(center.dx + r, center.dy), tickPaint);
-      canvas.drawLine(Offset(center.dx, center.dy - r), Offset(center.dx, center.dy - r + 3), tickPaint);
-      canvas.drawLine(Offset(center.dx, center.dy + r - 3), Offset(center.dx, center.dy + r), tickPaint);
-      
+      canvas.drawLine(Offset(center.dx - r, center.dy),
+          Offset(center.dx - r + 3, center.dy), tickPaint);
+      canvas.drawLine(Offset(center.dx + r - 3, center.dy),
+          Offset(center.dx + r, center.dy), tickPaint);
+      canvas.drawLine(Offset(center.dx, center.dy - r),
+          Offset(center.dx, center.dy - r + 3), tickPaint);
+      canvas.drawLine(Offset(center.dx, center.dy + r - 3),
+          Offset(center.dx, center.dy + r), tickPaint);
+
       // Ultra bright solid inner core
       final corePaint = Paint()
         ..color = Colors.white
@@ -1747,60 +1818,62 @@ class PoseOverlayPainter extends CustomPainter {
     }
 
     // Dynamic interactive HUD angle meter
-    void drawAngleHud(PoseLandmark joint, PoseLandmark p1, PoseLandmark p2, String label, Color baseColor) {
-      if (joint.likelihood < 0.5 || p1.likelihood < 0.5 || p2.likelihood < 0.5) {
+    void drawAngleHud(PoseLandmark joint, PoseLandmark p1, PoseLandmark p2,
+        String label, Color baseColor) {
+      if (joint.likelihood < 0.5 ||
+          p1.likelihood < 0.5 ||
+          p2.likelihood < 0.5) {
         return;
       }
-      
+
       final jCenter = scale(joint);
       final o1 = scale(p1);
       final o2 = scale(p2);
-      
+
       final v1 = o1 - jCenter;
       final v2 = o2 - jCenter;
-      
+
       final a1 = math.atan2(v1.dy, v1.dx);
       final a2 = math.atan2(v2.dy, v2.dx);
-      
+
       final angleRad = (a1 - a2).abs();
       double angleDeg = angleRad * 180 / math.pi;
       if (angleDeg > 180) {
         angleDeg = 360 - angleDeg;
       }
-      
+
       // Draw dynamic glowing HUD arc gauge
       final arcRect = Rect.fromCircle(center: jCenter, radius: 42);
       final startAngle = math.min(a1, a2);
       final sweepAngle = angleRad > math.pi ? 2 * math.pi - angleRad : angleRad;
-      
+
       // Glowing background arc
       canvas.drawArc(
-        arcRect, 
-        startAngle, 
-        sweepAngle, 
-        false, 
-        Paint()
-          ..color = baseColor.withValues(alpha: 0.15)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 6.0
-      );
-      
+          arcRect,
+          startAngle,
+          sweepAngle,
+          false,
+          Paint()
+            ..color = baseColor.withValues(alpha: 0.15)
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 6.0);
+
       // Neon pointer arc
       canvas.drawArc(
-        arcRect, 
-        startAngle, 
-        sweepAngle, 
-        false, 
-        Paint()
-          ..color = baseColor
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.8
-      );
-      
+          arcRect,
+          startAngle,
+          sweepAngle,
+          false,
+          Paint()
+            ..color = baseColor
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.8);
+
       // Bisect angle to position label neatly
       final avgAngle = (a1 + a2) / 2 + (angleRad > math.pi ? math.pi : 0);
-      final textOffset = jCenter + Offset(math.cos(avgAngle), math.sin(avgAngle)) * 64;
-      
+      final textOffset =
+          jCenter + Offset(math.cos(avgAngle), math.sin(avgAngle)) * 64;
+
       final textPainter = TextPainter(
         text: TextSpan(
           text: '$label: ${angleDeg.round()}°',
@@ -1821,7 +1894,7 @@ class PoseOverlayPainter extends CustomPainter {
         textDirection: TextDirection.ltr,
       );
       textPainter.layout();
-      
+
       // Background glassmorphic chip for text
       final capPaint = Paint()
         ..color = Colors.black.withValues(alpha: 0.65)
@@ -1836,20 +1909,19 @@ class PoseOverlayPainter extends CustomPainter {
         const Radius.circular(8),
       );
       canvas.drawRRect(capRect, capPaint);
-      
+
       // Glass border
       canvas.drawRRect(
-        capRect, 
-        Paint()
-          ..color = baseColor.withValues(alpha: 0.4)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.0
-      );
-      
+          capRect,
+          Paint()
+            ..color = baseColor.withValues(alpha: 0.4)
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.0);
+
       textPainter.paint(
-        canvas, 
-        Offset(textOffset.dx - textPainter.width / 2, textOffset.dy - textPainter.height / 2)
-      );
+          canvas,
+          Offset(textOffset.dx - textPainter.width / 2,
+              textOffset.dy - textPainter.height / 2));
     }
 
     // Rotating bracket nose scanner
@@ -1858,75 +1930,106 @@ class PoseOverlayPainter extends CustomPainter {
         return;
       }
       final center = scale(nosePoint);
-      final angle = (DateTime.now().millisecondsSinceEpoch / 900.0) % (2 * math.pi);
-      
+      final angle =
+          (DateTime.now().millisecondsSinceEpoch / 900.0) % (2 * math.pi);
+
       canvas.save();
       canvas.translate(center.dx, center.dy);
       canvas.rotate(angle);
-      
+
       final paint = Paint()
         ..color = baseColor.withValues(alpha: 0.75)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.5;
-      
+
       const double size = 18.0;
       const double g = 6.0;
-      
+
       // 4 brackets [ ]
-      canvas.drawLine(const Offset(-size, -size), const Offset(-size + g, -size), paint);
-      canvas.drawLine(const Offset(-size, -size), const Offset(-size, -size + g), paint);
-      
-      canvas.drawLine(const Offset(size, -size), const Offset(size - g, -size), paint);
-      canvas.drawLine(const Offset(size, -size), const Offset(size, -size + g), paint);
-      
-      canvas.drawLine(const Offset(-size, size), const Offset(-size + g, size), paint);
-      canvas.drawLine(const Offset(-size, size), const Offset(-size, size - g), paint);
-      
-      canvas.drawLine(const Offset(size, size), const Offset(size - g, size), paint);
-      canvas.drawLine(const Offset(size, size), const Offset(size, size - g), paint);
-      
+      canvas.drawLine(
+          const Offset(-size, -size), const Offset(-size + g, -size), paint);
+      canvas.drawLine(
+          const Offset(-size, -size), const Offset(-size, -size + g), paint);
+
+      canvas.drawLine(
+          const Offset(size, -size), const Offset(size - g, -size), paint);
+      canvas.drawLine(
+          const Offset(size, -size), const Offset(size, -size + g), paint);
+
+      canvas.drawLine(
+          const Offset(-size, size), const Offset(-size + g, size), paint);
+      canvas.drawLine(
+          const Offset(-size, size), const Offset(-size, size - g), paint);
+
+      canvas.drawLine(
+          const Offset(size, size), const Offset(size - g, size), paint);
+      canvas.drawLine(
+          const Offset(size, size), const Offset(size, size - g), paint);
+
       // Small core reticle dot
-      canvas.drawCircle(Offset.zero, 3.0, Paint()..color = baseColor..style = PaintingStyle.fill);
+      canvas.drawCircle(
+          Offset.zero,
+          3.0,
+          Paint()
+            ..color = baseColor
+            ..style = PaintingStyle.fill);
       canvas.restore();
     }
 
     // Torso balance leveler HUD
     void drawTorsoHoop(Color baseColor) {
-      if (pose!.leftShoulder.likelihood < 0.5 || pose!.rightShoulder.likelihood < 0.5 ||
-          pose!.leftHip.likelihood < 0.5 || pose!.rightHip.likelihood < 0.5) {
+      if (pose!.leftShoulder.likelihood < 0.5 ||
+          pose!.rightShoulder.likelihood < 0.5 ||
+          pose!.leftHip.likelihood < 0.5 ||
+          pose!.rightHip.likelihood < 0.5) {
         return;
       }
-      
+
       final ls = scale(pose!.leftShoulder);
       final rs = scale(pose!.rightShoulder);
       final lh = scale(pose!.leftHip);
       final rh = scale(pose!.rightHip);
-      
+
       final coreCenter = Offset(
         (ls.dx + rs.dx + lh.dx + rh.dx) / 4,
         (ls.dy + rs.dy + lh.dy + rh.dy) / 4,
       );
-      
+
       // Outer radar scanning bounds
-      canvas.drawCircle(coreCenter, 20.0, Paint()..color = baseColor.withValues(alpha: 0.18)..style = PaintingStyle.fill);
       canvas.drawCircle(
-        coreCenter, 20.0, 
-        Paint()..color = baseColor.withValues(alpha: 0.5)..style = PaintingStyle.stroke..strokeWidth = 1.0
-      );
+          coreCenter,
+          20.0,
+          Paint()
+            ..color = baseColor.withValues(alpha: 0.18)
+            ..style = PaintingStyle.fill);
       canvas.drawCircle(
-        coreCenter, 26.0, 
-        Paint()..color = baseColor.withValues(alpha: 0.15)..style = PaintingStyle.stroke..strokeWidth = 1.0
-      );
-      
+          coreCenter,
+          20.0,
+          Paint()
+            ..color = baseColor.withValues(alpha: 0.5)
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.0);
+      canvas.drawCircle(
+          coreCenter,
+          26.0,
+          Paint()
+            ..color = baseColor.withValues(alpha: 0.15)
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.0);
+
       // Core crosshairs
       final crossPaint = Paint()
         ..color = baseColor.withValues(alpha: 0.4)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.0;
-      canvas.drawLine(Offset(coreCenter.dx - 30, coreCenter.dy), Offset(coreCenter.dx - 22, coreCenter.dy), crossPaint);
-      canvas.drawLine(Offset(coreCenter.dx + 22, coreCenter.dy), Offset(coreCenter.dx + 30, coreCenter.dy), crossPaint);
-      canvas.drawLine(Offset(coreCenter.dx, coreCenter.dy - 30), Offset(coreCenter.dx, coreCenter.dy - 22), crossPaint);
-      canvas.drawLine(Offset(coreCenter.dx, coreCenter.dy + 22), Offset(coreCenter.dx, coreCenter.dy + 30), crossPaint);
+      canvas.drawLine(Offset(coreCenter.dx - 30, coreCenter.dy),
+          Offset(coreCenter.dx - 22, coreCenter.dy), crossPaint);
+      canvas.drawLine(Offset(coreCenter.dx + 22, coreCenter.dy),
+          Offset(coreCenter.dx + 30, coreCenter.dy), crossPaint);
+      canvas.drawLine(Offset(coreCenter.dx, coreCenter.dy - 30),
+          Offset(coreCenter.dx, coreCenter.dy - 22), crossPaint);
+      canvas.drawLine(Offset(coreCenter.dx, coreCenter.dy + 22),
+          Offset(coreCenter.dx, coreCenter.dy + 30), crossPaint);
     }
 
     // 1. Draw BONES (Lines) with glowing laser neon shaders
@@ -1970,18 +2073,24 @@ class PoseOverlayPainter extends CustomPainter {
     switch (exerciseType.toLowerCase()) {
       case 'squat':
       case 'sumo_squat':
-        drawAngleHud(pose!.leftKnee, pose!.leftHip, pose!.leftAnkle, 'KNEE_L', hudColor);
-        drawAngleHud(pose!.rightKnee, pose!.rightHip, pose!.rightAnkle, 'KNEE_R', hudColor);
+        drawAngleHud(
+            pose!.leftKnee, pose!.leftHip, pose!.leftAnkle, 'KNEE_L', hudColor);
+        drawAngleHud(pose!.rightKnee, pose!.rightHip, pose!.rightAnkle,
+            'KNEE_R', hudColor);
         break;
       case 'pushup':
       case 'push-up':
       case 'diamond_pushup':
-        drawAngleHud(pose!.leftElbow, pose!.leftShoulder, pose!.leftWrist, 'ELBOW_L', hudColor);
-        drawAngleHud(pose!.rightElbow, pose!.rightShoulder, pose!.rightWrist, 'ELBOW_R', hudColor);
+        drawAngleHud(pose!.leftElbow, pose!.leftShoulder, pose!.leftWrist,
+            'ELBOW_L', hudColor);
+        drawAngleHud(pose!.rightElbow, pose!.rightShoulder, pose!.rightWrist,
+            'ELBOW_R', hudColor);
         break;
       case 'plank':
-        drawAngleHud(pose!.leftHip, pose!.leftShoulder, pose!.leftKnee, 'CORE_L', hudColor);
-        drawAngleHud(pose!.rightHip, pose!.rightShoulder, pose!.rightKnee, 'CORE_R', hudColor);
+        drawAngleHud(pose!.leftHip, pose!.leftShoulder, pose!.leftKnee,
+            'CORE_L', hudColor);
+        drawAngleHud(pose!.rightHip, pose!.rightShoulder, pose!.rightKnee,
+            'CORE_R', hudColor);
         break;
       default:
         break;
@@ -2001,7 +2110,7 @@ class PoseOverlayPainter extends CustomPainter {
         'ANKLE_L': Offset(cx - size.width * 0.10, size.height * 0.88),
         'ANKLE_R': Offset(cx + size.width * 0.10, size.height * 0.88),
       };
-      
+
       final joints = {
         'NOSE': pose!.nose,
         'SHOULDER_L': pose!.leftShoulder,
@@ -2018,37 +2127,53 @@ class PoseOverlayPainter extends CustomPainter {
           return;
         }
         final jointOffset = scale(joint);
-        
+
         final distance = (jointOffset - targetOffset).distance;
         final isLocked = distance < size.width * 0.08;
-        final lockColor = isLocked ? const Color(0xFF00FF88) : const Color(0xFFFF9900);
-        
+        final lockColor =
+            isLocked ? const Color(0xFF00FF88) : const Color(0xFFFF9900);
+
         // Target lock radar hoop
-        canvas.drawCircle(targetOffset, 20, Paint()..color = lockColor.withValues(alpha: 0.1)..style = PaintingStyle.fill);
         canvas.drawCircle(
-          targetOffset, 20, 
-          Paint()..color = lockColor.withValues(alpha: 0.35)..style = PaintingStyle.stroke..strokeWidth = 1.0
-        );
-        
+            targetOffset,
+            20,
+            Paint()
+              ..color = lockColor.withValues(alpha: 0.1)
+              ..style = PaintingStyle.fill);
+        canvas.drawCircle(
+            targetOffset,
+            20,
+            Paint()
+              ..color = lockColor.withValues(alpha: 0.35)
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 1.0);
+
         // Draw locked tracking visual lines
         if (distance < size.width * 0.22) {
           canvas.drawLine(
-            jointOffset, targetOffset, 
-            Paint()..color = lockColor.withValues(alpha: 0.3)..style = PaintingStyle.stroke..strokeWidth = 1.0..strokeCap = StrokeCap.round
-          );
+              jointOffset,
+              targetOffset,
+              Paint()
+                ..color = lockColor.withValues(alpha: 0.3)
+                ..style = PaintingStyle.stroke
+                ..strokeWidth = 1.0
+                ..strokeCap = StrokeCap.round);
         }
-        
+
         if (isLocked) {
-          final pulse = 1.0 + 0.1 * math.sin(DateTime.now().millisecondsSinceEpoch / 150.0);
+          final pulse = 1.0 +
+              0.1 * math.sin(DateTime.now().millisecondsSinceEpoch / 150.0);
           final r = 24.0 * pulse;
           final bracketPaint = Paint()
             ..color = const Color(0xFF00FF88)
             ..style = PaintingStyle.stroke
             ..strokeWidth = 1.5;
-            
-          canvas.drawArc(Rect.fromCircle(center: targetOffset, radius: r), -0.4, 0.8, false, bracketPaint);
-          canvas.drawArc(Rect.fromCircle(center: targetOffset, radius: r), math.pi - 0.4, 0.8, false, bracketPaint);
-          
+
+          canvas.drawArc(Rect.fromCircle(center: targetOffset, radius: r), -0.4,
+              0.8, false, bracketPaint);
+          canvas.drawArc(Rect.fromCircle(center: targetOffset, radius: r),
+              math.pi - 0.4, 0.8, false, bracketPaint);
+
           final textPainter = TextPainter(
             text: const TextSpan(
               text: 'LOCKED',
@@ -2063,14 +2188,17 @@ class PoseOverlayPainter extends CustomPainter {
             textDirection: TextDirection.ltr,
           );
           textPainter.layout();
-          textPainter.paint(canvas, Offset(targetOffset.dx - textPainter.width / 2, targetOffset.dy + 25));
+          textPainter.paint(
+              canvas,
+              Offset(targetOffset.dx - textPainter.width / 2,
+                  targetOffset.dy + 25));
         }
       });
-      
+
       // Lateral positioning indicator chevrons
       final avgHipX = (scale(pose!.leftHip).dx + scale(pose!.rightHip).dx) / 2;
       final normalizedX = avgHipX / size.width;
-      
+
       if (normalizedX < 0.4) {
         _drawChevronChevrons(canvas, size, pointingRight: true);
       } else if (normalizedX > 0.6) {
@@ -2081,13 +2209,14 @@ class PoseOverlayPainter extends CustomPainter {
 
   // Draw neutral human body silhouette template wireframe
   void _drawHolographicSilhouette(Canvas canvas, Size size) {
-    final pulse = 0.65 + 0.35 * math.sin(DateTime.now().millisecondsSinceEpoch / 400.0);
+    final pulse =
+        0.65 + 0.35 * math.sin(DateTime.now().millisecondsSinceEpoch / 400.0);
     final paint = Paint()
       ..color = const Color(0xFF00D9FF).withValues(alpha: 0.15 * pulse)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.5
       ..strokeCap = StrokeCap.round;
-    
+
     final cx = size.width / 2;
     final head = Offset(cx, size.height * 0.22);
     final lShoulder = Offset(cx - size.width * 0.12, size.height * 0.32);
@@ -2100,8 +2229,10 @@ class PoseOverlayPainter extends CustomPainter {
     final rAnkle = Offset(cx + size.width * 0.10, size.height * 0.88);
 
     canvas.drawCircle(head, 28, paint);
-    canvas.drawArc(Rect.fromCircle(center: head, radius: 36), -0.5, 1.0, false, paint);
-    canvas.drawArc(Rect.fromCircle(center: head, radius: 36), math.pi - 0.5, 1.0, false, paint);
+    canvas.drawArc(
+        Rect.fromCircle(center: head, radius: 36), -0.5, 1.0, false, paint);
+    canvas.drawArc(Rect.fromCircle(center: head, radius: 36), math.pi - 0.5,
+        1.0, false, paint);
 
     // Spine and Torso
     canvas.drawLine(lShoulder, rShoulder, paint);
@@ -2114,13 +2245,13 @@ class PoseOverlayPainter extends CustomPainter {
     canvas.drawLine(lKnee, lAnkle, paint);
     canvas.drawLine(rHip, rKnee, paint);
     canvas.drawLine(rKnee, rAnkle, paint);
-    
+
     // Arm lines
     final lElbow = Offset(cx - size.width * 0.20, size.height * 0.42);
     final rElbow = Offset(cx + size.width * 0.20, size.height * 0.42);
     final lWrist = Offset(cx - size.width * 0.22, size.height * 0.52);
     final rWrist = Offset(cx + size.width * 0.22, size.height * 0.52);
-    
+
     canvas.drawLine(lShoulder, lElbow, paint);
     canvas.drawLine(lElbow, lWrist, paint);
     canvas.drawLine(rShoulder, rElbow, paint);
@@ -2128,23 +2259,24 @@ class PoseOverlayPainter extends CustomPainter {
   }
 
   // Draw animated chevrons showing lateral guidance vectors
-  void _drawChevronChevrons(Canvas canvas, Size size, {required bool pointingRight}) {
+  void _drawChevronChevrons(Canvas canvas, Size size,
+      {required bool pointingRight}) {
     final animFrame = (DateTime.now().millisecondsSinceEpoch / 250) % 3;
     final paint = Paint()
       ..color = const Color(0xFFFF9900)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0
       ..strokeCap = StrokeCap.round;
-    
+
     final y = size.height * 0.5;
     final startX = pointingRight ? 40.0 : size.width - 40.0;
     const double spacing = 14.0;
     final double dir = pointingRight ? 1.0 : -1.0;
-    
+
     for (int i = 0; i < 3; i++) {
       final double alpha = (i == animFrame.toInt()) ? 1.0 : 0.25;
       paint.color = const Color(0xFFFF9900).withValues(alpha: alpha);
-      
+
       final cx = startX + i * spacing * dir;
       final path = Path()
         ..moveTo(cx - 5 * dir, y - 12)
@@ -2156,9 +2288,9 @@ class PoseOverlayPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(PoseOverlayPainter oldDelegate) {
-    return pose != oldDelegate.pose || 
-           accuracy != oldDelegate.accuracy || 
-           isSetupPhase != oldDelegate.isSetupPhase ||
-           calibrationProgress != oldDelegate.calibrationProgress;
+    return pose != oldDelegate.pose ||
+        accuracy != oldDelegate.accuracy ||
+        isSetupPhase != oldDelegate.isSetupPhase ||
+        calibrationProgress != oldDelegate.calibrationProgress;
   }
 }

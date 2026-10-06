@@ -4,11 +4,24 @@ from typing import Dict, List
 import math
 
 class PoseAnalyzer:
-    """
+    """Analyze supported exercise landmarks and provide a form score.
+
     Analyze pose landmarks for exercise form.
     The backend performs lightweight validation and score generation while
     the Flutter app handles most of the on-device pose analysis.
     """
+
+    REQUIRED_KEYPOINTS = {
+        'pushup': ('left_shoulder', 'left_elbow', 'left_wrist', 'left_hip', 'left_knee'),
+        'squat': ('left_hip', 'left_knee', 'left_ankle'),
+        'lunge': ('left_hip', 'left_knee', 'left_ankle'),
+        'plank': ('left_shoulder', 'left_hip', 'left_knee'),
+    }
+
+    @staticmethod
+    def missing_keypoints(keypoints: Dict[str, Dict[str, float]], exercise_type: str) -> List[str]:
+        required = PoseAnalyzer.REQUIRED_KEYPOINTS.get(exercise_type.lower().strip(), ())
+        return [name for name in required if name not in keypoints]
 
     @staticmethod
     def calculate_angle(a: Dict, b: Dict, c: Dict) -> float:
@@ -32,12 +45,12 @@ class PoseAnalyzer:
     def calculate_accuracy(keypoints: Dict[str, Dict[str, float]], exercise_type: str) -> float:
         """Return a 0-100 accuracy score for the given exercise type."""
         exercise_type = (exercise_type or '').lower().strip()
+        if exercise_type not in PoseAnalyzer.REQUIRED_KEYPOINTS:
+            raise ValueError(f"Pose scoring is not supported for exercise '{exercise_type}'.")
+        if PoseAnalyzer.missing_keypoints(keypoints, exercise_type):
+            return 0.0
 
         if exercise_type == 'pushup':
-            required = ['left_shoulder', 'left_elbow', 'left_wrist', 'left_hip', 'left_knee']
-            if not all(k in keypoints for k in required):
-                return 0.0
-
             elbow_angle = PoseAnalyzer.calculate_angle(
                 keypoints['left_shoulder'],
                 keypoints['left_elbow'],
@@ -55,9 +68,6 @@ class PoseAnalyzer:
             return max(0.0, min(100.0, score))
 
         if exercise_type in {'squat', 'lunge'}:
-            required = ['left_hip', 'left_knee', 'left_ankle']
-            if not all(k in keypoints for k in required):
-                return 0.0
             knee_angle = PoseAnalyzer.calculate_angle(
                 keypoints['left_hip'],
                 keypoints['left_knee'],
@@ -67,9 +77,6 @@ class PoseAnalyzer:
             return max(0.0, min(100.0, score))
 
         if exercise_type == 'plank':
-            required = ['left_shoulder', 'left_hip', 'left_knee']
-            if not all(k in keypoints for k in required):
-                return 0.0
             body_angle = PoseAnalyzer.calculate_angle(
                 keypoints['left_shoulder'],
                 keypoints['left_hip'],
@@ -78,7 +85,7 @@ class PoseAnalyzer:
             score = 100.0 - max(0.0, abs(body_angle - 180.0) * 0.4)
             return max(0.0, min(100.0, score))
 
-        return 75.0
+        raise ValueError(f"Pose scoring is not supported for exercise '{exercise_type}'.")
 
     @staticmethod
     def validate_pushup_form(landmarks: Dict) -> Dict:

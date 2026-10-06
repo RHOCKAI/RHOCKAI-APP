@@ -119,13 +119,14 @@ class FormChecker {
     }
 
     final accuracy = (_perfectAccuracy - totalDeduction).clamp(0.0, 100.0);
-    
+
     return FormFeedback(
       isCorrect: issues.isEmpty,
       issues: issues,
       accuracy: accuracy,
       angles: angles,
-      perfectionTip: accuracy > 95 ? 'Perfect depth! Drive through heels.' : null,
+      perfectionTip:
+          accuracy > 95 ? 'Perfect depth! Drive through heels.' : null,
     );
   }
 
@@ -166,11 +167,18 @@ class FormChecker {
         return checkPushupForm(pose);
       case 'squat':
       case 'sumo_squat':
+      case 'lunge':
+      case 'reverse_lunge':
         return checkSquatForm(pose);
       case 'plank':
         return checkPlankForm(pose);
       default:
-        return FormFeedback.perfect();
+        return FormFeedback(
+          isCorrect: false,
+          issues: ['Form analysis is not supported for this exercise.'],
+          accuracy: 0.0,
+          angles: const {},
+        );
     }
   }
 }

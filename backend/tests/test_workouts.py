@@ -5,7 +5,7 @@ Smoke tests for the Exercise Catalogue endpoints.
 import pytest
 from datetime import datetime, timezone
 
-from app.models import Exercise, PlannedExercise, ScheduledWorkout, User, WorkoutPlan
+from app.models import Exercise, PlannedExercise, ScheduledWorkout, User, WorkoutPlan, WorkoutSession
 
 
 class TestListExercises:
@@ -132,6 +132,16 @@ def test_adaptation_is_scoped_to_the_owning_user(client, auth_headers, db, test_
     assert planned_exercise.exercise_id == exercise.id
     assert planned_exercise.is_substituted is False
 
+    completion_response = client.post(
+        f"/api/v1/workouts/plan/exercises/{planned_exercise.id}/complete",
+        headers=auth_headers,
+    )
+    assert completion_response.status_code == 404
+    db.refresh(planned_exercise)
+    assert planned_exercise.is_completed is False
+    db.refresh(workout)
+    assert workout.is_completed is False
+
     voice_response = client.post(
         "/api/v1/coach/voice-command",
         headers=auth_headers,
@@ -156,3 +166,67 @@ def test_adaptation_is_scoped_to_the_owning_user(client, auth_headers, db, test_
     assert owner_response.status_code == 200
     assert owner_response.json()["is_substituted"] is True
     assert owner_response.json()["exercise_id"] == substitute.id
+
+    owner_completion = client.post(
+        f"/api/v1/workouts/plan/exercises/{planned_exercise.id}/complete",
+        headers=auth_headers,
+    )
+    assert owner_completion.status_code == 200
+    assert owner_completion.json()["is_completed"] is True
+    assert owner_completion.json()["workout_completed"] is True
+
+
+def test_session_power_score_preserves_zero_accuracy(client, auth_headers, db, test_user):
+    session = WorkoutSession(
+        user_id=test_user.id,
+        exercise_type="pushup",
+        start_time=datetime.now(timezone.utc),
+        total_reps=10,
+        average_accuracy=90,
+    )
+    db.add(session)
+    db.commit()
+
+    response = client.patch(
+        f"/api/v1/workouts/sessions/{session.id}",
+        headers=auth_headers,
+        json={"average_accuracy": 0, "total_reps": 10},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["average_accuracy"] == 0
+    assert response.json()["power_score"] == 0
+
+
+def test_today_plan_returns_supported_database_exercises(client, auth_headers, db):
+    db.add_all([
+        Exercise(
+            name="Push-up",
+            slug="pushup",
+            description="Bodyweight upper body exercise.",
+            difficulty="beginner",
+            muscle_groups=["chest", "triceps"],
+            default_reps=10,
+            default_sets=3,
+        ),
+        Exercise(
+            name="Reverse Lunge",
+            slug="lunge",
+            description="Bodyweight unilateral leg exercise.",
+            difficulty="beginner",
+            muscle_groups=["quads", "glutes", "hamstrings"],
+            default_reps=10,
+            default_sets=3,
+        ),
+    ])
+    db.commit()
+
+    response = client.get("/api/v1/workouts/plan/today", headers=auth_headers)
+
+    assert response.status_code == 200
+    plan = response.json()
+    assert plan["exercises"]
+    assert plan["exercises"][0]["exercise_type"] == "pushup"
+    assert plan["exercises"][0]["sets"] == 3
+    assert plan["exercises"][0]["reps"] == 10
+    assert plan["exercises"][0]["is_completed"] is False
