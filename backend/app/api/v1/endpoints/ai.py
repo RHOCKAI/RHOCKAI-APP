@@ -32,7 +32,7 @@ class PoseAnalysisRequest(BaseModel):
     """Incoming pose data from the Flutter camera AI module"""
     exercise_type: str = Field(..., example="pushup")
     keypoints: List[KeypointData]
-    rep_number: Optional[int] = None
+    rep_number: Optional[int] = Field(None, ge=1)
 
 
 class FormFeedback(BaseModel):
@@ -92,22 +92,6 @@ EXERCISE_CATALOGUE = [
         calories_per_rep=0.35,
         description="A unilateral lower body exercise improving balance and leg strength.",
     ),
-    ExerciseInfo(
-        id="bicep_curl",
-        name="Bicep Curl",
-        muscle_groups=["biceps", "forearms"],
-        difficulty="beginner",
-        calories_per_rep=0.2,
-        description="An isolation exercise to build bicep strength and definition.",
-    ),
-    ExerciseInfo(
-        id="shoulder_press",
-        name="Shoulder Press",
-        muscle_groups=["deltoids", "triceps", "upper_back"],
-        difficulty="intermediate",
-        calories_per_rep=0.4,
-        description="An overhead pressing movement to build shoulder strength and mass.",
-    ),
 ]
 
 # ---------------------------------------------------------------------------
@@ -132,8 +116,9 @@ async def analyze_pose(
     - Whether this keyframe represents a valid counted rep
     """
     # Validate exercise type
-    valid_ids = {e.id for e in EXERCISE_CATALOGUE}
-    if request.exercise_type not in valid_ids:
+    normalized_exercise_type = request.exercise_type.strip().lower()
+    valid_ids = {e.id.lower() for e in EXERCISE_CATALOGUE}
+    if normalized_exercise_type not in valid_ids:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=f"Unknown exercise type '{request.exercise_type}'. "
@@ -161,7 +146,18 @@ async def analyze_pose(
     analyzer = PoseAnalyzer()
     keypoints_dict = {kp.name: {"x": kp.x, "y": kp.y, "score": kp.confidence}
                       for kp in confident_keypoints}
-    accuracy = analyzer.calculate_accuracy(keypoints_dict, request.exercise_type)
+    missing_keypoints = analyzer.missing_keypoints(keypoints_dict, normalized_exercise_type)
+    if missing_keypoints:
+        return FormFeedback(
+            exercise_type=request.exercise_type,
+            is_valid_pose=False,
+            accuracy_score=0.0,
+            issues=[f"Missing required landmarks: {', '.join(missing_keypoints)}."],
+            suggestions=["Turn so the required joints are visible to the camera."],
+            rep_counted=False,
+        )
+
+    accuracy = analyzer.calculate_accuracy(keypoints_dict, normalized_exercise_type)
 
     # Generate contextual feedback based on accuracy band
     issues: List[str] = []
@@ -179,7 +175,7 @@ async def analyze_pose(
         suggestions.append("Great form! Keep it up.")
 
     # Count rep if accuracy is sufficient
-    rep_counted = accuracy >= 60.0
+    rep_counted = request.rep_number is not None and accuracy >= 60.0
 
     return FormFeedback(
         exercise_type=request.exercise_type,

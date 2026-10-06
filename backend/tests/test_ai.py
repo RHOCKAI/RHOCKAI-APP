@@ -8,6 +8,8 @@ import pytest
 VALID_KEYPOINTS = [
     {"name": "left_shoulder", "x": 0.3, "y": 0.4, "confidence": 0.9},
     {"name": "right_shoulder", "x": 0.7, "y": 0.4, "confidence": 0.9},
+    {"name": "left_elbow", "x": 0.3, "y": 0.5, "confidence": 0.9},
+    {"name": "left_wrist", "x": 0.3, "y": 0.6, "confidence": 0.9},
     {"name": "left_hip", "x": 0.3, "y": 0.6, "confidence": 0.85},
     {"name": "right_hip", "x": 0.7, "y": 0.6, "confidence": 0.85},
     {"name": "left_knee", "x": 0.3, "y": 0.75, "confidence": 0.8},
@@ -61,6 +63,15 @@ class TestAnalyzePose:
         assert response.status_code == 200
         assert response.json()["is_valid_pose"] is False
 
+    def test_case_insensitive_exercise_type_is_supported(self, client, auth_headers):
+        payload = {
+            "exercise_type": "PushUp",
+            "keypoints": VALID_KEYPOINTS,
+        }
+        response = client.post("/api/v1/ai/analyze", json=payload, headers=auth_headers)
+        assert response.status_code == 200
+        assert response.json()["exercise_type"] == "PushUp"
+
     def test_unknown_exercise_returns_422(self, client, auth_headers):
         payload = {
             "exercise_type": "backflip",
@@ -68,6 +79,35 @@ class TestAnalyzePose:
         }
         response = client.post("/api/v1/ai/analyze", json=payload, headers=auth_headers)
         assert response.status_code == 422
+
+    def test_unsupported_scoring_exercise_returns_422(self, client, auth_headers):
+        payload = {
+            "exercise_type": "bicep_curl",
+            "keypoints": VALID_KEYPOINTS,
+        }
+        response = client.post("/api/v1/ai/analyze", json=payload, headers=auth_headers)
+        assert response.status_code == 422
+
+    def test_missing_exercise_landmarks_are_not_a_valid_pose(self, client, auth_headers):
+        payload = {
+            "exercise_type": "pushup",
+            "keypoints": [point for point in VALID_KEYPOINTS if point["name"] not in {"left_elbow", "left_wrist"}],
+        }
+        response = client.post("/api/v1/ai/analyze", json=payload, headers=auth_headers)
+
+        assert response.status_code == 200
+        assert response.json()["is_valid_pose"] is False
+        assert response.json()["rep_counted"] is False
+
+    def test_pose_without_rep_number_does_not_claim_a_counted_rep(self, client, auth_headers):
+        response = client.post(
+            "/api/v1/ai/analyze",
+            json={"exercise_type": "pushup", "keypoints": VALID_KEYPOINTS},
+            headers=auth_headers,
+        )
+
+        assert response.status_code == 200
+        assert response.json()["rep_counted"] is False
 
     def test_requires_auth(self, client):
         response = client.post("/api/v1/ai/analyze", json={})
