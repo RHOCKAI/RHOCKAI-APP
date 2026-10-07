@@ -27,7 +27,7 @@ class RepCounter {
   /// Processes the current pose and updates the state machine.
   /// Returns the current angle calculated, or -1.0 if the signal is invalid.
   double processPose(Pose pose) {
-    if (exerciseType == 'plank') {
+    if (exerciseType.toLowerCase() == 'plank') {
       return -1.0;
     }
 
@@ -36,7 +36,7 @@ class RepCounter {
       return -1.0;
     }
 
-    final thresholds = exerciseType == 'squat'
+    final thresholds = exerciseType.toLowerCase().contains('squat')
         ? ExerciseThresholds.squat
         : ExerciseThresholds.pushup;
 
@@ -75,20 +75,42 @@ class RepCounter {
   }
 
   double _getExerciseAngle(Pose pose) {
-    if (exerciseType == 'squat') {
-      return _calculateAngleConfidenceGated(
+    if (exerciseType.toLowerCase().contains('squat')) {
+      final leftAngle = _calculateAngleConfidenceGated(
         pose,
         PoseLandmarkType.leftHip,
         PoseLandmarkType.leftKnee,
         PoseLandmarkType.leftAnkle,
       );
+      final rightAngle = _calculateAngleConfidenceGated(
+        pose,
+        PoseLandmarkType.rightHip,
+        PoseLandmarkType.rightKnee,
+        PoseLandmarkType.rightAnkle,
+      );
+
+      if (leftAngle >= 0 && rightAngle >= 0) {
+        return (leftAngle + rightAngle) / 2;
+      }
+      return leftAngle >= 0 ? leftAngle : rightAngle;
     } else {
-      return _calculateAngleConfidenceGated(
+      final leftAngle = _calculateAngleConfidenceGated(
         pose,
         PoseLandmarkType.leftShoulder,
         PoseLandmarkType.leftElbow,
         PoseLandmarkType.leftWrist,
       );
+      final rightAngle = _calculateAngleConfidenceGated(
+        pose,
+        PoseLandmarkType.rightShoulder,
+        PoseLandmarkType.rightElbow,
+        PoseLandmarkType.rightWrist,
+      );
+
+      if (leftAngle >= 0 && rightAngle >= 0) {
+        return (leftAngle + rightAngle) / 2;
+      }
+      return leftAngle >= 0 ? leftAngle : rightAngle;
     }
   }
 

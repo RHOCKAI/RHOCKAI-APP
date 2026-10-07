@@ -246,6 +246,9 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
     }
 
     setState(() {
+      _isWarmingUp = false;
+      _isWorkoutActive = true;
+      _isSetupPhase = false;
       _feedbackMessage = AppLocalizations.of(context)?.go ?? 'GO!';
       _feedbackColor = const Color(0xFF00FF88);
     });
@@ -586,7 +589,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
 
     // 1. Quality Check
     if (_qualityChecker != null) {
-      final quality = _qualityChecker!.check(pose);
+      final quality = _qualityChecker!.check(pose, exerciseType: widget.exerciseType);
       if (quality.quality != PoseQuality.good) {
         if (mounted) {
           setState(() {
@@ -599,18 +602,18 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       }
     }
 
-    // 2. EMA Smoothing to eliminate jitter
+    // 2. Smoothing to eliminate jitter
     final smoothedLandmarksMap = _smoother.smooth(pose.landmarks);
     final smoothedPose = Pose(landmarks: smoothedLandmarksMap);
 
     final poseLandmarks = PoseLandmarks.fromMLKit(smoothedPose);
 
-    // Ensure our new PoseConfig threshold is respected natively
-    if (!poseLandmarks.hasGoodConfidence(PoseConfig.minPoseConfidence)) {
+    // Verify key joints for this exercise are detected with sufficient confidence
+    if (!poseLandmarks.hasExerciseConfidence(widget.exerciseType, 0.3)) {
       if (mounted) {
         setState(() {
           _feedbackMessage =
-              AppLocalizations.of(context)?.comeCloser ?? 'Come closer';
+              AppLocalizations.of(context)?.comeCloser ?? 'Stay in frame';
           _feedbackColor = const Color(0xFFFF6B35);
           _currentPose = poseLandmarks;
         });
@@ -665,7 +668,7 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
       ));
     }
 
-    final envStatus = EnvironmentValidator.validate(image, poseLandmarks);
+    final envStatus = EnvironmentValidator.validate(image, poseLandmarks, exerciseType: widget.exerciseType);
 
     if (mounted) {
       setState(() {
@@ -1553,14 +1556,8 @@ class _CameraAIScreenState extends ConsumerState<CameraAIScreen>
                                 'Resume')),
                 () async {
                   if (_isSetupPhase) {
-                    if (_isEnvironmentValid) {
-                      await HapticFeedback.heavyImpact();
-                      _startWarmup();
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(_environmentMessage)),
-                      );
-                    }
+                    await HapticFeedback.heavyImpact();
+                    _startWarmup();
                     return;
                   }
                   if (_isResting) {

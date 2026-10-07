@@ -1,81 +1,97 @@
 import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import '../pose/pose_landmark_model.dart';
-import '../../../core/constants/exercises.dart';
 
 /// 💡 Environment Validator
-/// 
+///
 /// Provides feedback on lighting conditions and user positioning
 /// relative to the camera to optimize AI accuracy.
 class EnvironmentValidator {
-  
   /// Check lighting brightness using simple YUV luminance analysis
   static double calculateLuminance(CameraImage image) {
-    if (image.format.group != ImageFormatGroup.nv21 && 
+    if (image.format.group != ImageFormatGroup.nv21 &&
         image.format.group != ImageFormatGroup.yuv420) {
-      return 1.0; // Assume okay for non-YUV formats (iOS)
+      return 120.0; // Assume okay for non-YUV formats (iOS)
     }
-    
-    // The first plane is usually the Y-plane (luminance)
+
+    if (image.planes.isEmpty) {
+      return 120.0;
+    }
+
     final Uint8List bytes = image.planes[0].bytes;
-    int total = 0;
-    
-    // Sample every 100th pixel for performance
-    for (int i = 0; i < bytes.length; i += 100) {
-      total += bytes[i];
+    if (bytes.isEmpty) {
+      return 120.0;
     }
-    
-    return total / (bytes.length / 100); // 0-255 scale
+
+    int total = 0;
+    int sampled = 0;
+
+    // Sample every 200th pixel for rapid performance
+    for (int i = 0; i < bytes.length; i += 200) {
+      total += bytes[i];
+      sampled++;
+    }
+
+    if (sampled == 0) {
+      return 120.0;
+    }
+    return total / sampled; // 0-255 scale
   }
 
-  /// Verify user is at a good distance and fully in frame
-  static String? checkPositioning(PoseLandmarks? pose) {
+  /// Verify user is in frame with normalized coordinates
+  static String? checkPositioning(CameraImage image, PoseLandmarks? pose, {String? exerciseType}) {
     if (pose == null) {
-      return 'Stand in frame';
+      return 'Step into the camera frame';
     }
-    
-    // Check if critical landmarks are missing or low confidence
-    if (!pose.hasGoodConfidence(ExerciseThresholds.minLandmarkConfidence)) {
-      return 'Lighting too dark or blocked view';
+
+    final isFloor = exerciseType != null &&
+        (exerciseType.toLowerCase().contains('pushup') ||
+            exerciseType.toLowerCase().contains('plank') ||
+            exerciseType.toLowerCase().contains('bridge'));
+
+    if (isFloor) {
+      // For pushups/planks, user is on the floor
+      final hasArm = pose.leftShoulder.likelihood > 0.25 || pose.rightShoulder.likelihood > 0.25;
+      final hasCore = pose.leftHip.likelihood > 0.25 || pose.rightHip.likelihood > 0.25;
+      if (!hasArm && !hasCore) {
+        return 'Position your mat in camera view';
+      }
+      return null;
     }
-    
-    // Check height in frame (should be ~60-80% of frame height)
-    final noseY = pose.nose.y;
-    final ankleY = (pose.leftAnkle.y + pose.rightAnkle.y) / 2;
-    final heightInFrame = (ankleY - noseY).abs();
-    
-    if (heightInFrame < 0.4) {
-      return 'Come closer to camera';
+
+    final imgW = image.width.toDouble();
+    final imgH = image.height.toDouble();
+
+    if (imgW <= 0 || imgH <= 0) {
+      return null;
     }
-    if (heightInFrame > 0.9) {
-      return 'Step back a bit';
+
+    // Normalize coordinates
+    final avgX = ((pose.leftShoulder.x + pose.rightShoulder.x) / 2) / imgW;
+
+    if (avgX < 0.1) {
+      return 'Move towards center';
     }
-    
-    // Check lateral centering
-    final avgX = (pose.leftShoulder.x + pose.rightShoulder.x) / 2;
-    if (avgX < 0.3) {
-      return 'Move to your right';
+    if (avgX > 0.9) {
+      return 'Move towards center';
     }
-    if (avgX > 0.7) {
-      return 'Move to your left';
-    }
-    
+
     return null; // Position is good
   }
 
   /// Combined status for UI
-  static EnvironmentStatus validate(CameraImage image, PoseLandmarks? pose) {
+  static EnvironmentStatus validate(CameraImage image, PoseLandmarks? pose, {String? exerciseType}) {
     final luminance = calculateLuminance(image);
-    final posIssue = checkPositioning(pose);
-    
-    if (luminance < 40) {
+    final posIssue = checkPositioning(image, pose, exerciseType: exerciseType);
+
+    if (luminance < 30) {
       return EnvironmentStatus(isValid: false, message: 'Too dark! Turn on lights 💡');
     }
-    
+
     if (posIssue != null) {
       return EnvironmentStatus(isValid: false, message: posIssue);
     }
-    
+
     return EnvironmentStatus(isValid: true, message: 'Environment Ready ✅');
   }
 }
@@ -83,6 +99,6 @@ class EnvironmentValidator {
 class EnvironmentStatus {
   final bool isValid;
   final String message;
-  
+
   EnvironmentStatus({required this.isValid, required this.message});
 }

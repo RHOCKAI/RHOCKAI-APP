@@ -94,15 +94,61 @@ class PoseLandmarks {
       landmarks[mlkit.PoseLandmarkType.nose] ??
       PoseLandmark(x: 0, y: 0, z: 0, likelihood: 0);
 
-  bool hasGoodConfidence(double minConfidence) {
+  /// Checks if key landmarks for the specific exercise have sufficient confidence.
+  bool hasExerciseConfidence(String exerciseType, [double minConfidence = 0.35]) {
+    final lower = exerciseType.toLowerCase();
+    if (lower.contains('pushup') || lower.contains('dip')) {
+      final leftArm = leftShoulder.likelihood >= minConfidence &&
+          leftElbow.likelihood >= minConfidence;
+      final rightArm = rightShoulder.likelihood >= minConfidence &&
+          rightElbow.likelihood >= minConfidence;
+      return leftArm || rightArm;
+    } else if (lower.contains('squat') || lower.contains('lunge')) {
+      final leftLeg = leftHip.likelihood >= minConfidence &&
+          leftKnee.likelihood >= minConfidence;
+      final rightLeg = rightHip.likelihood >= minConfidence &&
+          rightKnee.likelihood >= minConfidence;
+      return leftLeg || rightLeg;
+    } else if (lower.contains('plank')) {
+      final leftCore = leftShoulder.likelihood >= minConfidence &&
+          leftHip.likelihood >= minConfidence;
+      final rightCore = rightShoulder.likelihood >= minConfidence &&
+          rightHip.likelihood >= minConfidence;
+      return leftCore || rightCore;
+    }
+    // Default: at least shoulder and hip visible on either side
+    return (leftShoulder.likelihood >= minConfidence && leftHip.likelihood >= minConfidence) ||
+        (rightShoulder.likelihood >= minConfidence && rightHip.likelihood >= minConfidence);
+  }
+
+  /// General confidence across core body landmarks (excluding facial points)
+  bool hasGoodConfidence([double minConfidence = 0.4]) {
     if (landmarks.isEmpty) {
       return false;
     }
-    double avgConfidence = 0.0;
-    for (var l in landmarks.values) {
-      avgConfidence += l.likelihood;
+    final coreTypes = [
+      mlkit.PoseLandmarkType.leftShoulder,
+      mlkit.PoseLandmarkType.rightShoulder,
+      mlkit.PoseLandmarkType.leftElbow,
+      mlkit.PoseLandmarkType.rightElbow,
+      mlkit.PoseLandmarkType.leftHip,
+      mlkit.PoseLandmarkType.rightHip,
+      mlkit.PoseLandmarkType.leftKnee,
+      mlkit.PoseLandmarkType.rightKnee,
+    ];
+
+    double total = 0.0;
+    int count = 0;
+    for (final t in coreTypes) {
+      final lm = landmarks[t];
+      if (lm != null) {
+        total += lm.likelihood;
+        count++;
+      }
     }
-    avgConfidence /= landmarks.length;
-    return avgConfidence >= minConfidence;
+    if (count == 0) {
+      return false;
+    }
+    return (total / count) >= minConfidence;
   }
 }

@@ -31,53 +31,50 @@ class FormFeedback {
 class FormChecker {
   static const double _perfectAccuracy = 100.0;
 
-  /// Check push-up form with 3D joint analysis
+  /// Check push-up form with joint analysis
   static FormFeedback checkPushupForm(PoseLandmarks pose) {
     final List<String> issues = [];
     final Map<String, double> angles = {};
     double totalDeduction = 0.0;
 
-    // 1. Core / Hip Alignment (Perfect: 175-185°)
-    final hipAngleL = AngleCalculator.getHipAngle(pose, leftSide: true);
-    final hipAngleR = AngleCalculator.getHipAngle(pose, leftSide: false);
-    final avgHipAngle = (hipAngleL + hipAngleR) / 2;
-    angles['hip'] = avgHipAngle;
+    // 1. Core / Hip Alignment (Normal range: 155-195°)
+    final hipAngle = AngleCalculator.getHipAngle(pose);
+    angles['hip'] = hipAngle;
 
-    if (avgHipAngle < 168) {
-      final diff = (175 - avgHipAngle).round();
-      issues.add('Hips are too low! Lift them $diff°');
-      totalDeduction += 25.0;
-    } else if (avgHipAngle > 192) {
-      final diff = (avgHipAngle - 185).round();
-      issues.add('Hips are too high! Lower them $diff°');
+    if (hipAngle < 155) {
+      final diff = (170 - hipAngle).round();
+      issues.add('Hips are sagging! Lift them $diff°');
       totalDeduction += 20.0;
-    }
-
-    // 2. Arm Symmetry
-    final leftElbow = AngleCalculator.getElbowAngle(pose, leftSide: true);
-    final rightElbow = AngleCalculator.getElbowAngle(pose, leftSide: false);
-    final elbowDiff = (leftElbow - rightElbow).abs();
-    angles['elbowDiff'] = elbowDiff;
-
-    if (elbowDiff > 12) {
-      issues.add('Balance your arms! ${elbowDiff.round()}° difference.');
+    } else if (hipAngle > 200) {
+      final diff = (hipAngle - 180).round();
+      issues.add('Hips are too high! Lower them $diff°');
       totalDeduction += 15.0;
     }
 
-    // 3. Head Neutrality
-    final noseY = pose.nose.y;
-    final shoulderY = (pose.leftShoulder.y + pose.rightShoulder.y) / 2;
-    if (noseY > shoulderY + 0.08) {
-      issues.add('Look down! Keep your neck aligned.');
-      totalDeduction += 10.0;
+    // 2. Arm Symmetry (only evaluate if both arms are clearly visible from front)
+    final bothArmsClear = pose.leftElbow.likelihood > 0.45 &&
+        pose.rightElbow.likelihood > 0.45 &&
+        pose.leftWrist.likelihood > 0.45 &&
+        pose.rightWrist.likelihood > 0.45;
+
+    if (bothArmsClear) {
+      final leftElbow = AngleCalculator.getElbowAngle(pose, leftSide: true);
+      final rightElbow = AngleCalculator.getElbowAngle(pose, leftSide: false);
+      final elbowDiff = (leftElbow - rightElbow).abs();
+      angles['elbowDiff'] = elbowDiff;
+
+      if (elbowDiff > 25) {
+        issues.add('Balance your arms evenly.');
+        totalDeduction += 10.0;
+      }
     }
 
     final accuracy = (_perfectAccuracy - totalDeduction).clamp(0.0, 100.0);
     String? tip;
-    if (accuracy >= 98) {
-      tip = 'Elite form! Stay rock solid.';
-    } else if (accuracy >= 90) {
-      tip = 'Almost perfect. Focus on breathing.';
+    if (accuracy >= 95) {
+      tip = 'Great form! Keep your core tight.';
+    } else if (accuracy >= 85) {
+      tip = 'Solid rep! Maintain control.';
     }
 
     return FormFeedback(
@@ -95,27 +92,24 @@ class FormChecker {
     final Map<String, double> angles = {};
     double totalDeduction = 0.0;
 
-    // 1. Knee Depth (Target: 85-95°)
-    final kneeL = AngleCalculator.getKneeAngle(pose, leftSide: true);
-    final kneeR = AngleCalculator.getKneeAngle(pose, leftSide: false);
-    final avgKnee = (kneeL + kneeR) / 2;
-    angles['knee'] = avgKnee;
+    // 1. Knee Depth
+    final kneeAngle = AngleCalculator.getAverageKneeAngle(pose);
+    angles['knee'] = kneeAngle;
 
-    if (avgKnee > 102) {
-      final diff = (avgKnee - 90).round();
-      issues.add('Drop your hips $diff° deeper!');
-      totalDeduction += 30.0;
-    } else if (avgKnee < 75) {
+    if (kneeAngle > 115) {
+      issues.add('Drop your hips a bit deeper!');
+      totalDeduction += 20.0;
+    } else if (kneeAngle < 70) {
       issues.add('Too deep! Stop at parallel.');
-      totalDeduction += 15.0;
+      totalDeduction += 10.0;
     }
 
     // 2. Torso Angle
     final hipAngle = AngleCalculator.getHipAngle(pose);
     angles['hip'] = hipAngle;
-    if (hipAngle < 140) {
+    if (hipAngle < 120) {
       issues.add('Chest up! Don\'t lean forward too much.');
-      totalDeduction += 25.0;
+      totalDeduction += 15.0;
     }
 
     final accuracy = (_perfectAccuracy - totalDeduction).clamp(0.0, 100.0);
@@ -126,7 +120,7 @@ class FormChecker {
       accuracy: accuracy,
       angles: angles,
       perfectionTip:
-          accuracy > 95 ? 'Perfect depth! Drive through heels.' : null,
+          accuracy > 90 ? 'Great depth! Drive through your heels.' : null,
     );
   }
 
@@ -139,12 +133,12 @@ class FormChecker {
     final hipAngle = AngleCalculator.getHipAngle(pose);
     angles['hip'] = hipAngle;
 
-    if (hipAngle < 172) {
+    if (hipAngle < 160) {
       issues.add('Hips are sagging! Squeeze your core.');
-      totalDeduction += 40.0;
-    } else if (hipAngle > 188) {
+      totalDeduction += 25.0;
+    } else if (hipAngle > 200) {
       issues.add('Hips are too high! Flatten your back.');
-      totalDeduction += 35.0;
+      totalDeduction += 20.0;
     }
 
     final accuracy = (_perfectAccuracy - totalDeduction).clamp(0.0, 100.0);
@@ -154,31 +148,22 @@ class FormChecker {
       issues: issues,
       accuracy: accuracy,
       angles: angles,
-      perfectionTip: accuracy > 98 ? 'Absolute stability. Don\'t move.' : null,
+      perfectionTip: accuracy > 90 ? 'Steady hold. Keep breathing.' : null,
     );
   }
 
   /// Entry point for all exercises
   static FormFeedback checkForm(String exerciseType, PoseLandmarks pose) {
-    switch (exerciseType.toLowerCase()) {
-      case 'pushup':
-      case 'push-up':
-      case 'diamond_pushup':
-        return checkPushupForm(pose);
-      case 'squat':
-      case 'sumo_squat':
-      case 'lunge':
-      case 'reverse_lunge':
-        return checkSquatForm(pose);
-      case 'plank':
-        return checkPlankForm(pose);
-      default:
-        return FormFeedback(
-          isCorrect: false,
-          issues: ['Form analysis is not supported for this exercise.'],
-          accuracy: 0.0,
-          angles: const {},
-        );
+    final lower = exerciseType.toLowerCase();
+    if (lower.contains('pushup') || lower.contains('push-up') || lower.contains('dip')) {
+      return checkPushupForm(pose);
+    } else if (lower.contains('squat') || lower.contains('lunge')) {
+      return checkSquatForm(pose);
+    } else if (lower.contains('plank')) {
+      return checkPlankForm(pose);
+    } else {
+      // Default / generic check
+      return FormFeedback.perfect();
     }
   }
 }

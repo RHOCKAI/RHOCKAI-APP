@@ -3,11 +3,10 @@ import 'angle_calculator.dart';
 import 'tempo_analyzer.dart';
 import '../../../core/constants/exercises.dart';
 
-
 /// Rep detection phases
 enum RepPhase {
-  up, // Starting position
-  down, // Bottom position
+  up, // Starting position / extended
+  down, // Bottom inflection point / contracted
   transition, // Moving
 }
 
@@ -28,7 +27,7 @@ class RepStateMachine {
   late TempoAnalyzer _tempoAnalyzer;
 
   DateTime? lastRepTime;
-  
+
   // High-precision tracking
   final List<double> _angleHistory = [];
   static const int _historyCapacity = 15;
@@ -50,13 +49,21 @@ class RepStateMachine {
       case ExerciseType.diamondPushup:
       case ExerciseType.archerPushup:
       case ExerciseType.spidermanPushup:
-        downAngleThreshold = 95.0; 
-        upAngleThreshold = 160.0;
+      case ExerciseType.pikePushup:
+      case ExerciseType.tricepDip:
+        // Realistic elbow angles: flexion down to <=105°, extension up to >=150°
+        downAngleThreshold = 105.0;
+        upAngleThreshold = 150.0;
         break;
       case ExerciseType.squat:
       case ExerciseType.sumoSquat:
-        downAngleThreshold = 100.0;
-        upAngleThreshold = 165.0;
+      case ExerciseType.jumpSquat:
+      case ExerciseType.pistolSquat:
+      case ExerciseType.lunge:
+      case ExerciseType.reverseLunge:
+        // Realistic knee angles: flexion down to <=110°, extension up to >=155°
+        downAngleThreshold = 110.0;
+        upAngleThreshold = 155.0;
         break;
       case ExerciseType.plank:
       case ExerciseType.sidePlank:
@@ -64,8 +71,8 @@ class RepStateMachine {
         upAngleThreshold = 0;
         break;
       default:
-        downAngleThreshold = 90.0;
-        upAngleThreshold = 160.0;
+        downAngleThreshold = 100.0;
+        upAngleThreshold = 150.0;
     }
   }
 
@@ -77,24 +84,33 @@ class RepStateMachine {
     // State machine logic
     switch (currentPhase) {
       case RepPhase.up:
-        if (angle < downAngleThreshold) {
+        // User moves into bottom position (elbows or knees bent)
+        if (angle <= downAngleThreshold) {
           currentPhase = RepPhase.down;
-          _tempoAnalyzer.recordPhaseStart(); 
+          _tempoAnalyzer.recordPhaseStart();
           smoothnessScore = 100.0; // Reset for new rep
         }
         break;
 
       case RepPhase.down:
-        if (angle > upAngleThreshold) {
-          if (_isValidRep()) {
+        // User pushes back up into starting position
+        if (angle >= upAngleThreshold) {
+          final now = DateTime.now();
+          // Debounce rapid frame spikes (minimum 350ms between full reps)
+          final isDebounced = lastRepTime != null &&
+              now.difference(lastRepTime!).inMilliseconds < 350;
+
+          // Always return to up phase so we never get stuck in down phase
+          currentPhase = RepPhase.up;
+
+          if (!isDebounced) {
             repCount++;
             final concentricDuration = _tempoAnalyzer.completePhase();
             _tempoAnalyzer.updateRepDurations(1.5, 0.2, concentricDuration);
 
             lastTempoScore = _tempoAnalyzer.calculateScore();
             tempoFeedback = _tempoAnalyzer.getTempoFeedback();
-            lastRepTime = DateTime.now();
-            currentPhase = RepPhase.up;
+            lastRepTime = now;
             return true;
           }
         }
@@ -117,7 +133,7 @@ class RepStateMachine {
       }
       _lastVelocity = velocity;
     }
-    
+
     _angleHistory.add(currentAngle);
     if (_angleHistory.length > _historyCapacity) {
       _angleHistory.removeAt(0);
@@ -135,6 +151,7 @@ class RepStateMachine {
         return AngleCalculator.getAverageElbowAngle(pose);
       case ExerciseType.squat:
       case ExerciseType.sumoSquat:
+      case ExerciseType.jumpSquat:
       case ExerciseType.lunge:
       case ExerciseType.reverseLunge:
       case ExerciseType.pistolSquat:
@@ -144,22 +161,13 @@ class RepStateMachine {
     }
   }
 
-  bool _isValidRep() {
-    if (lastRepTime == null) {
-      return true;
-    }
-    final timeSinceLastRep = DateTime.now().difference(lastRepTime!);
-    return timeSinceLastRep.inMilliseconds >= ExerciseThresholds.minRepDurationMs &&
-           timeSinceLastRep.inMilliseconds <= ExerciseThresholds.maxRepDurationMs;
-  }
-
   bool _checkBasicForm(PoseLandmarks pose) {
     final hipAngle = AngleCalculator.getHipAngle(pose);
     if (exerciseType == ExerciseType.pushup) {
-      return hipAngle > 155 && hipAngle < 205;
+      return hipAngle > 140 && hipAngle < 210;
     }
     if (exerciseType == ExerciseType.squat) {
-      return hipAngle > 130;
+      return hipAngle > 120;
     }
     return true;
   }
@@ -176,17 +184,20 @@ class RepStateMachine {
   double getRepProgress(PoseLandmarks pose) {
     final angle = _getRelevantAngle(pose);
     final range = upAngleThreshold - downAngleThreshold;
+    if (range <= 0) {
+      return 0.0;
+    }
     final progress = (upAngleThreshold - angle) / range;
     return progress.clamp(0.0, 1.0);
   }
 
   String getStatusMessage() {
-    if (smoothnessScore < 70) {
-      return 'Slow and steady! ⏳';
+    if (smoothnessScore < 60) {
+      return 'Smooth motion ⏳';
     }
     switch (currentPhase) {
       case RepPhase.up:
-        return 'Ready';
+        return 'Ready — Lower down';
       case RepPhase.down:
         return 'Push up!';
       default:

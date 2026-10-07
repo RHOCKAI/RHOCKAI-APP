@@ -3,16 +3,16 @@ class PoseConfig {
   const PoseConfig._();
 
   /// Minimum confidence threshold for considering a pose valid.
-  static const double minPoseConfidence = 0.6;
+  static const double minPoseConfidence = 0.35;
 
   /// Minimum confidence for detecting the presence of a person.
-  static const double minPresenceConfidence = 0.6;
+  static const double minPresenceConfidence = 0.35;
 
   /// Minimum confidence required for tracking individual landmarks.
-  static const double minTrackingConfidence = 0.6;
+  static const double minTrackingConfidence = 0.35;
 
   /// Hysteresis buffer in degrees to prevent boundary oscillation.
-  static const double angleHysteresis = 10.0;
+  static const double angleHysteresis = 8.0;
 
   /// Maximum framerate to process to prevent frame queuing on low-end devices.
   static const int maxProcessFps = 24;
@@ -28,11 +28,11 @@ class ExerciseThresholds {
     required this.upAngle,
   });
 
-  /// Squat: down=100°, up=160° (knee angle)
-  static const squat = ExerciseThresholds(downAngle: 100.0, upAngle: 160.0);
+  /// Squat: down=110°, up=155° (knee angle)
+  static const squat = ExerciseThresholds(downAngle: 110.0, upAngle: 155.0);
 
-  /// Pushup: down=90°, up=160° (elbow angle)
-  static const pushup = ExerciseThresholds(downAngle: 90.0, upAngle: 160.0);
+  /// Pushup: down=105°, up=150° (elbow angle)
+  static const pushup = ExerciseThresholds(downAngle: 105.0, upAngle: 150.0);
 }
 
 /// Wraps print calls so they compile away in release mode.
