@@ -9,7 +9,7 @@ class FlutterTTSProvider implements TTSProvider {
 
   @override
   Future<void> initialize() async {
-    // Basic flutter_tts configuration
+    // Shared audio session (iOS) — must be set before anything else
     await _tts.setSharedInstance(true);
     await _tts.setIosAudioCategory(
       IosTextToSpeechAudioCategory.playback,
@@ -20,6 +20,12 @@ class FlutterTTSProvider implements TTSProvider {
       ],
       IosTextToSpeechAudioMode.voicePrompt,
     );
+
+    // Apply sensible defaults so first speech never uses system defaults
+    await _tts.setSpeechRate(0.6);
+    await _tts.setPitch(1.1);
+    await _tts.setVolume(1.0);
+    await _tts.setLanguage('en-US');
   }
 
   @override
@@ -33,7 +39,11 @@ class FlutterTTSProvider implements TTSProvider {
 
   @override
   Future<void> stop() async {
-    await _tts.stop();
+    try {
+      await _tts.stop();
+    } catch (e) {
+      debugPrint('FlutterTTS stop error: $e');
+    }
   }
 
   @override
@@ -43,7 +53,11 @@ class FlutterTTSProvider implements TTSProvider {
     double? rate,
     double? volume,
   }) async {
+    // Stop current speech before changing language — prevents engine glitches
     if (language != null) {
+      try {
+        await _tts.stop();
+      } catch (_) {}
       await _tts.setLanguage(language);
       await _setHighQualityVoice(language);
     }
@@ -63,8 +77,10 @@ class FlutterTTSProvider implements TTSProvider {
     await stop();
   }
 
-  /// Attempts to find and set the highest quality, most natural voice available
-  /// for the selected language, prioritizing network voices (less robotic).
+  /// Finds the best available voice for the language, preferring:
+  /// 1. Network/cloud voices (Google TTS on Android — most natural)
+  /// 2. Premium/Enhanced voices (iOS)
+  /// 3. First voice matching the locale as a fallback
   Future<void> _setHighQualityVoice(String languageCode) async {
     try {
       final List<dynamic>? voices = await _tts.getVoices;
@@ -72,10 +88,13 @@ class FlutterTTSProvider implements TTSProvider {
         return;
       }
 
-      // Filter voices matching the requested language
+      final langPrefix = languageCode.split('-').first.toLowerCase();
+
       final availableVoices = voices.where((v) {
-        final locale = v['locale']?.toString() ?? '';
-        return locale.startsWith(languageCode.split('-').first);
+        final locale = (v['locale']?.toString() ?? '').toLowerCase();
+        // Match either 'en' prefix or exact locale like 'en-us'
+        return locale.startsWith(langPrefix) ||
+            locale.replaceAll('_', '-').startsWith(langPrefix);
       }).toList();
 
       if (availableVoices.isEmpty) {
@@ -84,26 +103,27 @@ class FlutterTTSProvider implements TTSProvider {
 
       Map<String, String>? bestVoice;
 
-      for (dynamic v in availableVoices) {
-        final name = v['name']?.toString().toLowerCase() ?? '';
-
-        // Android: Network voices are Google's cloud TTS (highly natural/motivational)
-        // iOS: Premium/Enhanced voices sound much less robotic
-        if (name.contains('network') ||
-            name.contains('premium') ||
-            name.contains('enhanced')) {
-          bestVoice = {
-            'name': v['name'].toString(),
-            'locale': v['locale'].toString()
-          };
-          break; // Found a high-quality voice
+      // Priority: network > premium > enhanced > any
+      for (final priority in ['network', 'premium', 'enhanced']) {
+        for (final v in availableVoices) {
+          final name = (v['name']?.toString() ?? '').toLowerCase();
+          if (name.contains(priority)) {
+            bestVoice = {
+              'name': v['name'].toString(),
+              'locale': v['locale'].toString(),
+            };
+            break;
+          }
+        }
+        if (bestVoice != null) {
+          break;
         }
       }
 
-      // Fallback: If no network voice, just pick the first one matching the locale
+      // Fallback: first voice matching the locale
       bestVoice ??= {
         'name': availableVoices.first['name'].toString(),
-        'locale': availableVoices.first['locale'].toString()
+        'locale': availableVoices.first['locale'].toString(),
       };
 
       await _tts.setVoice(bestVoice);

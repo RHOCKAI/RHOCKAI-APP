@@ -8,9 +8,9 @@ import '../../../core/providers/settings_provider.dart';
 
 /// Priority levels for voice messages
 enum VoicePriority {
-  high, // Injury alerts, critical warnings
+  high,   // Injury alerts, critical warnings
   normal, // Form feedback, rep counts
-  low, // Encouragement, general feedback
+  low,    // Encouragement, general feedback
 }
 
 /// Voice message with priority
@@ -41,16 +41,22 @@ class VoiceFeedbackService {
   bool _isEnabled = true;
 
   double _volume = 1.0;
-  double _pitch = 1.15;
-  double _rate = 0.55;
+  double _pitch = 1.1;
+  // Slightly faster rate (0.5 → 0.6) for snappier real-time feedback
+  double _rate = 0.6;
   String _language = 'en-US';
   String _locale = 'en';
   VoicePersonality _personality = VoicePersonality.natural;
 
   final Map<String, DateTime> _recentMessages = {};
-  final Duration _duplicateWindow = const Duration(seconds: 3);
+  // Reduced duplicate window: 2s is enough to avoid back-to-back repeats
+  final Duration _duplicateWindow = const Duration(seconds: 2);
   DateTime? _lastSpeechTime;
-  final Duration _minGapBetweenMessages = const Duration(seconds: 2);
+  // Reduced gap so feedback feels snappier (was 2s, now 0.8s)
+  final Duration _minGapBetweenMessages = const Duration(milliseconds: 800);
+
+  // Safety timer to unstick the queue if completionHandler never fires
+  Timer? _stuckQueueTimer;
 
   Future<void> initialize() async {
     if (_isInitialized) {
@@ -61,12 +67,14 @@ class VoiceFeedbackService {
       if (_provider is FlutterTTSProvider) {
         final flutterProvider = _provider as FlutterTTSProvider;
         flutterProvider.setCompletionHandler(() {
+          _stuckQueueTimer?.cancel();
           _isSpeaking = false;
           unawaited(_processQueue());
         });
 
         flutterProvider.setErrorHandler((msg) {
           debugPrint('TTS Error: $msg');
+          _stuckQueueTimer?.cancel();
           _isSpeaking = false;
           unawaited(_processQueue());
         });
@@ -99,11 +107,22 @@ class VoiceFeedbackService {
       return;
     }
 
-    final voiceMessage = VoiceMessage(text: message, priority: priority);
+    // For high-priority messages: drop all pending low/normal items and jump to front
     if (priority == VoicePriority.high) {
-      _messageQueue.addFirst(voiceMessage);
+      _messageQueue.removeWhere((m) => m.priority != VoicePriority.high);
+      _messageQueue.addFirst(VoiceMessage(text: message, priority: priority));
+      // Interrupt current speech so the warning fires immediately
+      if (_isSpeaking) {
+        await _provider.stop();
+        _stuckQueueTimer?.cancel();
+        _isSpeaking = false;
+      }
     } else {
-      _messageQueue.add(voiceMessage);
+      // Drop oldest low-priority items if the queue is getting backed up (> 3)
+      while (_messageQueue.length >= 3) {
+        _messageQueue.removeLast();
+      }
+      _messageQueue.add(VoiceMessage(text: message, priority: priority));
     }
 
     _recentMessages[message] = DateTime.now();
@@ -117,26 +136,42 @@ class VoiceFeedbackService {
       return;
     }
 
+    // Only enforce gap for non-high-priority messages
     if (_lastSpeechTime != null) {
       final timeSinceLastSpeech = DateTime.now().difference(_lastSpeechTime!);
       if (timeSinceLastSpeech < _minGapBetweenMessages) {
-        final waitTime = _minGapBetweenMessages - timeSinceLastSpeech;
-        await Future.delayed(waitTime);
+        final nextMsg = _messageQueue.first;
+        if (nextMsg.priority != VoicePriority.high) {
+          final waitTime = _minGapBetweenMessages - timeSinceLastSpeech;
+          await Future.delayed(waitTime);
+        }
       }
     }
 
     if (_messageQueue.isEmpty) {
       return;
     }
-    
+
     final message = _messageQueue.removeFirst();
     _isSpeaking = true;
     _lastSpeechTime = DateTime.now();
+
+    // Safety: if TTS completionHandler never fires (e.g. silent engine crash),
+    // unstick the queue after a generous timeout (15 seconds max per utterance)
+    final safetyTimeout = Duration(
+      seconds: 5 + (message.text.length ~/ 10).clamp(0, 10),
+    );
+    _stuckQueueTimer = Timer(safetyTimeout, () {
+      debugPrint('TTS safety timeout — unsticking queue');
+      _isSpeaking = false;
+      unawaited(_processQueue());
+    });
 
     try {
       await _provider.speak(message.text);
     } catch (e) {
       debugPrint('TTS speak error: $e');
+      _stuckQueueTimer?.cancel();
       _isSpeaking = false;
       unawaited(_processQueue());
     }
@@ -175,16 +210,19 @@ class VoiceFeedbackService {
   Future<void> announceRepCount(int reps, int? target) async {
     if (reps % 5 == 0) {
       if (target != null && reps == target ~/ 2) {
-        final milestone = VoiceScriptManager.getRepMilestone5(_locale, _personality);
+        final milestone =
+            VoiceScriptManager.getRepMilestone5(_locale, _personality);
         await speak('$reps $milestone', priority: VoicePriority.normal);
       } else {
-        final complete = VoiceScriptManager.getRepComplete(_locale, _personality);
+        final complete =
+            VoiceScriptManager.getRepComplete(_locale, _personality);
         await speak('$reps $complete', priority: VoicePriority.normal);
       }
     }
 
     if (target != null && reps == target) {
-      final message = VoiceScriptManager.getSessionComplete(_locale, _personality);
+      final message =
+          VoiceScriptManager.getSessionComplete(_locale, _personality);
       await speak(message, priority: VoicePriority.normal);
     }
   }
@@ -195,27 +233,31 @@ class VoiceFeedbackService {
   }
 
   Future<void> provideTempoFeedback(String feedback) async {
-    final message = VoiceScriptManager.getTempoFeedback(_locale, feedback, _personality);
+    final message = VoiceScriptManager.getTempoFeedback(
+        _locale, feedback, _personality);
     if (message != null) {
       await speak(message, priority: VoicePriority.normal);
     }
   }
 
   Future<void> encourage() async {
-    final encouragements = VoiceScriptManager.getEncouragement(_locale, _personality);
-    final message = encouragements[DateTime.now().second % encouragements.length];
+    final encouragements =
+        VoiceScriptManager.getEncouragement(_locale, _personality);
+    final message =
+        encouragements[DateTime.now().second % encouragements.length];
     await speak(message, priority: VoicePriority.low);
   }
 
   Future<void> alertInjuryRisk(String warning) async {
-    final prefix = VoiceScriptManager.getWarningPrefix(_locale, _personality);
+    final prefix =
+        VoiceScriptManager.getWarningPrefix(_locale, _personality);
     await speak('$prefix: $warning', priority: VoicePriority.high);
   }
 
-  Future<void> announceWorkoutComplete(int totalReps, double avgAccuracy) async {
+  Future<void> announceWorkoutComplete(
+      int totalReps, double avgAccuracy) async {
     final message = VoiceScriptManager.getWorkoutCompleteSummary(
-      _locale, _personality, totalReps, avgAccuracy.toInt()
-    );
+        _locale, _personality, totalReps, avgAccuracy.toInt());
     await speak(message, priority: VoicePriority.high);
   }
 
@@ -237,28 +279,28 @@ class VoiceFeedbackService {
       _language = language;
       _locale = language.split('-')[0];
     }
-    
+
     if (personality != null) {
       _personality = personality;
       switch (personality) {
         case VoicePersonality.sergeant:
-          _pitch = 0.85; 
-          _rate = 0.65; 
+          _pitch = 0.85;
+          _rate = 0.65;
           _volume = 1.0;
           break;
         case VoicePersonality.zen:
-          _pitch = 1.0; 
-          _rate = 0.45; 
+          _pitch = 1.0;
+          _rate = 0.45;
           _volume = 0.8;
           break;
         case VoicePersonality.hype:
-          _pitch = 1.3; 
-          _rate = 0.7; 
+          _pitch = 1.3;
+          _rate = 0.7;
           _volume = 1.0;
           break;
         case VoicePersonality.natural:
-          _pitch = 1.15; 
-          _rate = 0.55; 
+          _pitch = 1.1;
+          _rate = 0.6;
           _volume = 1.0;
           break;
       }
@@ -287,6 +329,7 @@ class VoiceFeedbackService {
   bool get isEnabled => _isEnabled;
 
   Future<void> stop() async {
+    _stuckQueueTimer?.cancel();
     await _provider.stop();
     _isSpeaking = false;
     _messageQueue.clear();
@@ -300,6 +343,7 @@ class VoiceFeedbackService {
   }
 
   Future<void> dispose() async {
+    _stuckQueueTimer?.cancel();
     await stop();
     await _provider.dispose();
   }
