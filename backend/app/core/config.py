@@ -63,7 +63,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
 
     # OTA Updates
-    LATEST_APP_VERSION: str = "2.0.0"
+    LATEST_APP_VERSION: str = "2.1.0"
     APK_DOWNLOAD_URL: str = "https://rhockai-app.onrender.com/static/rhockai.apk"
 
 

@@ -7,8 +7,10 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.exc import SQLAlchemyError
 import logging
+import os
 import time
 
 from app.core.config import settings
@@ -86,6 +88,12 @@ async def startup_event():
         logger.error(f"Failed to create database tables: {e}")
         raise
 
+    # Ensure the static directory exists (for APK hosting)
+    static_dir = os.path.join(os.path.dirname(__file__), "..", "..", "static")
+    static_dir = os.path.abspath(static_dir)
+    os.makedirs(static_dir, exist_ok=True)
+    logger.info(f"Static files directory: {static_dir}")
+
 # Shutdown event
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -107,6 +115,12 @@ async def health_check():
 
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)
+
+# Mount static files directory (APK downloads, etc.)
+# Resolves to /static/rhockai.apk → backend/static/rhockai.apk
+_static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "static"))
+os.makedirs(_static_dir, exist_ok=True)
+app.mount("/static", StaticFiles(directory=_static_dir), name="static")
 
 if __name__ == "__main__":
     import uvicorn

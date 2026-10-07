@@ -357,7 +357,9 @@ docker-compose.override.yml
 
 # Media and static files (if any)
 /media/
-/static/
+# /static/ - tracked for APK hosting (see backend/static/.gitkeep)
+!/static/
+!/static/.gitkeep
 
 # Uploads
 /uploads/
