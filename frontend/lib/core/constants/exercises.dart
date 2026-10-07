@@ -123,7 +123,7 @@ class Exercises {
     category: 'upper_body',
     idealTempo: ExerciseTempo(eccentric: 2.0, isometric: 0.5, concentric: 1.0),
     caloriesPerRep: 0.50,
-    imageUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&q=80',
+    imageUrl: 'assets/images/exercise/beginner/pushup.jpg',
   );
 
   static const squat = ExerciseData(
@@ -140,7 +140,7 @@ class Exercises {
     category: 'lower_body',
     idealTempo: ExerciseTempo(eccentric: 2.5, isometric: 0.5, concentric: 1.0),
     caloriesPerRep: 0.32,
-    imageUrl: 'https://images.unsplash.com/photo-1574680096141-1cddd32e04ca?auto=format&fit=crop&q=80',
+    imageUrl: 'assets/images/exercise/beginner/squat.jpg',
   );
 
   static const plank = ExerciseData(
@@ -157,7 +157,7 @@ class Exercises {
     category: 'core',
     idealTempo: ExerciseTempo(eccentric: 0, isometric: 30, concentric: 0),
     caloriesPerRep: 0.10,
-    imageUrl: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80',
+    imageUrl: 'assets/images/exercise/beginner/plank.jpg',
   );
 
   static const gluteBridge = ExerciseData(
@@ -174,7 +174,7 @@ class Exercises {
     category: 'lower_body',
     idealTempo: ExerciseTempo(eccentric: 2.0, isometric: 1.0, concentric: 1.0),
     caloriesPerRep: 0.28,
-    imageUrl: 'https://images.unsplash.com/photo-1544367567056-41c2cb2df638?auto=format&fit=crop&q=80',
+    imageUrl: 'assets/images/exercise/beginner/glute_bridge.jpg',
   );
 
   static const inchworm = ExerciseData(
@@ -191,7 +191,7 @@ class Exercises {
     category: 'full_body',
     idealTempo: ExerciseTempo(eccentric: 2.0, isometric: 0.5, concentric: 2.0),
     caloriesPerRep: 0.40,
-    imageUrl: 'https://images.unsplash.com/photo-1518611012118-69b125028f8f?auto=format&fit=crop&q=80',
+    imageUrl: 'assets/images/exercise/beginner/inchworm.jpg',
   );
 
   static const standingMarchHigh = ExerciseData(
@@ -208,7 +208,7 @@ class Exercises {
     category: 'full_body',
     idealTempo: ExerciseTempo(eccentric: 0.3, isometric: 0, concentric: 0.3),
     caloriesPerRep: 0.20,
-    imageUrl: 'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&q=80',
+    imageUrl: 'assets/images/exercise/beginner/high_knees.jpg',
   );
 
   // ─────────────────────────────────────────────

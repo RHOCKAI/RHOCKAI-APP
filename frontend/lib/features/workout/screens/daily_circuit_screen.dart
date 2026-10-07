@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/exercises.dart';
 import '../../../core/config/app_theme.dart';
+import '../../../core/widgets/exercise_image.dart';
 import '../../camera_ai/camera_ai_screen.dart';
 import '../../gamification/providers/gamification_provider.dart';
 import '../../gamification/logic/adaptive_intelligence.dart';
@@ -189,20 +190,14 @@ class _DailyCircuitScreenState extends ConsumerState<DailyCircuitScreen> {
                       // Thumbnail
                       ClipRRect(
                         borderRadius: BorderRadius.circular(14),
-                        child: Image.network(
-                          exercise.imageUrl,
+                        child: ExerciseImage(
+                          imageUrl: exercise.imageUrl,
+                          emoji: exercise.emoji,
                           width: 68,
                           height: 68,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            width: 68,
-                            height: 68,
-                            color: Colors.white10,
-                            child: Center(
-                              child: Text(exercise.emoji,
-                                  style: const TextStyle(fontSize: 28)),
-                            ),
-                          ),
+                          emojiSize: 28,
+                          fallbackColor: Colors.white10,
                         ),
                       ),
                       const SizedBox(width: 14),

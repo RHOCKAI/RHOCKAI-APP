@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/config/app_theme.dart';
 import '../../core/constants/exercises.dart';
+import '../../core/widgets/exercise_image.dart';
 import '../../features/workout/pre_workout_screen.dart';
 
 class ExercisesListScreen extends StatefulWidget {
@@ -315,28 +316,11 @@ class _ExercisesListScreenState extends State<ExercisesListScreen>
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    Image.network(
-                      exercise.imageUrl,
+                    ExerciseImage(
+                      imageUrl: exercise.imageUrl,
+                      emoji: exercise.emoji,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        color: const Color(0xFF1E2749),
-                        child: Center(
-                          child: Text(exercise.emoji,
-                              style: const TextStyle(fontSize: 40)),
-                        ),
-                      ),
-                      loadingBuilder: (_, child, progress) {
-                        if (progress == null) {
-                          return child;
-                        }
-                        return Container(
-                          color: const Color(0xFF1E2749),
-                          child: Center(
-                            child: Text(exercise.emoji,
-                                style: const TextStyle(fontSize: 40)),
-                          ),
-                        );
-                      },
+                      emojiSize: 40,
                     ),
                     // Gradient overlay
                     Container(

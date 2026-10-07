@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rhockai/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/widgets/exercise_image.dart';
 import '../camera_ai/camera_ai_screen.dart';
 
 class PreWorkoutScreen extends ConsumerStatefulWidget {
@@ -82,11 +83,10 @@ class _PreWorkoutScreenState extends ConsumerState<PreWorkoutScreen>
                   background: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image.network(
-                        widget.imageUrl,
+                      ExerciseImage(
+                        imageUrl: widget.imageUrl,
                         fit: BoxFit.cover,
-                        errorBuilder: (c, e, s) =>
-                            Container(color: const Color(0xFF34495E)),
+                        fallbackColor: const Color(0xFF34495E),
                       ),
                       // Gradient Overlay for text readability
                       Container(

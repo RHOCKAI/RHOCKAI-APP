@@ -68,6 +68,9 @@ flutter:
   assets:
     - assets/images/
     - assets/images/exercises/
+    - assets/images/exercise/beginner/
+    - assets/images/exercise/intermediate/
+    - assets/images/exercise/advanced/
     - assets/icons/
     - assets/sounds/  # Enabled sound effects directory
     - assets/app_icon/
