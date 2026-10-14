@@ -11,6 +11,7 @@ import 'package:rhockai/features/gamification/widgets/level_progress_card.dart';
 
 import 'package:rhockai/shared/widgets/pulse_animation.dart';
 import 'package:rhockai/core/config/app_theme.dart';
+import 'package:rhockai/core/config/design_system.dart';
 import 'package:rhockai/features/dashboard/widgets/calendar_card.dart';
 import 'package:rhockai/features/dashboard/widgets/muscle_heatmap_card.dart';
 import 'package:rhockai/features/gamification/widgets/squad_challenge_card.dart';
@@ -104,14 +105,18 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       drawer: isMobile ? _buildDrawer(currentUser) : null,
-      body: Row(
-        children: [
-          // Left Sidebar (hidden on mobile)
-          if (!isMobile) _buildSidebar(currentUser),
+      body: SafeArea(
+        child: Row(
+          children: [
+            // Left Sidebar (hidden on mobile)
+            if (!isMobile) _buildSidebar(currentUser),
 
-          // Main Content
-          Expanded(
-            child: Column(
+            // Main Content
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: AppDesign.maxContentWidth),
+                  child: Column(
               children: [
                 // Mobile/Tablet app bar
                 if (isMobile)
@@ -125,7 +130,7 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
                 // Scrollable content
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: EdgeInsets.all(isMobile ? 16 : 32),
+                    padding: AppDesign.gutter(width),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

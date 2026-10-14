@@ -19,6 +19,11 @@ class VoiceScriptManager {
         'Stay strong!',
         'Excellent work!',
       ],
+      'rest_start': (int sec) => 'Rest for $sec seconds.',
+      'rest_30s': '30 seconds left.',
+      'rest_10s': '10 seconds, get ready.',
+      'rest_complete': 'Rest over. Next set begins now!',
+      'rest_extended': (int sec) => 'Added $sec seconds to rest.',
       'corrections': {
         'back': 'Keep your back straight.',
         'depth': 'Go deeper.',
@@ -42,6 +47,11 @@ class VoiceScriptManager {
         '¡Mantente fuerte!',
         '¡Excelente trabajo!',
       ],
+      'rest_start': (int sec) => 'Descansa por $sec segundos.',
+      'rest_30s': 'Quedan 30 segundos.',
+      'rest_10s': '10 segundos, prepárate.',
+      'rest_complete': '¡Fin del descanso! ¡Comienza la siguiente serie!',
+      'rest_extended': (int sec) => 'Se agregaron $sec segundos al descanso.',
       'corrections': {
         'back': 'Mantén la espalda recta.',
         'depth': 'Baja más.',
@@ -59,14 +69,19 @@ class VoiceScriptManager {
       'session_complete': 'Trainingseinheit abgeschlossen. Super gemacht!',
       'session_start': '3, 2, 1, Los!',
       'encouragement': [
-        'Du machst das super!',
-        'Bleib dran!',
+        'Du machst das großartig!',
+        'Weiter kämpfen!',
         'Fast geschafft!',
         'Bleib stark!',
         'Ausgezeichnete Arbeit!',
       ],
+      'rest_start': (int sec) => 'Pause für $sec Sekunden.',
+      'rest_30s': 'Noch 30 Sekunden.',
+      'rest_10s': '10 Sekunden, mach dich bereit.',
+      'rest_complete': 'Pause vorbei. Der nächste Satz beginnt!',
+      'rest_extended': (int sec) => '$sec Sekunden zur Pause hinzugefügt.',
       'corrections': {
-        'back': 'Rücken gerade halten.',
+        'back': 'Halte deinen Rücken gerade.',
         'depth': 'Tiefer gehen.',
         'default': 'Achte auf deine Form.',
       },
@@ -88,6 +103,11 @@ class VoiceScriptManager {
         'Restez fort!',
         'Excellent travail!',
       ],
+      'rest_start': (int sec) => 'Reposez-vous pendant $sec secondes.',
+      'rest_30s': '30 secondes restantes.',
+      'rest_10s': '10 secondes, préparez-vous.',
+      'rest_complete': 'Repos terminé. La prochaine série commence!',
+      'rest_extended': (int sec) => '$sec secondes ajoutées au repos.',
       'corrections': {
         'back': 'Gardez le dos droit.',
         'depth': 'Allez plus bas.',
@@ -111,6 +131,11 @@ class VoiceScriptManager {
         'ابق قوياً!',
         'عمل ممتاز!',
       ],
+      'rest_start': (int sec) => 'استرح لمدة $sec ثانية.',
+      'rest_30s': 'بقي 30 ثانية.',
+      'rest_10s': '10 ثوانٍ، استعد.',
+      'rest_complete': 'انتهت الاستراحة. تبدأ المجموعة التالية الآن!',
+      'rest_extended': (int sec) => 'تمت إضافة $sec ثانية للاستراحة.',
       'corrections': {
         'back': 'حافظ على استقامة ظهرك.',
         'depth': 'انزل أكثر.',
@@ -134,6 +159,11 @@ class VoiceScriptManager {
         'Fique forte!',
         'Excelente trabalho!',
       ],
+      'rest_start': (int sec) => 'Descanse por $sec segundos.',
+      'rest_30s': '30 segundos restantes.',
+      'rest_10s': '10 segundos, prepare-se.',
+      'rest_complete': 'Descanso finalizado. Próxima série começa agora!',
+      'rest_extended': (int sec) => '$sec segundos adicionados ao descanso.',
       'corrections': {
         'back': 'Mantenha as costas retas.',
         'depth': 'Desça mais.',
@@ -157,6 +187,11 @@ class VoiceScriptManager {
         '強くいて！',
         '素晴らしい！',
       ],
+      'rest_start': (int sec) => '$sec秒間休憩してください。',
+      'rest_30s': '残り30秒です。',
+      'rest_10s': '残り10秒、準備してください。',
+      'rest_complete': '休憩終了です。次のセットを始めましょう！',
+      'rest_extended': (int sec) => '休憩を$sec秒追加しました。',
       'corrections': {
         'back': '背中をまっすぐに保ってください。',
         'depth': 'もっと深く。',
@@ -223,5 +258,44 @@ class VoiceScriptManager {
       String locale, VoicePersonality personality) {
     final lang = _getLang(locale);
     return lang['encouragement'] as List<String>;
+  }
+
+  static String getRestStart(String locale, int seconds) {
+    final lang = _getLang(locale);
+    final func = lang['rest_start'] as Function;
+    return func(seconds) as String;
+  }
+
+  static String getRest30s(String locale) => _get(locale, 'rest_30s');
+
+  static String getRest10s(String locale) => _get(locale, 'rest_10s');
+
+  static String getRestComplete(String locale) => _get(locale, 'rest_complete');
+
+  static String getRestExtended(String locale, int seconds) {
+    final lang = _getLang(locale);
+    final func = lang['rest_extended'] as Function;
+    return func(seconds) as String;
+  }
+
+  /// Localized voice announcement for auto-detected exercises in 7 languages
+  static String getDetectedExercise(String locale, String exerciseName) {
+    switch (locale) {
+      case 'es':
+        return 'Detectado: $exerciseName';
+      case 'de':
+        return 'Erkannt: $exerciseName';
+      case 'fr':
+        return 'Détecté: $exerciseName';
+      case 'ar':
+        return 'تم رصد: $exerciseName';
+      case 'pt':
+        return 'Detectado: $exerciseName';
+      case 'ja':
+        return '$exerciseNameを検出しました';
+      case 'en':
+      default:
+        return 'Detected $exerciseName';
+    }
   }
 }

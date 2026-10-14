@@ -21,6 +21,8 @@ import '../analysis/landmark_smoother.dart';
 import '../analysis/rep_counter.dart';
 import '../analysis/pose_quality_checker.dart';
 import '../analysis/accuracy_calculator.dart';
+import '../pose/pose_landmark_model.dart' show PoseLandmarks;
+import '../../../ai_engine/tflite/pose_pipeline_coordinator.dart';
 
 class PoseQualityNotifier extends Notifier<PoseQualityResult> {
   @override
@@ -70,6 +72,7 @@ class PoseService {
   late RepCounter _repCounter;
   late PoseQualityChecker _qualityChecker;
   late AccuracyCalculator _accuracyCalculator;
+  late PosePipelineCoordinator _pipelineCoordinator;
 
   bool _isProcessing = false;
   DateTime _lastFrameTime = DateTime.now();
@@ -82,6 +85,9 @@ class PoseService {
     _smoother = LandmarkSmoother(alpha: alpha);
     _repCounter = RepCounter(exerciseType: exerciseType);
     _accuracyCalculator = AccuracyCalculator();
+    _pipelineCoordinator = PosePipelineCoordinator(
+      accuracyCalculator: _accuracyCalculator,
+    );
 
     final options = PoseDetectorOptions(
       model: PoseDetectionModel.base,
@@ -177,6 +183,10 @@ class PoseService {
           .update(smoothedLandmarksMap.values.toList());
 
       final smoothedPose = Pose(landmarks: smoothedLandmarksMap);
+      unawaited(_pipelineCoordinator.processPose(
+        PoseLandmarks.fromMLKit(smoothedPose),
+        activeExercise: exerciseType,
+      ));
 
       final angle = _repCounter.processPose(smoothedPose);
       if (angle >= 0) {
@@ -242,6 +252,7 @@ class PoseService {
     await _poseDetector?.close();
 
     _smoother.dispose();
+    _pipelineCoordinator.dispose();
     _repCounter.dispose();
     _qualityChecker.dispose();
     _accuracyCalculator.dispose();

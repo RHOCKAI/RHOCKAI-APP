@@ -6,6 +6,15 @@ class AccuracyCalculator {
   double _lastAngle = -1;
   double _peakVelocity = 0;
   final List<double> _currentRepAngles = [];
+  double? _latestTfliteFormScore;
+
+  /// Ingest continuous or per-rep form score from on-device ML/TFLite inference
+  void feedTfliteFormScore(double formScore) {
+    _latestTfliteFormScore = formScore.clamp(0.0, 1.0);
+  }
+
+  /// Latest ML form score, if any
+  double? get latestTfliteFormScore => _latestTfliteFormScore;
 
   /// Calculate the accuracy of a single rep.
   ///
@@ -14,10 +23,12 @@ class AccuracyCalculator {
   /// - 30% Symmetry Score: Left vs right side angle delta.
   /// - 20% Smoothness Score: Angle velocity (penalize jerky reps).
   /// - 10% Consistency Score: Variance across reps in session.
+  /// - Optional Blend: Ingests on-device ML form score if available.
   double calculateRepAccuracy({
     required double targetDepth,
     required double achievedDepth,
     double symmetryDelta = 0.0,
+    double? tfliteFormScore,
   }) {
     double depthRatio = achievedDepth / max(targetDepth, 1.0);
     if (targetDepth < 100) {
@@ -40,6 +51,14 @@ class AccuracyCalculator {
     double totalAccuracy =
         depthScore + symmetryScore + smoothnessScore + consistencyScore;
     totalAccuracy = totalAccuracy.clamp(0.0, 100.0);
+
+    final mlScore = tfliteFormScore ?? _latestTfliteFormScore;
+    if (mlScore != null) {
+      final mlAccuracy = mlScore * 100.0;
+      totalAccuracy =
+          ((totalAccuracy * 0.75) + (mlAccuracy * 0.25)).clamp(0.0, 100.0);
+      _latestTfliteFormScore = null;
+    }
 
     _repAccuracies.add(totalAccuracy);
     _currentRepAngles.clear();
@@ -75,6 +94,7 @@ class AccuracyCalculator {
     _currentRepAngles.clear();
     _lastAngle = -1;
     _peakVelocity = 0;
+    _latestTfliteFormScore = null;
   }
 
   /// Cleans up resources.

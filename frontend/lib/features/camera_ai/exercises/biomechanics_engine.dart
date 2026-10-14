@@ -17,18 +17,28 @@ class BiomechanicsEngine {
   /// Formula:
   /// angle = atan2(c.y - b.y, c.x - b.x) - atan2(a.y - b.y, a.x - b.x)
   ///
-  /// Returns angle in range [0, 180] degrees
+  /// Returns a projected 2D angle; NaN signals missing or degenerate geometry.
   static double calculateAngle(Offset a, Offset b, Offset c) {
-    final radians =
-        atan2(c.dy - b.dy, c.dx - b.dx) - atan2(a.dy - b.dy, a.dx - b.dx);
-    double angle = radians.abs() * 180.0 / pi;
-
-    // Normalize to [0, 180]
-    if (angle > 180) {
-      angle = 360 - angle;
+    if (!a.dx.isFinite ||
+        !a.dy.isFinite ||
+        !b.dx.isFinite ||
+        !b.dy.isFinite ||
+        !c.dx.isFinite ||
+        !c.dy.isFinite) {
+      return double.nan;
     }
 
-    return angle;
+    final abX = a.dx - b.dx;
+    final abY = a.dy - b.dy;
+    final cbX = c.dx - b.dx;
+    final cbY = c.dy - b.dy;
+    final abLength = sqrt(abX * abX + abY * abY);
+    final cbLength = sqrt(cbX * cbX + cbY * cbY);
+    if (abLength < 1e-4 || cbLength < 1e-4) return double.nan;
+
+    final cosine =
+        ((abX * cbX + abY * cbY) / (abLength * cbLength)).clamp(-1.0, 1.0);
+    return acos(cosine) * 180.0 / pi;
   }
 
   /// Calculate angle from landmarks
@@ -37,6 +47,9 @@ class BiomechanicsEngine {
     PoseLandmark b,
     PoseLandmark c,
   ) {
+    if (!a.isUsable() || !b.isUsable() || !c.isUsable()) {
+      return double.nan;
+    }
     return calculateAngle(a.position, b.position, c.position);
   }
 
@@ -54,7 +67,8 @@ class BiomechanicsEngine {
       final c = landmarks.getLandmark(angleDef.pointC);
 
       if (a != null && b != null && c != null) {
-        angles[entry.key] = calculateAngleFromLandmarks(a, b, c);
+        final angle = calculateAngleFromLandmarks(a, b, c);
+        if (angle.isFinite) angles[entry.key] = angle;
       }
     }
 
@@ -90,48 +104,35 @@ class BiomechanicsEngine {
 
   /// Calculate body alignment score (0-1)
   /// For checking straight back, etc.
-  static double calculateAlignmentScore(List<Offset> points,
-      {double maxDeviation = 0.05}) {
-    if (points.length < 3) {
-      return 1.0;
+  static double calculateAlignmentScore(
+    List<Offset> points, {
+    double maxDeviation = 0.05,
+  }) {
+    if (points.length < 3 ||
+        !maxDeviation.isFinite ||
+        maxDeviation <= 0 ||
+        points.any((point) => !point.dx.isFinite || !point.dy.isFinite)) {
+      return 0.0;
     }
 
-    // Fit line through points and calculate deviation
-    double totalDeviation = 0.0;
+    // Measure perpendicular distance to the line joining the outer points.
+    // This also handles near-vertical bodies without a slope singularity.
+    final start = points.first;
+    final end = points.last;
+    final dx = end.dx - start.dx;
+    final dy = end.dy - start.dy;
+    final length = sqrt(dx * dx + dy * dy);
+    if (length < 1e-4) return 0.0;
 
-    // Simple linear regression
-    double sumX = 0, sumY = 0;
-    for (final p in points) {
-      sumX += p.dx;
-      sumY += p.dy;
-    }
-    final meanX = sumX / points.length;
-    final meanY = sumY / points.length;
-
-    double numerator = 0, denominator = 0;
-    for (final p in points) {
-      numerator += (p.dx - meanX) * (p.dy - meanY);
-      denominator += (p.dx - meanX) * (p.dx - meanX);
-    }
-
-    if (denominator == 0) {
-      return 1.0;
-    }
-
-    final slope = numerator / denominator;
-    final intercept = meanY - slope * meanX;
-
-    // Calculate deviation from fitted line
-    for (final p in points) {
-      final expectedY = slope * p.dx + intercept;
-      final deviation = (p.dy - expectedY).abs();
+    var totalDeviation = 0.0;
+    for (final point in points) {
+      final deviation =
+          ((point.dx - start.dx) * dy - (point.dy - start.dy) * dx).abs() /
+              length;
       totalDeviation += deviation;
     }
-
-    final avgDeviation = totalDeviation / points.length;
-    final score = 1.0 - (avgDeviation / maxDeviation).clamp(0.0, 1.0);
-
-    return score;
+    final averageDeviation = totalDeviation / points.length;
+    return (1.0 - averageDeviation / maxDeviation).clamp(0.0, 1.0);
   }
 
   /// Check if knees are past toes (squat form check)
@@ -154,9 +155,8 @@ class BiomechanicsEngine {
 
   /// Calculate symmetry score between left and right angles
   static double calculateSymmetry(double leftAngle, double rightAngle) {
+    if (!leftAngle.isFinite || !rightAngle.isFinite) return 0.0;
     final difference = (leftAngle - rightAngle).abs();
-
-    // Perfect symmetry = 1.0, 20+ degrees difference = 0.0
     return (1.0 - (difference / 20.0)).clamp(0.0, 1.0);
   }
 
@@ -227,14 +227,26 @@ class BiomechanicsEngine {
 
   /// Check if core is engaged (body straight from shoulder to ankle)
   static bool isCoreEngaged(PoseLandmarks landmarks, {double maxSag = 15.0}) {
-    final shoulder = landmarks.leftShoulder.position;
-    final hip = landmarks.leftHip.position;
-    final ankle = landmarks.leftAnkle.position;
-
-    final angle = calculateAngle(shoulder, hip, ankle);
-
-    // Should be close to 180° (straight line)
-    return (180 - angle).abs() < maxSag;
+    final leftVisible = landmarks.leftShoulder.isUsable() &&
+        landmarks.leftHip.isUsable() &&
+        landmarks.leftAnkle.isUsable();
+    final rightVisible = landmarks.rightShoulder.isUsable() &&
+        landmarks.rightHip.isUsable() &&
+        landmarks.rightAnkle.isUsable();
+    final leftAngle = leftVisible
+        ? calculateAngleFromLandmarks(
+            landmarks.leftShoulder, landmarks.leftHip, landmarks.leftAnkle)
+        : double.nan;
+    final rightAngle = rightVisible
+        ? calculateAngleFromLandmarks(
+            landmarks.rightShoulder, landmarks.rightHip, landmarks.rightAnkle)
+        : double.nan;
+    final angle = leftAngle.isFinite && rightAngle.isFinite
+        ? (leftAngle + rightAngle) / 2
+        : leftAngle.isFinite
+            ? leftAngle
+            : rightAngle;
+    return angle.isFinite && (180 - angle).abs() < maxSag;
   }
 
   /// Calculate body COM (center of mass) approximation

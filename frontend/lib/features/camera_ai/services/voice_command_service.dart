@@ -9,6 +9,8 @@ enum WorkoutCommand {
   resume,
   next,
   previous,
+  skipRest,
+  addRest,
   unknown,
 }
 
@@ -33,6 +35,8 @@ class VoiceCommandService {
       WorkoutCommand.resume: ['resume', 'continue'],
       WorkoutCommand.next: ['next', 'skip'],
       WorkoutCommand.previous: ['previous', 'back'],
+      WorkoutCommand.skipRest: ['skip rest', 'ready', 'i am ready', "i'm ready"],
+      WorkoutCommand.addRest: ['add 30', 'more time', 'add rest', 'more rest'],
     },
     'es': {
       WorkoutCommand.start: ['empezar', 'inicio', 'vamos'],
@@ -41,6 +45,8 @@ class VoiceCommandService {
       WorkoutCommand.resume: ['continuar', 'reanudar'],
       WorkoutCommand.next: ['siguiente', 'saltar'],
       WorkoutCommand.previous: ['anterior', 'atrás'],
+      WorkoutCommand.skipRest: ['saltar descanso', 'listo', 'estoy listo'],
+      WorkoutCommand.addRest: ['agregar 30', 'más tiempo', 'más descanso'],
     },
     'de': {
       WorkoutCommand.start: ['start', 'beginnen', 'los'],
@@ -49,6 +55,8 @@ class VoiceCommandService {
       WorkoutCommand.resume: ['weiter', 'fortfahren'],
       WorkoutCommand.next: ['nächste', 'überspringen'],
       WorkoutCommand.previous: ['zurück', 'vorherige'],
+      WorkoutCommand.skipRest: ['pause überspringen', 'bereit', 'ich bin bereit'],
+      WorkoutCommand.addRest: ['30 sekunden', 'mehr zeit', 'mehr pause'],
     },
   };
 

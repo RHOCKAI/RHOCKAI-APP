@@ -9,11 +9,15 @@ class AppDesign {
   static const Color cardDark = Color(0xFF1E2749); // Elevated cards
 
   // Electric accents
-  static const Color electricBlue = Color(0xFF00D9FF); // Primary accent
-  static const Color neonPurple = Color(0xFF9C27FF); // Secondary accent
-  static const Color energyGreen = Color(0xFF00FF88); // Success/active
-  static const Color warningOrange = Color(0xFFFF6B35); // Warnings
-  static const Color errorRed = Color(0xFFFF3B5C); // Errors
+  static const Color electricBlue = Color(0xFF00D9FF); // Primary accent  · 11.19:1
+  static const Color neonPurple = Color(0xFF9C27FF); // Decorative fills/borders only
+  static const Color energyGreen = Color(0xFF00FF88); // Success/active   · 14.17:1
+  static const Color warningOrange = Color(0xFFFF6B35); // Warnings        ·  6.70:1
+  static const Color errorRed = Color(0xFFFF3B5C); // Errors           ·  5.46:1
+
+  /// Text-safe purple. [neonPurple] is only 3.75:1 on the scaffold and
+  /// 2.88:1 on a card surface, so it must never carry text.
+  static const Color purpleText = Color(0xFFBC7CFF); //                ·  6.76:1
 
   // Gradients
   static const LinearGradient primaryGradient = LinearGradient(
@@ -37,10 +41,10 @@ class AppDesign {
     end: Alignment.bottomRight,
   );
 
-  // Text colors
-  static const Color textPrimary = Color(0xFFFFFFFF);
-  static const Color textSecondary = Color(0xFFB0B8D4);
-  static const Color textTertiary = Color(0xFF6B7394);
+  // Text colors — all verified against #0A0E27 and the #1E2749 card surface
+  static const Color textPrimary = Color(0xFFFFFFFF); // 19.00:1 / 15.42:1
+  static const Color textSecondary = Color(0xFFB0B8D4); //  9.64:1 /  7.66:1
+  static const Color textTertiary = Color(0xFF8A93B4); //  6.26:1 /  4.80:1
 
   // 🔤 TYPOGRAPHY
   static const String primaryFont = 'Outfit'; // Modern, athletic
@@ -190,6 +194,42 @@ class AppDesign {
   static const double mobileBreakpoint = 600;
   static const double tabletBreakpoint = 900;
   static const double desktopBreakpoint = 1200;
+
+  // 📐 LAYOUT CONSTRAINTS
+  /// Forms (auth, checkout) never stretch wider than this — a 1440px-wide
+  /// email field is unreadable and looks unfinished.
+  static const double maxFormWidth = 440;
+
+  /// Dashboard / content column ceiling.
+  static const double maxContentWidth = 1180;
+
+  /// Horizontal gutter that scales with the viewport.
+  static double gutter(double width) {
+    if (width >= desktopBreakpoint) return space32;
+    if (width >= tabletBreakpoint) return space24;
+    return space16;
+  }
+
+  /// Vertical spacing between top-level sections.
+  static double sectionGap(double width) {
+    if (width >= tabletBreakpoint) return space40;
+    return space24;
+  }
+}
+
+/// Standard content gutter for a screen of the given width.
+class Gutter extends StatelessWidget {
+  final Widget child;
+  const Gutter({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final w = MediaQuery.sizeOf(context).width;
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: AppDesign.gutter(w)),
+      child: child,
+    );
+  }
 }
 
 /// 🎨 Glassmorphism Card

@@ -88,10 +88,7 @@ class VideoAnalysisService {
       );
 
       // Create frame source
-      frameSource = VideoFileFrameSource(
-        videoFile: videoFile,
-        config: config,
-      );
+      frameSource = VideoFileFrameSource(videoFile: videoFile, config: config);
 
       // Initialize rep state machine
       final exerciseTypeEnum = _parseExerciseType(exerciseType);
@@ -99,6 +96,7 @@ class VideoAnalysisService {
 
       // Track analysis data
       final List<double> accuracyScores = [];
+      final List<double> currentRepScores = [];
       final Map<String, int> formIssueCount = {};
       int framesProcessed = 0;
       int framesWithPose = 0;
@@ -135,14 +133,44 @@ class VideoAnalysisService {
             continue;
           }
 
+          if (!pose.hasExerciseConfidence(exerciseType, config.minConfidence)) {
+            framesProcessed++;
+            continue;
+          }
+
           framesWithPose++;
 
-          // Process rep
-          repMachine.processPose(pose);
+          // Collect feedback throughout the rep, then score the completed rep.
+          final phaseBefore = repMachine.currentPhase;
+          final repCompleted = repMachine.processPose(pose);
+          final phaseAfter = repMachine.currentPhase;
 
           // Check form
           final formFeedback = FormChecker.checkForm(exerciseType, pose);
-          accuracyScores.add(formFeedback.accuracy);
+          if (!formFeedback.isAnalyzable) {
+            framesProcessed++;
+            continue;
+          }
+          if (exerciseTypeEnum == ExerciseType.plank ||
+              exerciseTypeEnum == ExerciseType.sidePlank) {
+            accuracyScores.add(formFeedback.accuracy);
+          } else {
+            if (phaseBefore == RepPhase.up && phaseAfter == RepPhase.down) {
+              currentRepScores.clear();
+            }
+            if (phaseBefore == RepPhase.down ||
+                phaseAfter == RepPhase.down ||
+                repCompleted) {
+              currentRepScores.add(formFeedback.accuracy);
+            }
+            if (repCompleted && currentRepScores.isNotEmpty) {
+              accuracyScores.add(
+                currentRepScores.reduce((a, b) => a + b) /
+                    currentRepScores.length,
+              );
+              currentRepScores.clear();
+            }
+          }
 
           // Track form issues
           for (final issue in formFeedback.issues) {
@@ -211,7 +239,9 @@ class VideoAnalysisService {
     final averageAccuracy = accuracyScores.isNotEmpty
         ? accuracyScores.reduce((a, b) => a + b) / accuracyScores.length
         : 0.0;
-    final correctReps = (totalReps * (averageAccuracy / 100)).round();
+    final correctReps = totalReps == 0
+        ? 0
+        : accuracyScores.where((score) => score >= 70).length;
 
     // Get top 5 form issues
     final sortedIssues = formIssueCount.entries.toList()
@@ -225,18 +255,16 @@ class VideoAnalysisService {
       duration: duration,
       keyCorrections: keyCorrections,
       exerciseType: exerciseType,
-      metrics: {
-        'tempo_score': repMachine.lastTempoScore,
-      },
+      metrics: {'tempo_score': repMachine.lastTempoScore},
     );
   }
 
   /// Parse exercise type string to enum
   ExerciseType _parseExerciseType(String type) {
-    switch (type.toLowerCase()) {
+    final normalized = type.toLowerCase().replaceAll(RegExp(r'[^a-z]'), '');
+    switch (normalized) {
       case 'pushup':
-      case 'push-up':
-      case 'push_up':
+      case 'pushups':
         return ExerciseType.pushup;
       case 'squat':
       case 'squats':
@@ -244,8 +272,14 @@ class VideoAnalysisService {
       case 'plank':
       case 'planks':
         return ExerciseType.plank;
+      case 'lunge':
+      case 'lunges':
+      case 'reverselunge':
+        return ExerciseType.lunge;
       default:
-        return ExerciseType.pushup;
+        throw AnalysisFailedException(
+          'Form analysis is not available for $type yet.',
+        );
     }
   }
 

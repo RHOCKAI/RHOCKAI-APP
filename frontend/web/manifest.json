@@ -1,11 +1,11 @@
 {
-    "name": "ai_workout_tracker",
-    "short_name": "ai_workout_tracker",
+    "name": "Rhockai — AI Posture Tracker",
+    "short_name": "Rhockai",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0A0E27",
+    "theme_color": "#0A0E27",
+    "description": "AI-powered posture tracking & correction with real-time gamification. Track, improve, and compete.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

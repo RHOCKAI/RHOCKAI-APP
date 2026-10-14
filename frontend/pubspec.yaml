@@ -54,6 +54,7 @@ dependencies:
   sign_in_with_apple: ^7.0.1
   connectivity_plus: ^6.0.3
   speech_to_text: ^7.3.0
+  tflite_flutter: ^0.12.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -66,6 +67,7 @@ flutter:
 
   # Assets
   assets:
+    - assets/models/
     - assets/images/
     - assets/images/exercises/
     - assets/images/exercise/beginner/

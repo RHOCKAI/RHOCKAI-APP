@@ -78,7 +78,11 @@ class RepStateMachine {
 
   /// Process pose and update rep state with jitter detection
   bool processPose(PoseLandmarks pose) {
+    if (!pose.hasExerciseConfidence(exerciseType.name, 0.25)) {
+      return false;
+    }
     final angle = _getRelevantAngle(pose);
+    if (!angle.isFinite) return false;
     _updateTracking(angle);
 
     // State machine logic
@@ -97,7 +101,8 @@ class RepStateMachine {
         if (angle >= upAngleThreshold) {
           final now = DateTime.now();
           // Debounce rapid frame spikes (minimum 350ms between full reps)
-          final isDebounced = lastRepTime != null &&
+          final isDebounced =
+              lastRepTime != null &&
               now.difference(lastRepTime!).inMilliseconds < 350;
 
           // Always return to up phase so we never get stuck in down phase
@@ -182,7 +187,9 @@ class RepStateMachine {
   }
 
   double getRepProgress(PoseLandmarks pose) {
+    if (!pose.hasExerciseConfidence(exerciseType.name, 0.25)) return 0.0;
     final angle = _getRelevantAngle(pose);
+    if (!angle.isFinite) return 0.0;
     final range = upAngleThreshold - downAngleThreshold;
     if (range <= 0) {
       return 0.0;

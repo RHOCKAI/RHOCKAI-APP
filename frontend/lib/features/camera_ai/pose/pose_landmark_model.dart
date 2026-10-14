@@ -17,6 +17,13 @@ class PoseLandmark {
 
   Offset get position => Offset(x, y);
 
+  bool isUsable([double minConfidence = 0.25]) =>
+      x.isFinite &&
+      y.isFinite &&
+      likelihood.isFinite &&
+      likelihood >= minConfidence &&
+      likelihood <= 1.0;
+
   factory PoseLandmark.fromMLKit(mlkit.PoseLandmark landmark) {
     return PoseLandmark(
       x: landmark.x,
@@ -94,31 +101,39 @@ class PoseLandmarks {
       landmarks[mlkit.PoseLandmarkType.nose] ??
       PoseLandmark(x: 0, y: 0, z: 0, likelihood: 0);
 
-  /// Checks if key landmarks for the specific exercise have sufficient confidence.
-  bool hasExerciseConfidence(String exerciseType, [double minConfidence = 0.35]) {
-    final lower = exerciseType.toLowerCase();
+  /// Checks that every landmark needed by the exercise angle checks is visible.
+  bool hasExerciseConfidence(
+    String exerciseType, [
+    double minConfidence = 0.35,
+  ]) {
+    final lower = exerciseType
+        .toLowerCase()
+        .replaceAll('-', '')
+        .replaceAll('_', '')
+        .replaceAll(' ', '');
+
+    bool visible(PoseLandmark a, PoseLandmark b, PoseLandmark c) =>
+        a.isUsable(minConfidence) &&
+        b.isUsable(minConfidence) &&
+        c.isUsable(minConfidence);
+
+    final leftCore = visible(leftShoulder, leftHip, leftKnee);
+    final rightCore = visible(rightShoulder, rightHip, rightKnee);
+
     if (lower.contains('pushup') || lower.contains('dip')) {
-      final leftArm = leftShoulder.likelihood >= minConfidence &&
-          leftElbow.likelihood >= minConfidence;
-      final rightArm = rightShoulder.likelihood >= minConfidence &&
-          rightElbow.likelihood >= minConfidence;
-      return leftArm || rightArm;
-    } else if (lower.contains('squat') || lower.contains('lunge')) {
-      final leftLeg = leftHip.likelihood >= minConfidence &&
-          leftKnee.likelihood >= minConfidence;
-      final rightLeg = rightHip.likelihood >= minConfidence &&
-          rightKnee.likelihood >= minConfidence;
-      return leftLeg || rightLeg;
-    } else if (lower.contains('plank')) {
-      final leftCore = leftShoulder.likelihood >= minConfidence &&
-          leftHip.likelihood >= minConfidence;
-      final rightCore = rightShoulder.likelihood >= minConfidence &&
-          rightHip.likelihood >= minConfidence;
+      final hasArmAngle = visible(leftShoulder, leftElbow, leftWrist) ||
+          visible(rightShoulder, rightElbow, rightWrist);
+      return (leftCore || rightCore) && hasArmAngle;
+    }
+    if (lower.contains('squat') || lower.contains('lunge')) {
+      final hasLegAngle = visible(leftHip, leftKnee, leftAnkle) ||
+          visible(rightHip, rightKnee, rightAnkle);
+      return hasLegAngle && (leftCore || rightCore);
+    }
+    if (lower.contains('plank')) {
       return leftCore || rightCore;
     }
-    // Default: at least shoulder and hip visible on either side
-    return (leftShoulder.likelihood >= minConfidence && leftHip.likelihood >= minConfidence) ||
-        (rightShoulder.likelihood >= minConfidence && rightHip.likelihood >= minConfidence);
+    return false;
   }
 
   /// General confidence across core body landmarks (excluding facial points)

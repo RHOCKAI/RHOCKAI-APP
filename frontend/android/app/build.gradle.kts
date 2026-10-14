@@ -44,6 +44,10 @@ android {
             )
         }
     }
+
+    androidResources {
+        noCompress.add("tflite")
+    }
 }
 
 flutter {

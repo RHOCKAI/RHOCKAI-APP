@@ -254,11 +254,40 @@ class VoiceFeedbackService {
     await speak('$prefix: $warning', priority: VoicePriority.high);
   }
 
+  /// Announces an AI-detected exercise change in the user's selected language
+  Future<void> announceDetectedExercise(String exerciseName) async {
+    final message =
+        VoiceScriptManager.getDetectedExercise(_locale, exerciseName);
+    await speak(message, priority: VoicePriority.high);
+  }
+
   Future<void> announceWorkoutComplete(
       int totalReps, double avgAccuracy) async {
     final message = VoiceScriptManager.getWorkoutCompleteSummary(
         _locale, _personality, totalReps, avgAccuracy.toInt());
     await speak(message, priority: VoicePriority.high);
+  }
+
+  Future<void> announceRestStart(int seconds) async {
+    final message = VoiceScriptManager.getRestStart(_locale, seconds);
+    await speak(message, priority: VoicePriority.high);
+  }
+
+  Future<void> announceRestCountdown(int secondsRemaining) async {
+    final message = secondsRemaining == 30
+        ? VoiceScriptManager.getRest30s(_locale)
+        : VoiceScriptManager.getRest10s(_locale);
+    await speak(message, priority: VoicePriority.high);
+  }
+
+  Future<void> announceRestComplete() async {
+    final message = VoiceScriptManager.getRestComplete(_locale);
+    await speak(message, priority: VoicePriority.high);
+  }
+
+  Future<void> announceRestExtended(int secondsAdded) async {
+    final message = VoiceScriptManager.getRestExtended(_locale, secondsAdded);
+    await speak(message, priority: VoicePriority.normal);
   }
 
   void setEnabled(bool enabled) {

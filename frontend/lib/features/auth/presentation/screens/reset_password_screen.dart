@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rhockai/core/config/app_theme.dart';
+import 'package:rhockai/core/config/design_system.dart';
 import '../../data/repositories/auth_repository.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
@@ -76,6 +77,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
       appBar: AppBar(
@@ -95,117 +97,137 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.neonBlue.withValues(alpha: 0.2),
-                        blurRadius: 20,
-                        spreadRadius: 2,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: AppDesign.maxFormWidth),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(
+              horizontal: AppDesign.gutter(width),
+              vertical: AppDesign.space24,
+            ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.neonBlue.withValues(alpha: 0.2),
+                            blurRadius: 20,
+                            spreadRadius: 2,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(50),
-                    child: Image.asset(
-                      'assets/app_icon/login.png',
-                      fit: BoxFit.cover,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(50),
+                        child: Image.asset(
+                          'assets/app_icon/login.png',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 32),
-              const Text(
-                'Create New Password',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.w900,
-                  fontFamily: 'Rajdhani',
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Enter the reset token sent to your email and choose a new secure password.',
-                style: TextStyle(color: Colors.white54, fontSize: 14),
-              ),
-              const SizedBox(height: 40),
-
-              // Token field
-              _buildTextField(
-                controller: _tokenController,
-                label: 'RESET TOKEN',
-                hint: 'Paste token here',
-                icon: Icons.vpn_key_outlined,
-                validator: (v) => v?.isEmpty ?? true ? 'Token is required' : null,
-              ),
-              const SizedBox(height: 20),
-
-              // Password field
-              _buildTextField(
-                controller: _passwordController,
-                label: 'NEW PASSWORD',
-                hint: '••••••••',
-                icon: Icons.lock_outlined,
-                obscureText: _obscurePassword,
-                validator: (v) => (v?.length ?? 0) < 8 ? 'Min 8 characters' : null,
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                    color: Colors.white38,
+                  const SizedBox(height: 32),
+                  const Text(
+                    'Create New Password',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      fontFamily: 'Rajdhani',
+                    ),
                   ),
-                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Confirm Password field
-              _buildTextField(
-                controller: _confirmPasswordController,
-                label: 'CONFIRM PASSWORD',
-                hint: '••••••••',
-                icon: Icons.lock_reset_outlined,
-                obscureText: _obscurePassword,
-                validator: (v) => v != _passwordController.text ? 'Passwords do not match' : null,
-              ),
-              const SizedBox(height: 40),
-
-              // Reset Button
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _handleResetPassword,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.neonBlue,
-                    foregroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    elevation: 0,
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Enter the reset token sent to your email and choose a new secure password.',
+                    style: TextStyle(color: Colors.white54, fontSize: 14),
                   ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
-                        )
-                      : const Text(
-                          'UPDATE PASSWORD',
-                          style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5, fontFamily: 'Rajdhani'),
-                        ),
-                ),
+                  const SizedBox(height: 40),
+
+                  // Token field
+                  _buildTextField(
+                    controller: _tokenController,
+                    label: 'RESET TOKEN',
+                    hint: 'Paste token here',
+                    icon: Icons.vpn_key_outlined,
+                    validator: (v) =>
+                        v?.isEmpty ?? true ? 'Token is required' : null,
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Password field
+                  _buildTextField(
+                    controller: _passwordController,
+                    label: 'NEW PASSWORD',
+                    hint: '••••••••',
+                    icon: Icons.lock_outlined,
+                    obscureText: _obscurePassword,
+                    validator: (v) =>
+                        (v?.length ?? 0) < 8 ? 'Min 8 characters' : null,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        color: Colors.white38,
+                      ),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Confirm Password field
+                  _buildTextField(
+                    controller: _confirmPasswordController,
+                    label: 'CONFIRM PASSWORD',
+                    hint: '••••••••',
+                    icon: Icons.lock_reset_outlined,
+                    obscureText: _obscurePassword,
+                    validator: (v) => v != _passwordController.text
+                        ? 'Passwords do not match'
+                        : null,
+                  ),
+                  const SizedBox(height: 40),
+
+                  // Reset Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _handleResetPassword,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.neonBlue,
+                        foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
+                        elevation: 0,
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.black),
+                            )
+                          : const Text(
+                              'UPDATE PASSWORD',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 1.5,
+                                  fontFamily: 'Rajdhani'),
+                            ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -249,11 +271,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             fillColor: Colors.white.withValues(alpha: 0.03),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+              borderSide:
+                  BorderSide(color: Colors.white.withValues(alpha: 0.08)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+              borderSide:
+                  BorderSide(color: Colors.white.withValues(alpha: 0.08)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),

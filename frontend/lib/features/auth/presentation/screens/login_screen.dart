@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rhockai/l10n/app_localizations.dart';
 import 'package:rhockai/core/config/app_theme.dart';
+import 'package:rhockai/core/config/design_system.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../../../shared/widgets/pulse_animation.dart';
 import '../../../../shared/widgets/language_selector.dart';
@@ -50,32 +51,40 @@ class _LoginScreenState extends State<LoginScreen> {
           context: context,
           builder: (context) => AlertDialog(
             backgroundColor: const Color(0xFF1A1A1A),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
             title: const Text('RESET LINK SENT',
                 style: TextStyle(
-                    fontFamily: 'Rajdhani', fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 1)),
+                    fontFamily: 'Rajdhani',
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    letterSpacing: 1)),
             content: Text(
                 'A password reset link has been sent to $email. Please check your inbox.',
                 style: const TextStyle(color: Colors.white70)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('OK', style: TextStyle(color: Colors.white38)),
+                child:
+                    const Text('OK', style: TextStyle(color: Colors.white38)),
               ),
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const ResetPasswordScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => const ResetPasswordScreen()),
                   );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.neonBlue,
                   foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text('ENTER CODE', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: const Text('ENTER CODE',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -110,7 +119,8 @@ class _LoginScreenState extends State<LoginScreen> {
           return;
         }
 
-        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
         final String? idToken = googleAuth.idToken;
 
         if (idToken != null) {
@@ -148,10 +158,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
         final idToken = credential.identityToken;
         if (idToken != null) {
-          final fullName = credential.givenName != null && credential.familyName != null
-              ? '${credential.givenName} ${credential.familyName}'
-              : null;
-              
+          final fullName =
+              credential.givenName != null && credential.familyName != null
+                  ? '${credential.givenName} ${credential.familyName}'
+                  : null;
+
           await _authRepo.loginWithApple(
             idToken,
             email: credential.email,
@@ -230,307 +241,334 @@ class _LoginScreenState extends State<LoginScreen> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    final pageWidth = MediaQuery.sizeOf(context).width;
+    final formWidth = (pageWidth - 2 * AppDesign.gutter(pageWidth))
+        .clamp(0.0, AppDesign.maxFormWidth)
+        .toDouble();
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Stack(
           children: [
             SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 40),
+              padding: EdgeInsets.symmetric(
+                horizontal: AppDesign.gutter(MediaQuery.sizeOf(context).width),
+                vertical: AppDesign.space24,
+              ),
+              child: Center(
+                child: SizedBox(
+                  width: formWidth,
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 40),
 
-                // Logo & Title
-                Center(
-                  child: Column(
-                    children: [
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: colorScheme.primary.withValues(alpha: 0.3),
-                            blurRadius: 30,
-                            spreadRadius: 5,
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(60),
-                        child: Image.asset(
-                          'assets/app_icon/login.png',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                      const SizedBox(height: 24),
-                      ShaderMask(
-                        shaderCallback: (bounds) => LinearGradient(
-                          colors: [colorScheme.primary, colorScheme.secondary],
-                        ).createShader(bounds),
-                        child: Text(
-                          'Rhockai',
-                          style: theme.textTheme.displaySmall?.copyWith(
-                            color: Colors.white, // Required for ShaderMask
-                          ),
-                        ),
-                      ),
-                      Text(
-                        AppLocalizations.of(context)?.signInToContinue ?? 'Sign in to continue',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.6),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 48),
-
-                // Welcome text
-                Text(
-                  AppLocalizations.of(context)?.welcomeBack ?? 'Welcome Back',
-                  style: theme.textTheme.headlineLarge,
-                ),
-                Text(
-                  AppLocalizations.of(context)?.signInToContinue ?? 'Sign in to continue',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ),
-
-                const SizedBox(height: 32),
-
-                // Email field
-                _buildTextField(
-                  controller: _emailController,
-                  label: AppLocalizations.of(context)?.email ?? 'Email',
-                  hint: 'your.email@example.com',
-                  icon: Icons.email_outlined,
-                  keyboardType: TextInputType.emailAddress,
-                  context: context,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
-                        .hasMatch(value)) {
-                      return 'Please enter a valid email';
-                    }
-                    return null;
-                  },
-                ),
-
-                const SizedBox(height: 16),
-
-                // Password field
-                _buildTextField(
-                  controller: _passwordController,
-                  label: AppLocalizations.of(context)?.password ?? 'Password',
-                  hint: '••••••••',
-                  icon: Icons.lock_outlined,
-                  obscureText: _obscurePassword,
-                  context: context,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    if (value.length < 8) {
-                      return 'Password must be at least 8 characters';
-                    }
-                    return null;
-                  },
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
-                // Forgot password
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: _isLoading ? null : _handleForgotPassword,
-                    child: Text(
-                      AppLocalizations.of(context)?.forgotPasswordQuestion ?? 'Forgot Password?',
-                      style: TextStyle(
-                        color: colorScheme.primary,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Login button
-                PulseAnimation(
-                  active: !_isLoading,
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [colorScheme.primary, colorScheme.secondary],
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: colorScheme.primary.withValues(alpha: 0.3),
-                            blurRadius: 20,
-                          ),
-                        ],
-                      ),
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _handleLogin,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        child: _isLoading
-                            ? const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor:
-                                      AlwaysStoppedAnimation(Colors.white),
+                        // Logo & Title
+                        Center(
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 120,
+                                height: 120,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: colorScheme.primary
+                                          .withValues(alpha: 0.3),
+                                      blurRadius: 30,
+                                      spreadRadius: 5,
+                                    ),
+                                  ],
                                 ),
-                              )
-                            : Text((AppLocalizations.of(context)?.login ?? 'Login')
-                                .toUpperCase()),
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Divider
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        height: 1,
-                        color: Colors.white.withValues(alpha: 0.1),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        AppLocalizations.of(context)?.or ?? 'OR',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.6),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        height: 1,
-                        color: Colors.white.withValues(alpha: 0.1),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-
-                // Social login buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: PulseAnimation(
-                        child: _buildSocialButton(
-                          'Google',
-                          Icons.g_mobiledata,
-                          context,
-                          onTap: () => _handleSocialLogin('Google'),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: PulseAnimation(
-                        child: _buildSocialButton(
-                          'Apple',
-                          Icons.apple,
-                          context,
-                          onTap: () => _handleSocialLogin('Apple'),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 32),
-
-                // Sign up link
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '${AppLocalizations.of(context)?.dontHaveAccount ?? 'New to Rhockai?'} ',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.6),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const RegisterScreen(),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          AppLocalizations.of(context)?.signup ?? 'Sign Up',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.primary,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(60),
+                                  child: Image.asset(
+                                    'assets/app_icon/login.png',
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              ShaderMask(
+                                shaderCallback: (bounds) => LinearGradient(
+                                  colors: [
+                                    colorScheme.primary,
+                                    colorScheme.secondary
+                                  ],
+                                ).createShader(bounds),
+                                child: Text(
+                                  'Rhockai',
+                                  style: theme.textTheme.displaySmall?.copyWith(
+                                    color:
+                                        Colors.white, // Required for ShaderMask
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
+
+                        const SizedBox(height: 40),
+
+                        // Welcome text
+                        Text(
+                          AppLocalizations.of(context)?.welcomeBack ??
+                              'Welcome Back',
+                          style: theme.textTheme.headlineLarge,
+                        ),
+                        Text(
+                          AppLocalizations.of(context)?.signInToContinue ??
+                              'Sign in to continue',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: AppDesign.textSecondary,
+                          ),
+                        ),
+
+                        const SizedBox(height: 32),
+
+                        // Email field
+                        _buildTextField(
+                          controller: _emailController,
+                          label: AppLocalizations.of(context)?.email ?? 'Email',
+                          hint: 'your.email@example.com',
+                          icon: Icons.email_outlined,
+                          keyboardType: TextInputType.emailAddress,
+                          context: context,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your email';
+                            }
+                            if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
+                                .hasMatch(value)) {
+                              return 'Please enter a valid email';
+                            }
+                            return null;
+                          },
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Password field
+                        _buildTextField(
+                          controller: _passwordController,
+                          label: AppLocalizations.of(context)?.password ??
+                              'Password',
+                          hint: '••••••••',
+                          icon: Icons.lock_outlined,
+                          obscureText: _obscurePassword,
+                          context: context,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your password';
+                            }
+                            if (value.length < 8) {
+                              return 'Password must be at least 8 characters';
+                            }
+                            return null;
+                          },
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                              color: theme.colorScheme.onSurface
+                                  .withValues(alpha: 0.6),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // Forgot password
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed:
+                                _isLoading ? null : _handleForgotPassword,
+                            child: Text(
+                              AppLocalizations.of(context)
+                                      ?.forgotPasswordQuestion ??
+                                  'Forgot Password?',
+                              style: TextStyle(
+                                color: colorScheme.primary,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Login button
+                        PulseAnimation(
+                          active: !_isLoading,
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    colorScheme.primary,
+                                    colorScheme.secondary
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: colorScheme.primary
+                                        .withValues(alpha: 0.3),
+                                    blurRadius: 20,
+                                  ),
+                                ],
+                              ),
+                              child: ElevatedButton(
+                                onPressed: _isLoading ? null : _handleLogin,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                child: _isLoading
+                                    ? const SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor: AlwaysStoppedAnimation(
+                                              Colors.white),
+                                        ),
+                                      )
+                                    : Text(
+                                        (AppLocalizations.of(context)?.login ??
+                                                'Login')
+                                            .toUpperCase()),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Divider
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                height: 1,
+                                color: Colors.white.withValues(alpha: 0.1),
+                              ),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              child: Text(
+                                AppLocalizations.of(context)?.or ?? 'OR',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurface
+                                      .withValues(alpha: 0.6),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Container(
+                                height: 1,
+                                color: Colors.white.withValues(alpha: 0.1),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Social login buttons
+                        Row(
+                          children: [
+                            Expanded(
+                              child: PulseAnimation(
+                                child: _buildSocialButton(
+                                  'Google',
+                                  Icons.g_mobiledata,
+                                  context,
+                                  onTap: () => _handleSocialLogin('Google'),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: PulseAnimation(
+                                child: _buildSocialButton(
+                                  'Apple',
+                                  Icons.apple,
+                                  context,
+                                  onTap: () => _handleSocialLogin('Apple'),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 32),
+
+                        // Sign up link
+                        Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                '${AppLocalizations.of(context)?.dontHaveAccount ?? 'New to Rhockai?'} ',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.onSurface
+                                      .withValues(alpha: 0.6),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const RegisterScreen(),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  AppLocalizations.of(context)?.signup ??
+                                      'Sign Up',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: colorScheme.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
+            const Positioned(
+              top: 16,
+              right: 16,
+              child: LanguageSelector(),
+            ),
+          ],
         ),
-        const Positioned(
-          top: 16,
-          right: 16,
-          child: LanguageSelector(),
-        ),
-      ],
-    ),
-  ),
-);
+      ),
+    );
   }
 
   Widget _buildTextField({
