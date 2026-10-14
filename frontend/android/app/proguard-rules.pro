@@ -23,3 +23,7 @@
 
 # Keep models/dtos if they are obfuscated and used with Reflection/JSON
 -keep class com.example.ai_workout_tracker.models.** { *; }
+
+# TensorFlow Lite
+-keep class org.tensorflow.lite.** { *; }
+-dontwarn org.tensorflow.lite.**

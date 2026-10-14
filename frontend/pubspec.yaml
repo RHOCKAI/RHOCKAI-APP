@@ -55,6 +55,7 @@ dependencies:
   connectivity_plus: ^6.0.3
   speech_to_text: ^7.3.0
   tflite_flutter: ^0.12.1
+  ota_update: ^7.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
