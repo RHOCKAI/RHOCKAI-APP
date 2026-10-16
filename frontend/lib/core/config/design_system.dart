@@ -217,6 +217,16 @@ class AppDesign {
   }
 }
 
+/// Adds a single place to check for the OS "reduce motion" accessibility setting,
+/// so every animation in the app can be gated consistently.
+extension ReduceMotionX on BuildContext {
+  /// True when the user has enabled "reduce motion" in system accessibility
+  /// settings. Use this to guard any animation controller, tween, or
+  /// AnimatedWidget — including PulseAnimation.
+  bool get reduceMotion =>
+      MediaQuery.maybeDisableAnimationsOf(this) ?? false;
+}
+
 /// Standard content gutter for a screen of the given width.
 class Gutter extends StatelessWidget {
   final Widget child;

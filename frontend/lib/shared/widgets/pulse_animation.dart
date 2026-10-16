@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rhockai/core/config/design_system.dart';
 
 /// ✨ Layout-safe pulse animation.
 ///
@@ -80,9 +81,9 @@ class _PulseAnimationState extends State<PulseAnimation>
     _syncAnimation();
   }
 
-  /// Respects the OS-level "Remove animations" accessibility setting.
+  /// Respects the OS-level "Reduce motion" accessibility setting.
   bool _animationsEnabled(BuildContext context) =>
-      widget.active && !MediaQuery.maybeDisableAnimationsOf(context);
+      widget.active && !context.reduceMotion;
 
   void _syncAnimation() {
     if (_animationsEnabled(context)) {
