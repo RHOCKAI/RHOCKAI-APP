@@ -1,3 +1,14 @@
+// Force all classpath configurations to use the locally-cached AGP version.
+// This prevents Flutter plugins (e.g. device_info_plus) from downloading a
+// newer AGP version (8.12.x) that times out in this network environment.
+buildscript {
+    configurations.all {
+        resolutionStrategy {
+            force("com.android.tools.build:gradle:8.9.1")
+        }
+    }
+}
+
 allprojects {
     repositories {
         google()
