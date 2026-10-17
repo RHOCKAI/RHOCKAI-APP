@@ -130,7 +130,9 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
                 // Scrollable content
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: AppDesign.gutter(width),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: AppDesign.gutter(screenWidth),
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -187,9 +189,12 @@ class _ProfessionalDashboardState extends ConsumerState<ProfessionalDashboard> {
               ],
             ),
           ),
-        ],
+        ),
       ),
-    );
+    ],
+  ),
+),
+);
   }
 
   Widget _buildHeroSection(String name, bool isMobile, AppLocalizations? l10n) {
